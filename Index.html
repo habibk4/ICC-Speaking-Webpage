@@ -88,9 +88,10 @@
         <!-- Header -->
         <header class="glassmorphism shadow-sm sticky top-0 z-30">
             <div class="container mx-auto px-4 py-3 flex justify-between items-center">
-                <h1 id="home-button" class="text-xl sm:text-2xl font-bold gradient-text cursor-pointer">
+                <!-- **MODIFIED**: Link now points to the GitHub Pages root -->
+                <a href="https://habibk4.github.io/ICC-Speaking-Webpage/" id="home-button" class="text-xl sm:text-2xl font-bold gradient-text cursor-pointer no-underline">
                     خلاصه کلاس Speaking ICC
-                </h1>
+                </a>
                 <!-- Mobile Menu Button -->
                 <button id="mobile-menu-button" class="md:hidden p-2 rounded-md text-slate-600 hover:bg-slate-100 focus:outline-none">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
@@ -116,7 +117,17 @@
                 <!-- Main Content -->
                 <main class="flex-1">
                     <div id="content-area" class="bg-white rounded-2xl shadow-lg min-h-[80vh] overflow-hidden">
-                        <!-- Initial content will be loaded by JS -->
+                        <!-- This is the main page content -->
+                        <div id="hero-section" class="relative text-white h-full min-h-[80vh] flex flex-col justify-center items-center text-center p-6" 
+                             style="background-image: url('https://images.unsplash.com/photo-1543269865-cbf427effbad?q=80&w=2070&auto=format&fit=crop'); background-size: cover; background-position: center;">
+                            <div class="absolute inset-0 bg-black/50"></div>
+                            <div class="relative z-10 fade-in">
+                                <h2 class="text-4xl md:text-5xl font-bold mb-3">سفر من در دنیای مکالمه!</h2>
+                                <p class="text-lg max-w-xl mx-auto text-slate-200 leading-relaxed">
+                                    اینجا قراره چکیده‌ای از چیزایی که تو هر جلسه یاد می‌گیرم رو بنویسم. این سایت به مرور کامل‌تر می‌شه، پس حتما دوباره سر بزن!
+                                </p>
+                            </div>
+                        </div>
                     </div>
                 </main>
 
@@ -140,43 +151,17 @@
     <div id="sidebar-overlay" class="fixed inset-0 bg-black/60 z-40 hidden md:hidden"></div>
 
     <script>
-        // --- DATA ---
-        const sessionData = {
-            1: { title: "جلسه ۱: معرفی و شکستن یخ‌ها", content: "در این جلسه به معرفی اعضا و فعالیت‌های اولیه برای آشنایی بیشتر پرداختیم. اصطلاح کلیدی: 'Break the ice'." },
-            2: { title: "جلسه ۲: صحبت در مورد سرگرمی‌ها", content: "موضوع این جلسه، صحبت در مورد سرگرمی‌ها و علایق شخصی بود. یاد گرفتیم چگونه در مورد فعالیت‌های مورد علاقه خود با جزئیات صحبت کنیم." },
-            11: { title: "جلسه ۱۱: شرطی نوع دوم", content: "گرامر این جلسه به شرطی‌های نوع دوم اختصاص داشت. مثال: 'If I were a millionaire, I would travel the world.' این ساختار برای صحبت در مورد موقعیت‌های غیرواقعی یا خیالی در زمان حال استفاده می‌شود." },
-            25: { title: "جلسه ۲۵: استفاده از Wish", content: "در این جلسه با ساختارهای مختلف 'Wish' برای بیان حسرت در مورد گذشته و آرزو در مورد حال آشنا شدیم. مثال: 'I wish I had studied harder.' یا 'I wish I could fly.'" },
-            50: { title: "جلسه ۵۰: جمع‌بندی و ارائه نهایی", content: "جلسه پایانی دوره! در این جلسه هر یک از اعضا یک ارائه کوتاه در مورد موضوعی دلخواه داشتند و تمام آموخته‌های خود را به کار گرفتند." }
-        };
+        // --- CONSTANTS ---
+        const baseURL = 'https://habibk4.github.io/ICC-Speaking-Webpage/';
 
         // --- ELEMENTS ---
         const menuContainer = document.getElementById('menu-container');
-        const contentArea = document.getElementById('content-area');
         const mobileMenuButton = document.getElementById('mobile-menu-button');
         const sidebar = document.getElementById('sidebar');
-        const homeButton = document.getElementById('home-button');
         const copyrightYear = document.getElementById('copyright-year');
         const sidebarOverlay = document.getElementById('sidebar-overlay');
 
         // --- FUNCTIONS ---
-
-        /**
-         * Renders the initial home screen with just the hero section.
-         */
-        function renderHomeScreen() {
-            contentArea.innerHTML = `
-                <div id="hero-section" class="relative text-white h-full min-h-[80vh] flex flex-col justify-center items-center text-center p-6" 
-                     style="background-image: url('https://images.unsplash.com/photo-1543269865-cbf427effbad?q=80&w=2070&auto=format&fit=crop'); background-size: cover; background-position: center;">
-                    <div class="absolute inset-0 bg-black/50"></div>
-                    <div class="relative z-10 fade-in">
-                        <h2 class="text-4xl md:text-5xl font-bold mb-3">سفر من در دنیای مکالمه!</h2>
-                        <p class="text-lg max-w-xl mx-auto text-slate-200 leading-relaxed">
-                            اینجا قراره چکیده‌ای از چیزایی که تو هر جلسه یاد می‌گیرم رو بنویسم. این سایت به مرور کامل‌تر می‌شه، پس حتما دوباره سر بزن!
-                        </p>
-                    </div>
-                </div>
-            `;
-        }
 
         /**
          * Generates the navigation menu dynamically.
@@ -199,9 +184,9 @@
                 for (let session = 1; session <= 10; session++) {
                     const sessionLi = document.createElement('li');
                     const sessionLink = document.createElement('a');
-                    sessionLink.href = '#';
+                    // **MODIFIED**: Link now points to the absolute GitHub Pages URL
+                    sessionLink.href = `${baseURL}session-${sessionCounter}.html`; 
                     sessionLink.innerHTML = `<i class="fa-solid fa-file-lines fa-xs ml-2 text-slate-400"></i> جلسه ${sessionCounter}`;
-                    sessionLink.dataset.sessionId = sessionCounter;
                     sessionLink.className = 'session-link block p-2 text-slate-600 hover:bg-indigo-100 hover:text-indigo-700 rounded-md';
                     
                     sessionLi.appendChild(sessionLink);
@@ -235,26 +220,18 @@
         }
 
         /**
-         * Loads the content for a specific session into the main area.
-         * @param {string} sessionId - The ID of the session to load.
+         * Highlights the active link in the sidebar based on the current URL.
          */
-        function loadSessionContent(sessionId) {
-            const data = sessionData[sessionId] || { title: `جلسه ${sessionId}`, content: "متاسفانه هنوز خلاصه‌ای برای این جلسه ثبت نشده است." };
+        function updateActiveLink() {
+            const currentPage = window.location.href;
             
-            contentArea.innerHTML = `
-                <div class="p-6 sm:p-8 fade-in">
-                    <h2 class="text-3xl font-bold text-slate-800 mb-4 border-b-2 border-indigo-200 pb-3">${data.title}</h2>
-                    <div class="prose prose-lg max-w-none text-slate-700 leading-loose">
-                        <p>${data.content}</p>
-                    </div>
-                </div>
-            `;
+            // If on the main page (or root), do nothing.
+            if (currentPage === baseURL || currentPage === `${baseURL}index.html`) return;
 
-            document.querySelectorAll('.session-link').forEach(link => link.classList.remove('active'));
-            const activeLink = document.querySelector(`.session-link[data-session-id='${sessionId}']`);
+            const activeLink = document.querySelector(`.session-link[href="${currentPage}"]`);
             if (activeLink) {
                 activeLink.classList.add('active');
-                 // Open the parent accordion if it's closed
+                // Open the parent accordion if it's closed
                 const parentAccordion = activeLink.closest('.accordion-content');
                 if (parentAccordion && !parentAccordion.style.maxHeight) {
                     parentAccordion.previousElementSibling.click();
@@ -277,27 +254,11 @@
         });
 
         sidebarOverlay.addEventListener('click', toggleSidebar);
-        
-        menuContainer.addEventListener('click', (e) => {
-            const link = e.target.closest('.session-link');
-            if (link) {
-                e.preventDefault();
-                loadSessionContent(link.dataset.sessionId);
-                if (window.innerWidth < 768) {
-                    toggleSidebar(); // Close sidebar after selection
-                }
-            }
-        });
-        
-        homeButton.addEventListener('click', () => {
-            renderHomeScreen();
-            document.querySelectorAll('.session-link').forEach(link => link.classList.remove('active'));
-        });
 
         // --- INITIALIZATION ---
         copyrightYear.textContent = new Date().getFullYear();
         createMenu();
-        renderHomeScreen();
+        updateActiveLink(); // Highlight the link for the current page
 
     </script>
 </body>
