@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اینفوگرافیک: تسلط بر قواعد توافق در انگلیسی</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Vazirmatn', sans-serif;
+            background-color: #F8FAFC; 
+        }
+        .card {
+            background-color: white;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            padding: 1.5rem;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -2px rgb(0 0 0 / 0.1);
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+        .flow-arrow {
+            font-size: 2rem;
+            line-height: 1;
+            color: #0079C2;
+            margin: 0.5rem 0;
+        }
+        .table-header {
+            background-color: #004AAD;
+            color: white;
+        }
+        .table-row-even {
+            background-color: #CAF0F8;
+        }
+        .table-row-odd {
+            background-color: #FFFFFF;
+        }
+        .kpi-box {
+            border-right: 4px solid #00B4D8;
+        }
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #0079C2;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+
+    <div class="container mx-auto p-4 md:p-8">
+
+        <header class="text-center mb-12">
+            <h1 class="text-4xl md:text-5xl font-bold text-gray-800 mb-2">تسلط بر قواعد توافق در انگلیسی</h1>
+            <p class="text-lg text-gray-600">یک راهنمای بصری برای درک عمیق ساختارهای <span class="font-semibold text-[#0079C2]">So/Neither do I</span></p>
+        </header>
+
+        <main class="space-y-16">
+            
+            <section id="golden-rule" class="text-center">
+                <div class="card max-w-3xl mx-auto">
+                    <h2 class="text-2xl font-bold text-[#004AAD] mb-4">اصل بنیادین: تقدم فرم بر معنا</h2>
+                    <p class="text-lg mb-6">همانطور که مدرس شما تأکید می‌کند، کلید اصلی، تشخیص ساختار دستوری جمله است، نه حس معنایی آن. گرامر یک سیستم مبتنی بر الگو است.</p>
+                    <div class="bg-[#CAF0F8] p-6 rounded-lg">
+                        <p class="text-3xl md:text-4xl font-bold text-[#004AAD]">ساختار > معنا</p>
+                    </div>
+                </div>
+            </section>
+            
+            <hr class="border-t-2 border-slate-200">
+
+            <section id="polarity">
+                 <h2 class="text-3xl font-bold text-center mb-8">گام اول: تشخیص قطبیت گرامری</h2>
+                 <div class="grid grid-cols-1 md:grid-cols-3 items-center gap-6 text-center">
+                     <div class="card h-full flex flex-col justify-center">
+                         <h3 class="text-xl font-semibold text-[#0079C2] mb-2">جمله مثبت</h3>
+                         <p>گروه فعلی فاقد نشانگر منفی صریح (`not`, `never`, `hardly`...) است.</p>
+                         <p class="mt-4 text-2xl font-bold text-green-600">I like coffee.</p>
+                     </div>
+
+                     <div class="flex flex-col items-center">
+                         <p class="font-bold text-xl mb-2">یک جمله را در نظر بگیرید:</p>
+                         <div class="flow-arrow">&#129147;</div>
+                         <div class="bg-gray-200 p-4 rounded-lg shadow-inner">
+                            <p class="font-mono text-lg font-bold">"آیا جمله منفی‌ساز دارد؟"</p>
+                         </div>
+                         <div class="flow-arrow">&#129147;</div>
+                     </div>
+                     
+                     <div class="card h-full flex flex-col justify-center">
+                         <h3 class="text-xl font-semibold text-[#0079C2] mb-2">جمله منفی</h3>
+                         <p>گروه فعلی حاوی نشانگر منفی صریح (`not`, `never`, `hardly`...) است.</p>
+                         <p class="mt-4 text-2xl font-bold text-red-600">I don't like tea.</p>
+                     </div>
+                 </div>
+                 <div class="flex justify-around mt-6">
+                     <div class="text-center">
+                         <div class="flow-arrow">&#129147;</div>
+                         <p class="text-2xl font-bold bg-[#00B4D8] text-white py-2 px-4 rounded-lg">So do I.</p>
+                     </div>
+                     <div class="text-center">
+                         <div class="flow-arrow">&#129147;</div>
+                         <p class="text-2xl font-bold bg-[#004AAD] text-white py-2 px-4 rounded-lg">Neither do I.</p>
+                     </div>
+                 </div>
+            </section>
+
+            <hr class="border-t-2 border-slate-200">
+
+            <section id="auxiliary-verb">
+                <h2 class="text-3xl font-bold text-center mb-8">گام دوم: شناسایی فعل کمکی صحیح</h2>
+                <p class="text-center max-w-3xl mx-auto mb-10">این قلب مکانیکی پاسخ شماست. الگوریتم ساده است: ابتدا به دنبال فعل کمکی آشکار بگردید. اگر نبود، فعل کمکی پنهان `do` را آشکار کنید.</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="card">
+                        <h3 class="text-xl font-semibold text-[#0079C2] mb-3 flex items-center"><span class="text-3xl ml-2">&#128270;</span>فعل کمکی آشکار (Explicit)</h3>
+                        <p class="mb-4">اگر جمله اصلی حاوی `be`, `have`, `will`, `can`, `should` و... باشد، از همان در پاسخ خود استفاده کنید.</p>
+                        <div class="kpi-box pr-4 space-y-3">
+                            <p><span class="font-semibold">She <strong>is</strong> working.</span> &rarr; So <strong>is</strong> he.</p>
+                            <p><span class="font-semibold">They <strong>have</strong> left.</span> &rarr; So <strong>have</strong> we.</p>
+                            <p><span class="font-semibold">He <strong>can't</strong> swim.</span> &rarr; Neither <strong>can</strong> I.</p>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <h3 class="text-xl font-semibold text-[#0079C2] mb-3 flex items-center"><span class="text-3xl ml-2">&#10024;</span>فعل کمکی پنهان (Implicit)</h3>
+                        <p class="mb-4">در جملات حال و گذشته ساده، فعل کمکی `do/does/did` پنهان است. آن را در پاسخ خود آشکار کنید.</p>
+                         <div class="kpi-box pr-4 space-y-3">
+                            <p><span class="font-semibold">She works hard.</span> &rarr; So <strong>does</strong> he.</p>
+                            <p><span class="font-semibold">They went home.</span> &rarr; So <strong>did</strong> we.</p>
+                            <p><span class="font-semibold">He doesn't know.</span> &rarr; Neither <strong>does</strong> she.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <hr class="border-t-2 border-slate-200">
+
+            <section id="master-blueprint">
+                <h2 class="text-3xl font-bold text-center mb-8">نقشه جامع توافق</h2>
+                <p class="text-center max-w-3xl mx-auto mb-10">این جدول، کاربرد قواعد را در زمان‌ها و با فاعل‌های مختلف به صورت یکجا نمایش می‌دهد. به الگوها دقت کنید.</p>
+                <div class="card overflow-x-auto">
+                    <table class="w-full min-w-[600px] text-center">
+                        <thead>
+                            <tr class="table-header">
+                                <th class="p-3">زمان/فعل</th>
+                                <th class="p-3">جمله مثبت</th>
+                                <th class="p-3">توافق با So</th>
+                                <th class="p-3">جمله منفی</th>
+                                <th class="p-3">توافق با Neither</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="table-row-odd"><td class="p-2 font-semibold">Present Simple</td><td class="p-2">He works.</td><td class="p-2">So do I.</td><td class="p-2">She doesn't work.</td><td class="p-2">Neither do I.</td></tr>
+                            <tr class="table-row-even"><td class="p-2 font-semibold">Past Simple</td><td class="p-2">They left.</td><td class="p-2">So did we.</td><td class="p-2">I didn't leave.</td><td class="p-2">Neither did he.</td></tr>
+                            <tr class="table-row-odd"><td class="p-2 font-semibold">Present Continuous</td><td class="p-2">I am reading.</td><td class="p-2">So is she.</td><td class="p-2">He isn't reading.</td><td class="p-2">Neither are we.</td></tr>
+                            <tr class="table-row-even"><td class="p-2 font-semibold">Present Perfect</td><td class="p-2">She has arrived.</td><td class="p-2">So have I.</td><td class="p-2">We haven't arrived.</td><td class="p-2">Neither has she.</td></tr>
+                             <tr class="table-row-odd"><td class="p-2 font-semibold">Future (will)</td><td class="p-2">They will call.</td><td class="p-2">So will I.</td><td class="p-2">He won't call.</td><td class="p-2">Neither will we.</td></tr>
+                            <tr class="table-row-even"><td class="p-2 font-semibold">Modal (can)</td><td class="p-2">I can swim.</td><td class="p-2">So can he.</td><td class="p-2">She can't swim.</td><td class="p-2">Neither can they.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+            
+            <hr class="border-t-2 border-slate-200">
+
+            <section id="usage-context">
+                <h2 class="text-3xl font-bold text-center mb-8">جعبه ابزار دنیای واقعی: رسمی در برابر غیررسمی</h2>
+                <p class="text-center max-w-3xl mx-auto mb-10">در حالی که ساختارهای `So/Neither` از نظر گرامری دقیق هستند، در مکالمات روزمره اغلب از جایگزین‌های ساده‌تری استفاده می‌شود. نمودار زیر فراوانی استفاده را در موقعیت‌های مختلف نشان می‌دهد.</p>
+                <div class="card">
+                     <div class="chart-container">
+                        <canvas id="usageChart"></canvas>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8 text-center">
+                    <div class="p-6 bg-blue-100 rounded-lg">
+                        <h3 class="font-bold text-xl mb-2 text-blue-800">Me too.</h3>
+                        <p>پاسخ غیررسمی برای توافق با جملات <strong>مثبت</strong>.</p>
+                        <p class="mt-3 font-semibold">"I love this song." &rarr; "Me too."</p>
+                    </div>
+                     <div class="p-6 bg-sky-100 rounded-lg">
+                        <h3 class="font-bold text-xl mb-2 text-sky-800">Me neither.</h3>
+                        <p>پاسخ غیررسمی برای توافق با جملات <strong>منفی</strong>.</p>
+                         <p class="mt-3 font-semibold">"I can't go." &rarr; "Me neither."</p>
+                    </div>
+                </div>
+            </section>
+
+            <hr class="border-t-2 border-slate-200">
+
+             <section id="mastery-path">
+                <h2 class="text-3xl font-bold text-center mb-8">مسیر تسلط: تمرین برای واکنش خودکار</h2>
+                 <p class="text-center max-w-3xl mx-auto mb-10">این فرآیند دو مرحله‌ای را تمرین کنید تا بتوانید بدون فکر کردن و به صورت آنی پاسخ صحیح را تولید کنید.</p>
+                <div class="card max-w-4xl mx-auto">
+                    <div class="flex flex-col md:flex-row items-center justify-center gap-6">
+                        <div class="text-center p-4 border-2 border-dashed border-[#0079C2] rounded-lg">
+                            <h3 class="text-xl font-bold text-[#0079C2]">۱. اسکن قطبیت</h3>
+                            <p>آیا منفی‌ساز وجود دارد؟ (بله/خیر)</p>
+                        </div>
+                        <div class="flow-arrow md:rotate-[-90deg]">&#129146;</div>
+                        <div class="text-center p-4 border-2 border-dashed border-[#00B4D8] rounded-lg">
+                            <h3 class="text-xl font-bold text-[#00B4D8]">۲. اسکن فعل کمکی</h3>
+                            <p>آشکار است یا پنهان؟</p>
+                        </div>
+                        <div class="flow-arrow md:rotate-[-90deg]">&#129146;</div>
+                        <div class="text-center p-6 bg-green-100 border-2 border-green-500 rounded-lg">
+                             <h3 class="text-xl font-bold text-green-700">پاسخ صحیح!</h3>
+                            <p class="font-mono mt-2">So / Neither + Aux + Subject</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <hr class="border-t-2 border-slate-200">
+
+            <section id="practice-zone">
+                <h2 class="text-3xl font-bold text-center mb-8">تمرین با هوش مصنوعی ✨</h2>
+                <div class="card max-w-2xl mx-auto">
+                    <p class="text-center text-slate-600 mb-4">دانش خود را با جملات تولید شده توسط هوش مصنوعی محک بزنید!</p>
+                    <button id="generateSentenceBtn" class="w-full bg-[#0079C2] text-white font-bold py-2 px-4 rounded-lg hover:bg-[#005f99] transition-colors flex items-center justify-center">
+                        <span class="mr-2">✨ یک جمله تمرینی بساز</span>
+                    </button>
+                    <div id="sentenceLoader" class="hidden my-4">
+                        <div class="loader"></div>
+                    </div>
+                    <div id="practiceArea" class="mt-6 text-center hidden">
+                        <p class="text-lg font-semibold text-slate-800 mb-4" id="generatedSentence"></p>
+                        <input type="text" id="userAnswer" class="w-full p-2 border border-slate-300 rounded-lg text-center" placeholder="پاسخ خود را اینجا بنویسید (مثلا: So do I)">
+                        <button id="checkAnswerBtn" class="w-full mt-3 bg-[#00B4D8] text-white font-bold py-2 px-4 rounded-lg hover:bg-[#0096b7] transition-colors">
+                            پاسخم را بررسی کن
+                        </button>
+                        <div id="answerLoader" class="hidden my-4">
+                            <div class="loader"></div>
+                        </div>
+                        <div id="feedbackArea" class="mt-4 p-4 rounded-lg text-right"></div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+        
+        <footer class="text-center mt-16 pt-8 border-t border-slate-300">
+            <p class="text-slate-500">&copy; 2025 - اینفوگرافیک گرامر انگلیسی. طراحی شده برای یادگیری عمیق و کاربردی.</p>
+        </footer>
+    </div>
+    
+    <script>
+        const ctx = document.getElementById('usageChart');
+        
+        const tooltipTitleCallback = (tooltipItems) => {
+            const item = tooltipItems[0];
+            let label = item.chart.data.labels[item.dataIndex];
+            if (Array.isArray(label)) {
+              return label.join(' ');
+            } else {
+              return label;
+            }
+        };
+
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['گفتار روزمره', 'نوشتار رسمی'],
+                datasets: [{
+                    label: 'کاربرد ساختار رسمی (So/Neither)',
+                    data: [30, 95],
+                    backgroundColor: 'rgba(0, 74, 173, 0.7)',
+                    borderColor: 'rgba(0, 74, 173, 1)',
+                    borderWidth: 1
+                }, {
+                    label: 'کاربرد ساختار غیررسمی (Me too/neither)',
+                    data: [70, 5],
+                    backgroundColor: 'rgba(0, 180, 216, 0.7)',
+                    borderColor: 'rgba(0, 180, 216, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'فراوانی استفاده از ساختارهای توافق رسمی و غیررسمی',
+                        font: { family: 'Vazirmatn', size: 16 },
+                        color: '#334155'
+                    },
+                    tooltip: {
+                        titleFont: { family: 'Vazirmatn' },
+                        bodyFont: { family: 'Vazirmatn' },
+                        callbacks: { title: tooltipTitleCallback }
+                    },
+                    legend: { labels: { font: { family: 'Vazirmatn' } } }
+                },
+                scales: {
+                    x: { stacked: true, ticks: { font: { family: 'Vazirmatn' } } },
+                    y: {
+                        stacked: true,
+                        ticks: {
+                           callback: function(value) { return value + '%' },
+                           font: { family: 'Vazirmatn' }
+                        }
+                    }
+                }
+            }
+        });
+
+        const generateSentenceBtn = document.getElementById('generateSentenceBtn');
+        const checkAnswerBtn = document.getElementById('checkAnswerBtn');
+        const sentenceLoader = document.getElementById('sentenceLoader');
+        const answerLoader = document.getElementById('answerLoader');
+        const practiceArea = document.getElementById('practiceArea');
+        const generatedSentenceEl = document.getElementById('generatedSentence');
+        const userAnswerEl = document.getElementById('userAnswer');
+        const feedbackArea = document.getElementById('feedbackArea');
+
+        const apiKey = ""; 
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+        async function callGemini(prompt, generationConfig = {}) {
+            const payload = {
+                contents: [{ role: "user", parts: [{ text: prompt }] }],
+                generationConfig
+            };
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const result = await response.json();
+                if (result.candidates && result.candidates.length > 0 && result.candidates[0].content && result.candidates[0].content.parts && result.candidates[0].content.parts.length > 0) {
+                    return result.candidates[0].content.parts[0].text;
+                } else {
+                    throw new Error("Invalid response structure from Gemini API");
+                }
+            } catch (error) {
+                console.error("Error calling Gemini API:", error);
+                return null;
+            }
+        }
+
+        generateSentenceBtn.addEventListener('click', async () => {
+            sentenceLoader.classList.remove('hidden');
+            generateSentenceBtn.disabled = true;
+            feedbackArea.classList.add('hidden');
+            userAnswerEl.value = '';
+
+            const prompt = "Generate a simple English sentence for a student learning agreement structures like 'So do I' and 'Neither do I'. The sentence should be either clearly positive or clearly negative, and use a common tense like simple present, simple past, present continuous, or a modal verb. Examples: 'She is a doctor.', 'They don't like spicy food.', 'He went to the library.', 'I can play the guitar.'";
+            
+            const sentence = await callGemini(prompt);
+
+            sentenceLoader.classList.add('hidden');
+            generateSentenceBtn.disabled = false;
+
+            if (sentence) {
+                generatedSentenceEl.textContent = sentence.trim();
+                practiceArea.classList.remove('hidden');
+            } else {
+                generatedSentenceEl.textContent = "خطا در تولید جمله. لطفا دوباره تلاش کنید.";
+                practiceArea.classList.remove('hidden');
+            }
+        });
+
+        checkAnswerBtn.addEventListener('click', async () => {
+            const sentence = generatedSentenceEl.textContent;
+            const userAnswer = userAnswerEl.value.trim();
+
+            if (!userAnswer) {
+                feedbackArea.textContent = "لطفا پاسخ خود را وارد کنید.";
+                feedbackArea.className = 'mt-4 p-4 rounded-lg bg-yellow-100 text-yellow-800 text-right';
+                feedbackArea.classList.remove('hidden');
+                return;
+            }
+
+            answerLoader.classList.remove('hidden');
+            checkAnswerBtn.disabled = true;
+
+            const prompt = `A student was given the English sentence: "${sentence}". They responded with the agreement: "${userAnswer}".
+            Is the student's response a grammatically correct agreement in English?
+            Please respond with a JSON object with two keys:
+            1. "is_correct": a boolean (true or false).
+            2. "explanation_persian": a brief explanation in simple Persian. If the answer is wrong, state the correct answer and briefly explain why. If the answer is correct, simply confirm it and give a short praise.
+            Example for a wrong answer: {"is_correct": false, "explanation_persian": "پاسخ شما صحیح نیست. پاسخ درست «So did I» است، چون جمله اصلی در زمان گذشته ساده و مثبت است و باید از فعل کمکی did استفاده کرد."}
+            Example for a correct answer: {"is_correct": true, "explanation_persian": "آفرین! پاسخ شما کاملا صحیح است."}`;
+
+            const responseText = await callGemini(prompt, { responseMimeType: "application/json" });
+
+            answerLoader.classList.add('hidden');
+            checkAnswerBtn.disabled = false;
+
+            if (responseText) {
+                try {
+                    const result = JSON.parse(responseText);
+                    feedbackArea.textContent = result.explanation_persian;
+                    if (result.is_correct) {
+                        feedbackArea.className = 'mt-4 p-4 rounded-lg bg-green-100 text-green-800 text-right';
+                    } else {
+                        feedbackArea.className = 'mt-4 p-4 rounded-lg bg-red-100 text-red-800 text-right';
+                    }
+                } catch (e) {
+                    feedbackArea.textContent = "خطا در تحلیل پاسخ. لطفا دوباره تلاش کنید.";
+                    feedbackArea.className = 'mt-4 p-4 rounded-lg bg-yellow-100 text-yellow-800 text-right';
+                }
+            } else {
+                feedbackArea.textContent = "ارتباط با سرویس هوش مصنوعی برقرار نشد.";
+                feedbackArea.className = 'mt-4 p-4 rounded-lg bg-red-100 text-red-800 text-right';
+            }
+            feedbackArea.classList.remove('hidden');
+        });
+    </script>
+    
+</body>
+</html>
