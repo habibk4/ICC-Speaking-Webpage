@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>خلاصه کلاس Speaking ICC</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Vazirmatn -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        /* Applying the Vazirmatn font to the entire page */
+        body {
+            font-family: 'Vazirmatn', sans-serif;
+            /* Subtle geometric background pattern */
+            background-color: #f8fafc;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Cg fill-rule='evenodd'%3E%3Cg fill='%23e2e8f0' fill-opacity='0.4'%3E%3Cpath d='M0 38.59l2.83-2.83 1.41 1.41L1.41 40H0v-1.41zM0 1.4l2.83 2.83 1.41-1.41L1.41 0H0v1.41zM38.59 40l-2.83-2.83 1.41-1.41L40 38.59V40h-1.41zM40 1.41l-2.83 2.83-1.41-1.41L38.59 0H40v1.41z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+
+        /* Custom scrollbar for a cleaner look */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #e2e8f0;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #a5b4fc; /* Light indigo */
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #818cf8; /* Darker indigo */
+        }
+
+        /* Styling for the active session link */
+        .session-link.active {
+            background-image: linear-gradient(to left, #4f46e5, #6366f1);
+            color: white;
+            font-weight: 700;
+            transform: scale(1.05);
+            box-shadow: 0 4px 15px -3px rgba(79, 70, 229, 0.4);
+        }
+        
+        /* Smooth transition for all elements */
+        * {
+            transition: all 0.3s ease-in-out;
+        }
+
+        /* Accordion styles */
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease-out;
+        }
+
+        /* Gradient text for the main header */
+        .gradient-text {
+            background-image: linear-gradient(to left, #4f46e5, #a855f7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Animation for content fade-in */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+        
+        /* Glassmorphism effect for header and sidebar */
+        .glassmorphism {
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+    </style>
+</head>
+<body class="text-slate-800">
+
+    <div id="app-container">
+        <!-- Header -->
+        <header class="glassmorphism shadow-sm sticky top-0 z-30">
+            <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+                <h1 id="home-button" class="text-xl sm:text-2xl font-bold gradient-text cursor-pointer">
+                    خلاصه کلاس Speaking ICC
+                </h1>
+                <!-- Mobile Menu Button -->
+                <button id="mobile-menu-button" class="md:hidden p-2 rounded-md text-slate-600 hover:bg-slate-100 focus:outline-none">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                </button>
+            </div>
+        </header>
+
+        <div class="container mx-auto px-4 py-6">
+            <div class="flex flex-row-reverse gap-8">
+
+                <!-- Sidebar Navigation -->
+                <aside id="sidebar" class="fixed top-0 right-0 h-full z-50 w-72 glassmorphism p-5 shadow-lg transform-gpu translate-x-full transition-transform duration-300 md:relative md:h-full md:self-start md:top-24 md:translate-x-0 md:z-auto">
+                    <div class="mb-4 pb-2 border-b border-slate-200">
+                        <h2 class="font-bold text-lg text-slate-800 flex items-center gap-2"><i class="fa-solid fa-book-open text-indigo-500"></i>سرفصل دروس</h2>
+                    </div>
+                    <nav>
+                        <ul class="space-y-2" id="menu-container">
+                            <!-- Menu items will be generated by JavaScript -->
+                        </ul>
+                    </nav>
+                </aside>
+
+                <!-- Main Content -->
+                <main class="flex-1">
+                    <div id="content-area" class="bg-white rounded-2xl shadow-lg min-h-[80vh] overflow-hidden">
+                        <!-- Initial content will be loaded by JS -->
+                    </div>
+                </main>
+
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <footer class="mt-12 border-t-2 border-slate-200 bg-white">
+            <div class="container mx-auto px-6 py-8 text-center text-slate-600">
+                <p class="font-semibold text-lg">از این آرشیو برای مرور و یادگیری بهتر استفاده کنید!</p>
+                <p class="mt-2">برای هرگونه پیشنهاد یا سوال، با من در تماس باشید:</p>
+                <a href="mailto:Habibkamaie@gmail.com" class="mt-2 inline-block text-indigo-600 font-bold hover:underline">Habibkamaie@gmail.com</a>
+                <p class="mt-6 text-sm text-slate-500">
+                    &copy; <span id="copyright-year"></span> | تمامی حقوق برای حبیب کمایی محفوظ است.
+                </p>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Sidebar Overlay -->
+    <div id="sidebar-overlay" class="fixed inset-0 bg-black/60 z-40 hidden md:hidden"></div>
+
+    <script>
+        // --- DATA ---
+        const sessionData = {
+            1: { title: "جلسه ۱: معرفی و شکستن یخ‌ها", content: "در این جلسه به معرفی اعضا و فعالیت‌های اولیه برای آشنایی بیشتر پرداختیم. اصطلاح کلیدی: 'Break the ice'." },
+            2: { title: "جلسه ۲: صحبت در مورد سرگرمی‌ها", content: "موضوع این جلسه، صحبت در مورد سرگرمی‌ها و علایق شخصی بود. یاد گرفتیم چگونه در مورد فعالیت‌های مورد علاقه خود با جزئیات صحبت کنیم." },
+            11: { title: "جلسه ۱۱: شرطی نوع دوم", content: "گرامر این جلسه به شرطی‌های نوع دوم اختصاص داشت. مثال: 'If I were a millionaire, I would travel the world.' این ساختار برای صحبت در مورد موقعیت‌های غیرواقعی یا خیالی در زمان حال استفاده می‌شود." },
+            25: { title: "جلسه ۲۵: استفاده از Wish", content: "در این جلسه با ساختارهای مختلف 'Wish' برای بیان حسرت در مورد گذشته و آرزو در مورد حال آشنا شدیم. مثال: 'I wish I had studied harder.' یا 'I wish I could fly.'" },
+            50: { title: "جلسه ۵۰: جمع‌بندی و ارائه نهایی", content: "جلسه پایانی دوره! در این جلسه هر یک از اعضا یک ارائه کوتاه در مورد موضوعی دلخواه داشتند و تمام آموخته‌های خود را به کار گرفتند." }
+        };
+
+        // --- ELEMENTS ---
+        const menuContainer = document.getElementById('menu-container');
+        const contentArea = document.getElementById('content-area');
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const sidebar = document.getElementById('sidebar');
+        const homeButton = document.getElementById('home-button');
+        const copyrightYear = document.getElementById('copyright-year');
+        const sidebarOverlay = document.getElementById('sidebar-overlay');
+
+        // --- FUNCTIONS ---
+
+        /**
+         * Renders the initial home screen with just the hero section.
+         */
+        function renderHomeScreen() {
+            contentArea.innerHTML = `
+                <div id="hero-section" class="relative text-white h-full min-h-[80vh] flex flex-col justify-center items-center text-center p-6" 
+                     style="background-image: url('https://images.unsplash.com/photo-1543269865-cbf427effbad?q=80&w=2070&auto=format&fit=crop'); background-size: cover; background-position: center;">
+                    <div class="absolute inset-0 bg-black/50"></div>
+                    <div class="relative z-10 fade-in">
+                        <h2 class="text-4xl md:text-5xl font-bold mb-3">سفر من در دنیای مکالمه!</h2>
+                        <p class="text-lg max-w-xl mx-auto text-slate-200 leading-relaxed">
+                            اینجا قراره چکیده‌ای از چیزایی که تو هر جلسه یاد می‌گیرم رو بنویسم. این سایت به مرور کامل‌تر می‌شه، پس حتما دوباره سر بزن!
+                        </p>
+                    </div>
+                </div>
+            `;
+        }
+
+        /**
+         * Generates the navigation menu dynamically.
+         */
+        function createMenu() {
+            let sessionCounter = 1;
+            for (let term = 1; term <= 5; term++) {
+                const termLi = document.createElement('li');
+
+                const termButton = document.createElement('button');
+                termButton.className = 'w-full flex justify-between items-center p-3 text-right font-bold text-slate-700 hover:bg-slate-100 rounded-lg';
+                termButton.innerHTML = `
+                    <span class="flex items-center gap-2"><i class="fa-solid fa-folder text-amber-500"></i> ترم ${term}</span>
+                    <svg class="w-5 h-5 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                `;
+
+                const sessionsUl = document.createElement('ul');
+                sessionsUl.className = 'accordion-content pr-4 mt-1 space-y-1';
+                
+                for (let session = 1; session <= 10; session++) {
+                    const sessionLi = document.createElement('li');
+                    const sessionLink = document.createElement('a');
+                    sessionLink.href = '#';
+                    sessionLink.innerHTML = `<i class="fa-solid fa-file-lines fa-xs ml-2 text-slate-400"></i> جلسه ${sessionCounter}`;
+                    sessionLink.dataset.sessionId = sessionCounter;
+                    sessionLink.className = 'session-link block p-2 text-slate-600 hover:bg-indigo-100 hover:text-indigo-700 rounded-md';
+                    
+                    sessionLi.appendChild(sessionLink);
+                    sessionsUl.appendChild(sessionLi);
+                    sessionCounter++;
+                }
+
+                termLi.appendChild(termButton);
+                termLi.appendChild(sessionsUl);
+                menuContainer.appendChild(termLi);
+
+                termButton.addEventListener('click', () => {
+                    const content = termButton.nextElementSibling;
+                    const icon = termButton.querySelector('svg');
+                    
+                    if (content.style.maxHeight) {
+                        content.style.maxHeight = null;
+                        icon.style.transform = 'rotate(0deg)';
+                    } else {
+                        document.querySelectorAll('.accordion-content').forEach(el => {
+                            el.style.maxHeight = null;
+                            if(el.previousElementSibling.querySelector('svg')) {
+                                el.previousElementSibling.querySelector('svg').style.transform = 'rotate(0deg)';
+                            }
+                        });
+                        content.style.maxHeight = content.scrollHeight + "px";
+                        icon.style.transform = 'rotate(180deg)';
+                    }
+                });
+            }
+        }
+
+        /**
+         * Loads the content for a specific session into the main area.
+         * @param {string} sessionId - The ID of the session to load.
+         */
+        function loadSessionContent(sessionId) {
+            const data = sessionData[sessionId] || { title: `جلسه ${sessionId}`, content: "متاسفانه هنوز خلاصه‌ای برای این جلسه ثبت نشده است." };
+            
+            contentArea.innerHTML = `
+                <div class="p-6 sm:p-8 fade-in">
+                    <h2 class="text-3xl font-bold text-slate-800 mb-4 border-b-2 border-indigo-200 pb-3">${data.title}</h2>
+                    <div class="prose prose-lg max-w-none text-slate-700 leading-loose">
+                        <p>${data.content}</p>
+                    </div>
+                </div>
+            `;
+
+            document.querySelectorAll('.session-link').forEach(link => link.classList.remove('active'));
+            const activeLink = document.querySelector(`.session-link[data-session-id='${sessionId}']`);
+            if (activeLink) {
+                activeLink.classList.add('active');
+                 // Open the parent accordion if it's closed
+                const parentAccordion = activeLink.closest('.accordion-content');
+                if (parentAccordion && !parentAccordion.style.maxHeight) {
+                    parentAccordion.previousElementSibling.click();
+                }
+            }
+        }
+
+        /**
+         * Toggles the mobile sidebar visibility.
+         */
+        function toggleSidebar() {
+            sidebar.classList.toggle('translate-x-full');
+            sidebarOverlay.classList.toggle('hidden');
+        }
+
+        // --- EVENT LISTENERS ---
+        mobileMenuButton.addEventListener('click', (e) => {
+            e.stopPropagation();
+            toggleSidebar();
+        });
+
+        sidebarOverlay.addEventListener('click', toggleSidebar);
+        
+        menuContainer.addEventListener('click', (e) => {
+            const link = e.target.closest('.session-link');
+            if (link) {
+                e.preventDefault();
+                loadSessionContent(link.dataset.sessionId);
+                if (window.innerWidth < 768) {
+                    toggleSidebar(); // Close sidebar after selection
+                }
+            }
+        });
+        
+        homeButton.addEventListener('click', () => {
+            renderHomeScreen();
+            document.querySelectorAll('.session-link').forEach(link => link.classList.remove('active'));
+        });
+
+        // --- INITIALIZATION ---
+        copyrightYear.textContent = new Date().getFullYear();
+        createMenu();
+        renderHomeScreen();
+
+    </script>
+</body>
+</html>
