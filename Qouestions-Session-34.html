@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>آزمون تعاملی گرامر Wish</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700&display=swap" rel="stylesheet">
+    
+    <!-- Chosen Palette: Slate Gray & Emerald Green -->
+    <!-- Application Structure Plan: A single-page quiz application designed for comprehensive practice on the topic of "Wish". The structure is divided into four thematic sections, each containing 10 questions, to make the large number of questions (40) manageable and focused. Users can navigate between sections using tabs. Within each section, questions are presented one at a time to prevent cognitive overload. Users receive immediate feedback upon answering. A progress bar and score tracker for each section provide motivation and a clear sense of accomplishment. This structure was chosen to provide a structured, engaging, and effective learning path through a complex grammatical topic. -->
+    <!-- Visualization & Content Choices: Report Info: "Wish" grammar rules. -> Goal: Provide extensive, interactive practice. -> Viz/Presentation Method: A multi-tab, single-page application. Each tab is a self-contained quiz section. Questions are displayed on individual cards. Progress is shown via a dynamic progress bar (HTML/CSS/JS). -> Interaction: Clicks on tabs to switch sections, clicks on answer options for immediate feedback. -> Justification: This interactive quiz format is far more effective for practice and reinforcement than a static list of questions. The sectional approach allows users to focus on specific areas of weakness. Immediate feedback is crucial for effective learning. -> Library/Method: Vanilla JS, Tailwind CSS. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+    <style>
+        body {
+            font-family: 'Vazirmatn', sans-serif;
+            background-color: #f8fafc; /* slate-50 */
+        }
+        .tab-button.active {
+            border-color: #10b981; /* emerald-500 */
+            background-color: #ecfdf5; /* emerald-50 */
+            color: #059669; /* emerald-600 */
+        }
+        .option-btn {
+            transition: background-color 0.2s, border-color 0.2s;
+        }
+        .option-btn.correct {
+            background-color: #dcfce7; /* green-100 */
+            border-color: #22c55e; /* green-500 */
+            color: #15803d; /* green-700 */
+        }
+        .option-btn.incorrect {
+            background-color: #fee2e2; /* red-100 */
+            border-color: #ef4444; /* red-500 */
+            color: #b91c1c; /* red-700 */
+        }
+        .option-btn:disabled {
+            cursor: not-allowed;
+        }
+        .progress-bar-fill {
+            transition: width 0.5s ease-in-out;
+        }
+    </style>
+</head>
+<body class="text-slate-800">
+
+    <div class="container mx-auto p-4 sm:p-8">
+        <header class="text-center mb-8">
+            <h1 class="text-3xl md:text-4xl font-bold text-emerald-700">آزمون جامع گرامر "Wish"</h1>
+            <p class="mt-2 text-slate-600">دانش خود را در مورد کاربردهای مختلف فعل "Wish" با ۴۰ سوال تمرینی محک بزنید.</p>
+        </header>
+
+        <div class="bg-white p-4 sm:p-6 rounded-2xl shadow-lg">
+            <!-- Tabs -->
+            <div id="tabs-container" class="flex flex-wrap justify-center border-b border-slate-200 mb-6">
+                <button class="tab-button active py-3 px-5 font-semibold text-slate-500 border-b-2 border-transparent" data-quiz="quiz1">Wish در برابر Hope</button>
+                <button class="tab-button py-3 px-5 font-semibold text-slate-500 border-b-2 border-transparent" data-quiz="quiz2">آرزو برای حال</button>
+                <button class="tab-button py-3 px-5 font-semibold text-slate-500 border-b-2 border-transparent" data-quiz="quiz3">شکایت با Wish</button>
+                <button class="tab-button py-3 px-5 font-semibold text-slate-500 border-b-2 border-transparent" data-quiz="quiz4">حسرت برای گذشته</button>
+            </div>
+
+            <!-- Quiz Content -->
+            <div id="quiz-content">
+                <!-- Quiz sections will be rendered here by JS -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const quizzes = {
+            quiz1: {
+                title: "بخش ۱: Wish در برابر Hope",
+                questions: [
+                    { q: "هوا ابری است و شما فردا پیک‌نیک دارید. چه می‌گویید؟", o: ["I wish it is sunny tomorrow.", "I hope it is sunny tomorrow.", "I wish it were sunny tomorrow."], a: 1, r: "`Hope` برای بیان امید به یک نتیجه ممکن در آینده به کار می‌رود." },
+                    { q: "شما در امتحان رد شده‌اید. چه می‌گویید؟", o: ["I hope I had passed.", "I wish I passed.", "I wish I had passed."], a: 2, r: "`Wish` برای بیان حسرت در مورد گذشته به کار می‌رود." },
+                    { q: "دوست شما بیمار است. چه می‌گویید؟", o: ["I wish you get well soon.", "I hope you get well soon.", "I wish you got well soon."], a: 1, r: "برای آرزوهای ممکن برای دیگران از `hope` استفاده می‌کنیم." },
+                    { q: "شما نمی‌توانید پرواز کنید. چه می‌گویید؟", o: ["I hope I could fly.", "I wish I could fly.", "I wish I can fly."], a: 1, r: "`Wish` برای بیان آرزوهای غیرممکن به کار می‌رود." },
+                    { q: "قطار تأخیر دارد و شما منتظر هستید. چه می‌گویید؟", o: ["I wish the train arrives soon.", "I hope the train arrives soon.", "I wish the train would arrive soon."], a: 1, r: "رسیدن قطار یک احتمال ممکن در آینده نزدیک است، پس از `hope` استفاده می‌کنیم." },
+                    { q: "شما در یک کشور دیگر هستید و دلتان برای خانواده‌تان تنگ شده. چه می‌گویید؟", o: ["I hope my family was here.", "I wish my family were here.", "I hope my family is here."], a: 1, r: "`Wish` برای بیان یک وضعیت غیرواقعی در زمان حال به کار می‌رود." },
+                    { q: "شما در لاتاری شرکت کرده‌اید. چه می‌گویید؟", o: ["I wish I win.", "I hope I win.", "I wish I won."], a: 1, r: "برنده شدن در لاتاری، اگرچه بعید است، اما غیرممکن نیست. پس از `hope` استفاده می‌شود." },
+                    { q: "شما جوان نیستید اما آرزو می‌کنید جوان بودید. چه می‌گویید؟", o: ["I hope I was younger.", "I wish I were younger.", "I hope I am younger."], a: 1, r: "`Wish` برای بیان آرزویی برخلاف واقعیت فعلی به کار می‌رود." },
+                    { q: "تیم شما در حال بازی است و شما امیدوارید برنده شود. چه می‌گویید؟", o: ["I wish my team wins.", "I hope my team wins.", "I wish my team won."], a: 1, r: "برنده شدن تیم یک احتمال ممکن است، پس از `hope` استفاده می‌کنیم." },
+                    { q: "شما می‌خواهید در آینده به ماه سفر کنید. چه می‌گویید؟", o: ["I wish to go to the moon someday.", "I hope to go to the moon someday.", "I wish I went to the moon someday."], a: 1, r: "سفر به ماه در آینده یک امید و آرزوی ممکن است، پس از `hope` استفاده می‌شود." }
+                ]
+            },
+            quiz2: {
+                title: "بخش ۲: آرزو برای حال (Present Wishes)",
+                questions: [
+                    { q: "من پول کافی ندارم. (تکمیل کنید) I wish I ___ more money.", o: ["have", "had", "would have"], a: 1, r: "برای آرزو در مورد حال، از گذشته ساده استفاده می‌کنیم." },
+                    { q: "هوا سرد است. (تکمیل کنید) I wish it ___ warmer.", o: ["is", "was", "were"], a: 2, r: "در جملات آرزویی رسمی، برای تمام اشخاص از `were` استفاده می‌شود." },
+                    { q: "من باید کار کنم. (تکمیل کنید) I wish I ___ to work.", o: ["don't have", "didn't have", "wouldn't have"], a: 1, r: "برای بیان آرزویی برخلاف واقعیت فعلی، از گذشته ساده استفاده می‌کنیم." },
+                    { q: "او اینجا نیست. (تکمیل کنید) I wish he ___ here.", o: ["is", "was", "were"], a: 2, r: "در جملات آرزویی رسمی، برای سوم شخص مفرد نیز از `were` استفاده می‌شود." },
+                    { q: "ما در یک شهر شلوغ زندگی می‌کنیم. (تکمیل کنید) I wish we ___ in the countryside.", o: ["live", "lived", "would live"], a: 1, r: "برای آرزو در مورد یک وضعیت فعلی، از گذشته ساده استفاده می‌کنیم." },
+                    { q: "من نمی‌توانم شنا کنم. (تکمیل کنید) I wish I ___ swim.", o: ["can", "could", "would"], a: 1, r: "برای بیان آرزو در مورد یک توانایی فعلی، از `could` استفاده می‌کنیم." },
+                    { q: "امروز دوشنبه است. (تکمیل کنید) I wish it ___ Friday.", o: ["is", "was", "were"], a: 2, r: "برای بیان یک وضعیت غیرواقعی در زمان حال، از `were` استفاده می‌شود." },
+                    { q: "آنها همسایه ما نیستند. (تکمیل کنید) I wish they ___ our neighbors.", o: ["are", "was", "were"], a: 2, r: "برای فاعل جمع نیز از `were` استفاده می‌شود." },
+                    { q: "من زبان ژاپنی بلد نیستم. (تکمیل کنید) I wish I ___ Japanese.", o: ["speak", "spoke", "would speak"], a: 1, r: "برای بیان آرزو در مورد یک مهارت فعلی، از گذشته ساده استفاده می‌کنیم." },
+                    { q: "این خانه خیلی گران است. (تکمیل کنید) I wish it ___ so expensive.", o: ["isn't", "wasn't", "weren't"], a: 2, r: "در جملات آرزویی رسمی، شکل منفی `were` به صورت `weren't` به کار می‌رود." }
+                ]
+            },
+            quiz3: {
+                title: "بخش ۳: شکایت با Wish (Complaints)",
+                questions: [
+                    { q: "بچه همسایه همیشه گریه می‌کند. (تکمیل کنید) I wish that baby ___ crying.", o: ["stops", "stopped", "would stop"], a: 2, r: "برای شکایت از یک عمل تکرارشونده، از `would` استفاده می‌کنیم." },
+                    { q: "دوست من همیشه حرفم را قطع می‌کند. (تکمیل کنید) I wish he ___ interrupting me.", o: ["stops", "stopped", "would stop"], a: 2, r: "برای شکایت از رفتار یک شخص، از `would` استفاده می‌کنیم." },
+                    { q: "این ماشین روشن نمی‌شود. (تکمیل کنید) I wish this car ___ start.", o: ["starts", "started", "would start"], a: 2, r: "برای شکایت از یک شیء که کار نمی‌کند، می‌توان از `would` استفاده کرد." },
+                    { q: "تو همیشه از من انتقاد می‌کنی. (تکمیل کنید) I wish you ___ criticizing me.", o: ["don't", "didn't", "wouldn't"], a: 2, r: "برای درخواست توقف یک رفتار آزاردهنده، از `wouldn't` استفاده می‌کنیم." },
+                    { q: "باران بند نمی‌آید. (تکمیل کنید) I wish it ___ raining.", o: ["stops", "stopped", "would stop"], a: 2, r: "برای بیان بی‌صبری در مورد یک وضعیت، از `would` استفاده می‌شود." },
+                    { q: "سگ آنها تمام شب پارس می‌کند. (تکمیل کنید) I wish their dog ___ barking.", o: ["stops", "stopped", "would stop"], a: 2, r: "برای شکایت از یک صدای آزاردهنده، از `would` استفاده می‌کنیم." },
+                    { q: "او هیچوقت به حرف من گوش نمی‌دهد. (تکمیل کنید) I wish she ___ to me sometimes.", o: ["listens", "listened", "would listen"], a: 2, r: "برای بیان آرزو برای تغییر رفتار یک شخص، از `would` استفاده می‌کنیم." },
+                    { q: "تو همیشه وسایلت را همه جا رها می‌کنی. (تکمیل کنید) I wish you ___ your stuff everywhere.", o: ["don't leave", "didn't leave", "wouldn't leave"], a: 2, r: "برای شکایت از یک عادت بد، از `wouldn't` استفاده می‌کنیم." },
+                    { q: "اینترنت خیلی کند است. (تکمیل کنید) I wish the internet ___ faster.", o: ["is", "was", "would be"], a: 2, r: "برای شکایت از وضعیت یک چیز، می‌توان از `would be` استفاده کرد." },
+                    { q: "آنها همیشه دیر می‌کنند. (تکمیل کنید) I wish they ___ on time for once.", o: ["arrive", "arrived", "would arrive"], a: 2, r: "برای بیان آرزو برای یک تغییر در رفتار تکرارشونده، از `would` استفاده می‌کنیم." }
+                ]
+            },
+            quiz4: {
+                title: "بخش ۴: حسرت برای گذشته (Past Regrets)",
+                questions: [
+                    { q: "من پولم را هدر دادم. (تکمیل کنید) I wish I ___ my money.", o: ["didn't waste", "hadn't wasted", "wouldn't waste"], a: 1, r: "برای حسرت در مورد گذشته، از گذشته کامل (Past Perfect) استفاده می‌کنیم." },
+                    { q: "او به مهمانی نیامد. (تکمیل کنید) I wish she ___ to the party.", o: ["came", "had come", "would come"], a: 1, r: "برای بیان آرزو در مورد اتفاقی که در گذشته رخ نداده، از گذشته کامل استفاده می‌کنیم." },
+                    { q: "ما به نصیحت شما گوش نکردیم. (تکمیل کنید) I wish we ___ to your advice.", o: ["listened", "had listened", "would listen"], a: 1, r: "برای پشیمانی از کاری که در گذشته انجام نداده‌ایم، از گذشته کامل استفاده می‌کنیم." },
+                    { q: "من خیلی زیاد خوردم. (تکمیل کنید) I wish I ___ so much.", o: ["didn't eat", "hadn't eaten", "wouldn't eat"], a: 1, r: "برای حسرت در مورد کاری که در گذشته انجام داده‌ایم، از گذشته کامل استفاده می‌کنیم." },
+                    { q: "آنها خانه را فروختند. (تکمیل کنید) I wish they ___ the house.", o: ["didn't sell", "hadn't sold", "wouldn't sell"], a: 1, r: "برای بیان آرزو در مورد عدم وقوع یک اتفاق در گذشته، از گذشته کامل استفاده می‌کنیم." },
+                    { q: "من حقیقت را به او نگفتم. (تکمیل کنید) I wish I ___ her the truth.", o: ["told", "had told", "would tell"], a: 1, r: "برای پشیمانی از نگفتن چیزی در گذشته، از گذشته کامل استفاده می‌کنیم." },
+                    { q: "تو خیلی سریع رانندگی کردی. (تکمیل کنید) I wish you ___ so fast.", o: ["didn't drive", "hadn't driven", "wouldn't drive"], a: 1, r: "برای حسرت در مورد یک عمل در گذشته، از گذشته کامل استفاده می‌کنیم." },
+                    { q: "او شغلش را ترک کرد. (تکمیل کنید) I wish she ___ her job.", o: ["didn't quit", "hadn't quit", "wouldn't quit"], a: 1, r: "برای بیان آرزو در مورد عدم وقوع یک اتفاق در گذشته، از گذشته کامل استفاده می‌کنیم." },
+                    { q: "من آن فیلم را ندیدم. (تکمیل کنید) I wish I ___ that movie.", o: ["saw", "had seen", "would see"], a: 1, r: "برای پشیمانی از ندیدن چیزی در گذشته، از گذشته کامل استفاده می‌کنیم." },
+                    { q: "ما زودتر حرکت نکردیم. (تکمیل کنید) I wish we ___ earlier.", o: ["left", "had left", "would leave"], a: 1, r: "برای حسرت در مورد عدم انجام کاری در گذشته، از گذشته کامل استفاده می‌کنیم." }
+                ]
+            }
+        };
+
+        const tabsContainer = document.getElementById('tabs-container');
+        const quizContent = document.getElementById('quiz-content');
+        let currentQuizId = 'quiz1';
+
+        function renderQuiz(quizId) {
+            currentQuizId = quizId;
+            const quizData = quizzes[quizId];
+            let currentQuestionIndex = 0;
+            let score = 0;
+
+            function renderQuestion() {
+                if (currentQuestionIndex >= quizData.questions.length) {
+                    renderResult();
+                    return;
+                }
+
+                const questionData = quizData.questions[currentQuestionIndex];
+                const progress = ((currentQuestionIndex) / quizData.questions.length) * 100;
+
+                quizContent.innerHTML = `
+                    <div class="p-4">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-xl font-bold text-slate-700">${quizData.title}</h2>
+                            <p class="font-semibold text-emerald-600">${score} / ${quizData.questions.length}</p>
+                        </div>
+                        <div class="w-full bg-slate-200 rounded-full h-2.5 mb-6">
+                            <div class="bg-emerald-500 h-2.5 rounded-full progress-bar-fill" style="width: ${progress}%"></div>
+                        </div>
+
+                        <div class="bg-slate-50 p-6 rounded-lg border border-slate-200">
+                            <p class="text-lg font-semibold mb-5 text-center">${currentQuestionIndex + 1}. ${questionData.q}</p>
+                            <div class="grid grid-cols-1 gap-3">
+                                ${questionData.o.map((option, index) => `
+                                    <button class="option-btn w-full text-right p-4 border-2 border-slate-300 rounded-lg hover:bg-slate-100" data-index="${index}">
+                                        ${option}
+                                    </button>
+                                `).join('')}
+                            </div>
+                        </div>
+                        <div id="feedback" class="mt-4 text-center font-semibold min-h-[2rem]"></div>
+                        <div class="mt-6 flex justify-center">
+                            <button id="next-btn" class="bg-emerald-600 text-white font-bold py-3 px-8 rounded-lg hover:bg-emerald-700 transition-colors hidden">بعدی</button>
+                        </div>
+                    </div>
+                `;
+
+                const optionButtons = quizContent.querySelectorAll('.option-btn');
+                optionButtons.forEach(button => {
+                    button.addEventListener('click', handleOptionClick);
+                });
+            }
+
+            function handleOptionClick(event) {
+                const selectedIndex = parseInt(event.target.dataset.index);
+                const questionData = quizData.questions[currentQuestionIndex];
+                const correctIndex = questionData.a;
+                const feedbackDiv = document.getElementById('feedback');
+                const nextBtn = document.getElementById('next-btn');
+
+                quizContent.querySelectorAll('.option-btn').forEach(btn => {
+                    btn.disabled = true;
+                });
+
+                if (selectedIndex === correctIndex) {
+                    event.target.classList.add('correct');
+                    feedbackDiv.textContent = 'آفرین! پاسخ شما صحیح است.';
+                    feedbackDiv.className = 'mt-4 text-center font-semibold min-h-[2rem] text-green-600';
+                    score++;
+                } else {
+                    event.target.classList.add('incorrect');
+                    quizContent.querySelector(`.option-btn[data-index="${correctIndex}"]`).classList.add('correct');
+                    feedbackDiv.innerHTML = `<p class="text-red-600">پاسخ شما نادرست بود.</p><p class="text-sm text-slate-600 mt-1">${questionData.r}</p>`;
+                }
+                
+                const progressBar = quizContent.querySelector('.progress-bar-fill');
+                const newProgress = ((currentQuestionIndex + 1) / quizData.questions.length) * 100;
+                progressBar.style.width = `${newProgress}%`;
+
+                nextBtn.classList.remove('hidden');
+                nextBtn.addEventListener('click', () => {
+                    currentQuestionIndex++;
+                    renderQuestion();
+                });
+            }
+
+            function renderResult() {
+                quizContent.innerHTML = `
+                    <div class="text-center p-8">
+                        <h2 class="text-2xl font-bold mb-4">شما بخش «${quizData.title}» را به پایان رساندید!</h2>
+                        <p class="text-lg mb-6">امتیاز شما: <span class="font-bold text-emerald-600 text-2xl">${score}</span> از ${quizData.questions.length}</p>
+                        <button id="restart-btn" class="bg-slate-600 text-white font-bold py-3 px-8 rounded-lg hover:bg-slate-700 transition-colors">تلاش مجدد</button>
+                    </div>
+                `;
+                document.getElementById('restart-btn').addEventListener('click', () => renderQuiz(currentQuizId));
+            }
+
+            renderQuestion();
+        }
+
+        tabsContainer.addEventListener('click', (event) => {
+            if (event.target.classList.contains('tab-button')) {
+                tabsContainer.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+                event.target.classList.add('active');
+                const quizId = event.target.dataset.quiz;
+                renderQuiz(quizId);
+            }
+        });
+
+        // Initial render
+        renderQuiz('quiz1');
+    });
+    </script>
+
+</body>
+</html>
