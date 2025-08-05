@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>خلاصه جلسه ۳۸ - کلاس Speaking ICC</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Vazirmatn -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <!-- Chart.js for infographics -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Vazirmatn', sans-serif;
+            background-color: #f1f5f9;
+            background-image: linear-gradient(to bottom right, #f1f5f9, #e0e7ff);
+            scroll-behavior: smooth;
+        }
+        .glassmorphism {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        .gradient-text {
+            background-image: linear-gradient(to left, #4f46e5, #a855f7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .session-link.active {
+            background-image: linear-gradient(to left, #4f46e5, #6366f1);
+            color: white !important;
+            font-weight: 700;
+        }
+        .content-card {
+            background-color: white;
+            border-radius: 1.5rem;
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05), 0 4px 6px -2px rgba(0,0,0,0.05);
+        }
+        .content-card h2 { font-size: 2rem; font-weight: 800; color: #1e293b; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 2px solid #e2e8f0; display: flex; align-items: center; gap: 0.75rem; }
+        .content-card h3 { font-size: 1.75rem; font-weight: 700; color: #334155; margin-top: 2.5rem; margin-bottom: 1.5rem; padding-bottom: 0.5rem; border-bottom: 2px solid #e2e8f0; display: flex; align-items: center; gap: 0.75rem; }
+        .content-card h4 { font-size: 1.25rem; font-weight: 700; color: #4f46e5; margin-top: 2rem; margin-bottom: 1rem; }
+        .content-card p, .content-card li { line-height: 2; color: #475569; margin-bottom: 1rem; }
+        .content-card ul { list-style-type: none; padding-right: 0; }
+        .content-card .styled-list li {
+            position: relative;
+            padding-right: 2rem;
+            margin-bottom: 0.75rem;
+        }
+        .content-card .styled-list li::before { 
+            content: "\f104"; 
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+            color: #818cf8;
+            position: absolute;
+            right: 0;
+            top: 10px;
+        }
+        .proverb-box { background: linear-gradient(135deg, #991b1b, #ef4444); border: none; padding: 2rem; margin-top: 2rem; border-radius: 1rem; text-align: center; color: white; box-shadow: 0 10px 20px rgba(239, 68, 68, 0.3); }
+        
+        /* --- Interactive Guide Styles --- */
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 250px;
+            max-height: 300px;
+        }
+        .step-item.active .step-circle {
+            background-color: #3b82f6; /* blue-500 */
+            color: white;
+            border-color: #3b82f6;
+            transform: scale(1.1);
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
+        }
+        .step-item.active .step-title {
+            font-weight: 700;
+            color: #3b82f6; /* blue-500 */
+        }
+        .step-circle {
+            transition: all 0.3s ease-in-out;
+        }
+    </style>
+</head>
+<body class="text-slate-800">
+
+    <div id="app-container" class="overflow-x-hidden">
+        <!-- Header with Horizontal Menu -->
+        <header class="glassmorphism shadow-sm sticky top-0 z-30">
+            <div class="container mx-auto px-4">
+                <div class="flex justify-between items-center py-3">
+                    <a href="https://habibk4.github.io/ICC-Speaking-Webpage/Index.html" class="text-xl sm:text-2xl font-bold gradient-text cursor-pointer no-underline">
+                        خلاصه کلاس Speaking ICC
+                    </a>
+                    <button id="mobile-menu-button" class="md:hidden p-2 rounded-md text-slate-600 hover:bg-slate-100 focus:outline-none">
+                        <i class="fa-solid fa-bars fa-lg"></i>
+                    </button>
+                </div>
+                <nav id="main-nav" class="hidden md:flex justify-center items-center py-2">
+                    <ul id="menu-container" class="flex flex-col md:flex-row gap-2">
+                        <!-- Menu items will be generated by JavaScript -->
+                    </ul>
+                </nav>
+            </div>
+        </header>
+
+        <!-- Main Body -->
+        <div class="container mx-auto px-4 py-10">
+            <main class="flex-1 space-y-10">
+                <div class="bg-white rounded-2xl shadow-lg p-6 sm:p-10">
+                    <a href="https://habibk4.github.io/ICC-Speaking-Webpage/Index.html" class="inline-flex items-center gap-2 bg-indigo-600 text-white font-semibold px-5 py-3 rounded-xl hover:bg-indigo-700 transition-all mb-10 shadow-lg hover:shadow-xl hover:scale-105 transform">
+                        <i class="fa-solid fa-house"></i>
+                        <span>بازگشت به صفحه اصلی</span>
+                    </a>
+                    <h2><i class="fa-solid fa-plane-departure text-indigo-500"></i>Session-37 Air Travaling</h2>
+                </div>
+                
+                <!-- Main Content Section -->
+                <div class="content-card p-6 sm:p-10">
+                    <h3 class="mt-0"><i class="fa-solid fa-circle-info text-sky-500"></i>مقدمه: کلیات سفر هوایی</h3>
+                    <p>سفر هوایی شامل مراحلی است که مسافر باید از لحظه ورود به فرودگاه مبدأ (Departure Airport) تا لحظه خروج از فرودگاه مقصد (Destination Airport) طی کند. مراحل ذکر شده در کلاس، استاندارد فرودگاه‌های بین‌المللی دنیا هستند.</p>
+
+                    <h3 class="mt-8"><i class="fa-solid fa-suitcase-rolling text-sky-500"></i>بخش اول: ورود به فرودگاه مبدأ و پذیرش (Check-in)</h3>
+                    <h4>ورود و یافتن کانتر پذیرش (Check-in Desk/Counter)</h4>
+                    <ul class="styled-list">
+                        <li>اولین قسمتی که باید به آن مراجعه کنید، Check-in Desk یا Check-in Counter است.</li>
+                        <li><strong>سوال کلیدی:</strong> "Excuse me, where is the check-in counter?".</li>
+                    </ul>
+                    <h4>انواع کلاس‌های پروازی</h4>
+                    <ul class="styled-list">
+                        <li>Economy Class (اکانمی کلاس)</li>
+                        <li>Business Class (بیزنس کلاس)</li>
+                        <li>First Class (فرست کلاس)</li>
+                    </ul>
+                    <h4>تحویل بار (Baggage/Luggage)</h4>
+                    <ul class="styled-list">
+                        <li><strong>بار در انگلیسی:</strong> Baggage (آمریکایی) و Luggage (بریتانیایی). هر دو غیرقابل شمارش هستند.</li>
+                        <li><strong>شمارش بار:</strong> با کلمه "Piece" انجام می‌شود. (How many pieces of baggage...?)</li>
+                        <li><strong>کیف دستی:</strong> Carry-on</li>
+                        <li><strong>اضافه بار:</strong> Excess Baggage</li>
+                    </ul>
+                    <h4>دریافت کارت پرواز (Boarding Pass)</h4>
+                    <ul class="styled-list">
+                        <li><strong>انواع صندلی:</strong> Window Seat (کنار پنجره)، Aisle Seat (کنار راهرو)، Exit Seat (کنار خروجی).</li>
+                        <li><strong>اطلاعات مهم کارت پرواز:</strong> Flight Number (ثابت)، Gate Number (متغیر)، Seat Number (ثابت).</li>
+                    </ul>
+
+                    <h3 class="mt-8"><i class="fa-solid fa-user-shield text-sky-500"></i>بخش دوم: بازرسی امنیتی و سالن پرواز</h3>
+                    <h4>بازرسی امنیتی (Security Check Point)</h4>
+                    <ul class="styled-list">
+                        <li><strong>نوار نقاله:</strong> Conveyor Belt</li>
+                        <li><strong>سبد پلاستیکی:</strong> Plastic Bin</li>
+                        <li><strong>دستگاه فلزیاب:</strong> Metal Detector</li>
+                        <li><strong>پول خرد:</strong> Loose Change</li>
+                    </ul>
+                    <h4>سالن پرواز (Departure Lounge)</h4>
+                    <p>پس از بازرسی، وارد سالن انتظار می‌شوید که امکاناتی مانند Duty-Free Shop، رستوران و... دارد. مهمترین کار در این بخش، چک کردن مداوم مانیتورها برای اطلاع از Gate Number است.</p>
+
+                    <h3 class="mt-8"><i class="fa-solid fa-plane text-sky-500"></i>بخش سوم: سوار شدن و داخل پرواز</h3>
+                    <h4>سوار شدن (Boarding)</h4>
+                    <p>برای سوار شدن به هواپیما از Jetway (تونل اتصال) یا اتوبوس استفاده می‌شود.</p>
+                    <h4>تذکرات مهمانداران (Flight Attendants)</h4>
+                    <ul class="styled-list">
+                        <li>"Put your bag in the <strong>overhead compartment</strong>." (کیف خود را در محفظه بالای سر قرار دهید).</li>
+                        <li>"Return your seat to its <strong>upright position</strong>." (صندلی خود را به حالت عمودی برگردانید).</li>
+                        <li>"<strong>Fasten your seatbelt</strong>." (کمربند ایمنی خود را ببندید).</li>
+                        <li>"<strong>Turn off your electronic devices</strong>." (دستگاه‌های الکترونیکی خود را خاموش کنید).</li>
+                    </ul>
+                    <h4>غذا و نوشیدنی</h4>
+                    <p>برای درخواست دستمال از کلمه <strong>Napkin</strong> استفاده کنید.</p>
+
+                    <h3 class="mt-8"><i class="fa-solid fa-plane-arrival text-sky-500"></i>بخش چهارم: فرودگاه مقصد</h3>
+                    <h4>دریافت بار (Baggage Claim)</h4>
+                    <ul class="styled-list">
+                        <li><strong>محل دریافت بار:</strong> Baggage Claim / Baggage Reclaim</li>
+                        <li><strong>چرخ دستی بار:</strong> Baggage Trolley / Luggage Cart</li>
+                        <li><strong>خستگی پرواز:</strong> Jet Lagged</li>
+                    </ul>
+                    <h4>گمرک (Customs)</h4>
+                    <ul class="styled-list">
+                        <li><strong>خط سبز (Green Line):</strong> برای مسافرانی که کالایی برای اظهار گمرکی ندارند.</li>
+                        <li><strong>خط قرمز (Red Line):</strong> برای مسافرانی که کالایی برای اظهار گمرکی دارند.</li>
+                    </ul>
+                </div>
+
+                <div class="content-card p-6 sm:p-10">
+                    <h3 class="mt-0"><i class="fa-solid fa-book-bookmark text-purple-500"></i>بخش پنجم: نکات گرامری و مکالمه</h3>
+                    <h4>"Since" و "For"</h4>
+                    <ul class="styled-list">
+                        <li><strong>Since:</strong> از یک زمان خاص تا الان (نقطه شروع). مثال: "I have had this phone since 1400."</li>
+                        <li><strong>For:</strong> برای یک مدت زمان مشخص (طول دوره). مثال: "I have had this phone for 5 years."</li>
+                    </ul>
+                    <h4>"How long"</h4>
+                    <ul class="styled-list">
+                        <li><strong>How long have you been...?</strong> برای کاری که از گذشته شروع شده و تا حال ادامه دارد.</li>
+                        <li><strong>How long were you...?</strong> برای کاری که در گذشته انجام شده و تمام شده است.</li>
+                    </ul>
+                    <h4>افعال لحظه‌ای و بازه‌ای</h4>
+                    <p>در حالت منفی، هر دو نوع فعل می‌توانند با مدت زمان بیایند. اما در حالت مثبت، افعال لحظه‌ای (مثل marry, buy) نمی‌توانند با "for" یا "since" بیایند.</p>
+                </div>
+                
+                <!-- Interactive Guide Section -->
+                <div class="content-card p-6 sm:p-10">
+                    <h3 class="mt-0"><i class="fa-solid fa-map-signs text-cyan-500"></i>راهنمای تعاملی فرودگاه</h3>
+                    <nav id="timeline-nav" class="mb-12 overflow-x-auto pb-4 sticky top-0 bg-white/80 backdrop-blur-sm z-10 py-4 -mx-6 px-6" dir="ltr">
+                        <div class="flex items-center justify-between min-w-max md:min-w-full">
+                            <div class="step-item flex-1 text-center cursor-pointer" data-target="check-in-interactive">
+                                <div class="step-circle relative mx-auto w-12 h-12 rounded-full border-2 border-slate-300 bg-white flex items-center justify-center text-xl text-slate-500">✈️</div>
+                                <p class="step-title mt-2 text-sm md:text-base text-slate-600 transition-all duration-300">Check-in</p>
+                            </div>
+                            <div class="flex-1 h-0.5 bg-slate-300"></div>
+                            <div class="step-item flex-1 text-center cursor-pointer" data-target="security-interactive">
+                                <div class="step-circle relative mx-auto w-12 h-12 rounded-full border-2 border-slate-300 bg-white flex items-center justify-center text-xl text-slate-500">🛂</div>
+                                <p class="step-title mt-2 text-sm md:text-base text-slate-600 transition-all duration-300">Security</p>
+                            </div>
+                            <div class="flex-1 h-0.5 bg-slate-300"></div>
+                            <div class="step-item flex-1 text-center cursor-pointer" data-target="lounge-interactive">
+                                <div class="step-circle relative mx-auto w-12 h-12 rounded-full border-2 border-slate-300 bg-white flex items-center justify-center text-xl text-slate-500">🛋️</div>
+                                <p class="step-title mt-2 text-sm md:text-base text-slate-600 transition-all duration-300">Lounge</p>
+                            </div>
+                            <div class="flex-1 h-0.5 bg-slate-300"></div>
+                            <div class="step-item flex-1 text-center cursor-pointer" data-target="boarding-interactive">
+                                <div class="step-circle relative mx-auto w-12 h-12 rounded-full border-2 border-slate-300 bg-white flex items-center justify-center text-xl text-slate-500">🎟️</div>
+                                <p class="step-title mt-2 text-sm md:text-base text-slate-600 transition-all duration-300">Boarding</p>
+                            </div>
+                            <div class="flex-1 h-0.5 bg-slate-300"></div>
+                            <div class="step-item flex-1 text-center cursor-pointer" data-target="in-flight-interactive">
+                                <div class="step-circle relative mx-auto w-12 h-12 rounded-full border-2 border-slate-300 bg-white flex items-center justify-center text-xl text-slate-500">🛫</div>
+                                <p class="step-title mt-2 text-sm md:text-base text-slate-600 transition-all duration-300">In-Flight</p>
+                            </div>
+                            <div class="flex-1 h-0.5 bg-slate-300"></div>
+                            <div class="step-item flex-1 text-center cursor-pointer" data-target="arrival-interactive">
+                                <div class="step-circle relative mx-auto w-12 h-12 rounded-full border-2 border-slate-300 bg-white flex items-center justify-center text-xl text-slate-500">🛬</div>
+                                <p class="step-title mt-2 text-sm md:text-base text-slate-600 transition-all duration-300">Arrival</p>
+                            </div>
+                        </div>
+                    </nav>
+                    <div id="interactive-content">
+                        <!-- Content will be loaded here by JS -->
+                    </div>
+                </div>
+
+                <div class="proverb-box">
+                    <h3 class="mt-0 text-white"><i class="fa-solid fa-apple-whole"></i> ضرب‌المثل جلسه 37 </h3>
+                    <p class="text-3xl font-extrabold tracking-wider">A rotten apple injures its neighbours.</p>
+                    <p class="text-xl font-semibold text-red-200 mt-2">"یک سیب گندیده، بقیه را هم خراب می‌کند"</p>
+                </div>
+            </main>
+        </div>
+        
+        <!-- Footer -->
+        <footer class="mt-12 border-t-2 border-slate-200 bg-white">
+            <div class="container mx-auto px-6 py-8 text-center text-slate-600">
+                <p class="font-semibold text-lg">از این آرشیو برای مرور و یادگیری بهتر استفاده کنید!</p>
+                <a href="mailto:Habibkamaie@gmail.com" class="mt-2 inline-block text-indigo-600 font-bold hover:underline">Habibkamaie@gmail.com</a>
+                <p class="mt-6 text-sm text-slate-500">
+                    &copy; <span id="copyright-year"></span> | تمامی حقوق برای حبیب کمایی محفوظ است.
+                </p>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        const baseURL = 'https://habibk4.github.io/ICC-Speaking-Webpage/';
+        const menuContainer = document.getElementById('menu-container');
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const mainNav = document.getElementById('main-nav');
+        const copyrightYear = document.getElementById('copyright-year');
+
+        function createMenu() { let sessionCounter = 1; for (let term = 1; term <= 5; term++) { const termLi = document.createElement('li'); termLi.className = 'relative group'; const termButton = document.createElement('button'); termButton.className = 'w-full md:w-auto p-3 text-right font-semibold text-slate-700 hover:bg-indigo-100 rounded-lg transition-all flex items-center justify-between md:justify-start gap-2'; termButton.innerHTML = `<span>ترم ${term}</span><i class="fa-solid fa-chevron-down text-xs"></i>`; const sessionsUl = document.createElement('ul'); sessionsUl.className = 'mt-2 md:mt-0 md:absolute md:top-full md:right-0 bg-white md:shadow-lg md:rounded-xl md:border md:w-48 p-2 space-y-1 hidden group-hover:block'; for (let session = 1; session <= 10; session++) { const sessionLi = document.createElement('li'); const sessionLink = document.createElement('a'); sessionLink.href = `${baseURL}session-${sessionCounter}.html`; sessionLink.innerHTML = `<i class="fa-solid fa-file-lines fa-xs ml-2 text-slate-400"></i> جلسه ${sessionCounter}`; sessionLink.className = 'session-link block p-2 text-slate-600 hover:bg-indigo-100 hover:text-indigo-700 rounded-md transition-colors duration-200'; sessionLi.appendChild(sessionLink); sessionsUl.appendChild(sessionLi); sessionCounter++; } termLi.appendChild(termButton); termLi.appendChild(sessionsUl); menuContainer.appendChild(termLi); } }
+        function updateActiveLink() { const currentPage = window.location.href.split('?')[0].split('#')[0]; if (!currentPage.includes('session-')) return; const activeLink = document.querySelector(`.session-link[href="${currentPage}"]`); if (activeLink) { activeLink.classList.add('active'); const parentButton = activeLink.closest('.group').querySelector('button'); if(parentButton) { parentButton.classList.add('bg-indigo-100', 'text-indigo-700'); } } }
+        
+        mobileMenuButton.addEventListener('click', () => { mainNav.classList.toggle('hidden'); });
+        
+        // --- Interactive Guide Logic ---
+        document.addEventListener('DOMContentLoaded', function() {
+            const stepItems = document.querySelectorAll('.step-item');
+            const contentContainer = document.getElementById('interactive-content');
+            
+            const contentData = {
+                'check-in-interactive': {
+                    title: '۱. پذیرش و تحویل بار (Check-in)',
+                    description: 'خب، اینجا اولین ایستگاه رسمیه. چمدون‌ها رو تحویل می‌دی، کارت پروازتو می‌گیری و صندلی‌تو ردیف می‌کنی.',
+                    vocab: [
+                        { term: 'Baggage / Luggage', pron: '(بَگِج / لاگِج)', def: 'بار' },
+                        { term: 'Carry-on', pron: '(کَری آن)', def: 'کیف داخل کابین' },
+                        { term: 'Boarding Pass', pron: '(بوردینگ پَس)', def: 'کارت پرواز' },
+                    ],
+                    dialogue: [
+                        { speaker: 'تو', text: "Hello. I'd like to check in for the flight to London." },
+                        { speaker: 'متصدی', text: "Certainly. How many pieces of baggage are you checking in?" },
+                    ]
+                },
+                'security-interactive': {
+                    title: '۲. بازرسی امنیتی (Security Checkpoint)',
+                    description: 'اینجا قراره خودت و وسایلی که می‌بری تو هواپیما رو چک کنن که همه چی امن و امان باشه.',
+                    vocab: [
+                        { term: 'Conveyor belt', pron: '(کانوِیِر بِلت)', def: 'نوار نقاله' },
+                        { term: 'Plastic bin', pron: '(پلاستیک بین)', def: 'سبد پلاستیکی' },
+                        { term: 'Metal detector', pron: '(مِتال دیتِکتِر)', def: 'دستگاه فلزیاب' },
+                    ],
+                    dialogue: [
+                        { speaker: 'مامور', text: "Please take laptops out of your bag." },
+                        { speaker: 'مامور', text: "Put your keys and phone in the bin." },
+                    ]
+                },
+                'lounge-interactive': {
+                    title: '۳. سالن انتظار (Departure Lounge)',
+                    description: 'پس از بازرسی، به سالن انتظار می‌رسی. اینجا می‌تونی استراحت کنی، اما مهم‌ترین کار چک کردن مداوم مانیتورها برای اطلاع از شماره گیت (Gate Number) است.',
+                    vocab: [
+                        { term: 'Gate Number', pron: '(گیت نامبر)', def: 'شماره گیت' },
+                        { term: 'Flight Number', pron: '(فلایت نامبر)', def: 'شماره پرواز' },
+                        { term: 'Status', pron: '(است্যাটِس)', def: 'وضعیت پرواز' },
+                    ],
+                    dialogue: [
+                         { speaker: 'اعلام فرودگاه', text: "Gate change for flight TK 875 to Istanbul. The new gate is B11." },
+                    ]
+                },
+                'boarding-interactive': {
+                    title: '۴. سوار شدن (Boarding)',
+                    description: 'وقت سوار شدن که شد، شماره پرواز و گیت رو روی مانیتورا داد می‌زنن. کارت پرواز و پاسپورتت دم دستت باشه.',
+                    vocab: [
+                        { term: 'Boarding', pron: '(بوردینگ)', def: 'سوار شدن' },
+                        { term: 'Final Call', pron: '(فاینال کال)', def: 'آخرین فراخوان' },
+                    ],
+                    dialogue: [
+                        { speaker: 'اعلام فرودگاه', text: "Now boarding flight QR 218 to Doha at gate A12." },
+                        { speaker: 'اعلام فرودگاه', text: "Please have your boarding pass and passport ready." },
+                    ]
+                },
+                'in-flight-interactive': {
+                    title: '۵. داخل هواپیما (On the Plane)',
+                    description: 'صندلی‌تو که پیدا کردی، قشنگ بشین و به حرفای مهماندارا گوش بده که پرواز امنی داشته باشی.',
+                    vocab: [
+                        { term: 'Overhead compartment', pron: '(اُوِرهِد کامپارتمنت)', def: 'محفظه بالای سر' },
+                        { term: 'Upright position', pron: '(آپ رایت پوزیشن)', def: 'حالت عمودی صندلی' },
+                        { term: 'Fasten your seatbelt', pron: '(فَسِن یور سیت بِلت)', def: 'کمربند را ببندید' },
+                    ],
+                    dialogue: [
+                        { speaker: 'مهماندار', text: "Would you like chicken or pasta?" },
+                        { speaker: 'تو', text: "I'll have the pasta, please. And a soda, no ice." },
+                    ]
+                },
+                'arrival-interactive': {
+                    title: '۶. رسیدن به مقصد (Arrival)',
+                    description: 'ایول! رسیدی به مقصد. حالا که از هواپیما پیاده شدی، تابلوها رو دنبال کن تا برسی به جایی که چمدونتو تحویل می‌گیری و بعدشم گمرک.',
+                    vocab: [
+                        { term: 'Baggage Claim', pron: '(بَگِج کلیم)', def: 'محل تحویل بار' },
+                        { term: 'Customs', pron: '(کاستِمز)', def: 'گمرک' },
+                        { term: 'Jet lag', pron: '(جِت لَگ)', def: 'خستگی پرواز' },
+                    ],
+                    dialogue: [
+                        { speaker: 'تو', text: "Excuse me, where is the baggage claim for flight LH 601?" },
+                        { speaker: 'مامور گمرک', text: "Do you have anything to declare?" },
+                    ]
+                }
+            };
+
+            function renderContent(targetId) {
+                const data = contentData[targetId];
+                if (!data) return;
+
+                let vocabHtml = data.vocab.map(v => `<li class="flex justify-between"><span>${v.term}</span> <span class="text-slate-500 text-sm">${v.pron}</span></li>`).join('');
+                let dialogueHtml = data.dialogue.map((d, i) => `
+                    <div class="p-3 ${i % 2 === 0 ? 'bg-slate-100 text-right' : 'bg-blue-100 text-left'} rounded-lg">
+                        <p class="font-semibold ${i % 2 !== 0 ? 'text-right' : ''}">${d.speaker}:</p>
+                        <p dir="ltr" class="${i % 2 === 0 ? 'text-left' : ''}">${d.text}</p>
+                    </div>
+                `).join('');
+
+                contentContainer.innerHTML = `
+                    <div class="bg-white rounded-xl shadow-inner p-6 mt-6">
+                        <h2 class="text-2xl font-bold mb-4 border-b-2 border-blue-200 pb-2">${data.title}</h2>
+                        <p class="mb-6 text-slate-600">${data.description}</p>
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div>
+                                <h3 class="font-bold text-lg mb-3">کلمه‌های کلیدی</h3>
+                                <ul class="space-y-2">${vocabHtml}</ul>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-lg mb-3">مکالمه نمونه</h3>
+                                <div class="space-y-3">${dialogueHtml}</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            function setActiveStep(targetId) {
+                stepItems.forEach(item => {
+                    item.classList.toggle('active', item.dataset.target === targetId);
+                });
+            }
+            
+            stepItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    const targetId = this.dataset.target;
+                    setActiveStep(targetId);
+                    renderContent(targetId);
+                });
+            });
+
+            // Initial load
+            setActiveStep('check-in-interactive');
+            renderContent('check-in-interactive');
+        });
+        
+        // --- Initializations ---
+        copyrightYear.textContent = new Date().getFullYear();
+        createMenu();
+        updateActiveLink();
+    </script>
+</body>
+</html>
