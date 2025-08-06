@@ -43,6 +43,21 @@
         </header>
 
         <div id="app-container" class="bg-white rounded-2xl shadow-xl p-6 sm:p-10">
+            <!-- Config Error View -->
+            <div id="config-error-view" class="hidden text-center py-10">
+                 <div class="bg-red-100 border-l-4 border-red-500 text-red-800 p-6 mt-4 rounded-lg text-right shadow-md">
+                    <p class="font-bold text-xl">پیکربندی Firebase انجام نشده است!</p>
+                    <p class="text-base mt-2">برای اینکه اپلیکیشن کار کند، باید آن را به پروژه Firebase خود متصل کنید.</p>
+                    <ol class="list-decimal list-inside text-base mt-4 space-y-2">
+                        <li>به <a href="https://console.firebase.google.com/" target="_blank" class="underline font-semibold">کنسول Firebase</a> بروید و وارد حساب گوگل خود شوید.</li>
+                        <li>یک پروژه جدید بسازید (یا پروژه موجود را انتخاب کنید).</li>
+                        <li>در پروژه خود، روی آیکون <strong></> (وب)</strong> کلیک کنید تا یک اپلیکیشن وب جدید اضافه کنید.</li>
+                        <li>پس از ثبت اپلیکیشن، Firebase یک کد حاوی اطلاعات پیکربندی (firebaseConfig) به شما می‌دهد.</li>
+                        <li>این کد را کپی کرده و در فایل HTML این اپلیکیشن، به جای متغیر <strong>`firebaseConfigPlaceholder`</strong> قرار دهید.</li>
+                    </ol>
+                </div>
+            </div>
+
             <!-- Login View -->
             <div id="login-view" class="text-center py-16">
                 <h2 class="text-2xl font-bold mb-4">به جعبه لایتنر خود خوش آمدید!</h2>
@@ -99,7 +114,6 @@
         // This object is a placeholder. If you are running this code outside of the
         // intended environment, you MUST replace these values with your own
         // Firebase project's configuration from the Firebase console.
-        // The app will automatically use the correct config (__firebase_config) when run in the proper environment.
         const firebaseConfigPlaceholder = {
             apiKey: "YOUR_API_KEY",
             authDomain: "YOUR_AUTH_DOMAIN",
@@ -112,20 +126,30 @@
         const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : firebaseConfigPlaceholder;
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
 
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-        const provider = new GoogleAuthProvider();
-
         // --- UI Elements ---
         const loginView = document.getElementById('login-view');
         const appView = document.getElementById('app-view');
         const authContainer = document.getElementById('auth-container');
         const loginBtn = document.getElementById('login-btn');
+        const configErrorView = document.getElementById('config-error-view');
 
-        // --- DATA ---
-        const allCardsData = [
+        // --- Config Check ---
+        if (firebaseConfig.apiKey === "YOUR_API_KEY" && typeof __firebase_config === 'undefined') {
+            loginView.classList.add('hidden');
+            configErrorView.classList.remove('hidden');
+        } else {
+            initializeAppAndAuth();
+        }
+
+        function initializeAppAndAuth() {
+            // Initialize Firebase
+            const app = initializeApp(firebaseConfig);
+            const auth = getAuth(app);
+            const db = getFirestore(app);
+            const provider = new GoogleAuthProvider();
+
+            // --- DATA ---
+            const allCardsData = [
                 { id: 1, front: 'سه سوته / In a jiffy', back_fa: 'خیلی سریع.', back_en: "I'll be back in a jiffy, just wait here.", text_to_speak: "In a jiffy" },
                 { id: 2, front: 'دو دلم / On the fence', back_fa: 'مردد بودن.', back_en: "I'm on the fence about accepting the new job offer.", text_to_speak: "On the fence" },
                 { id: 3, front: 'Never in a million years', back_fa: 'هرگز، عمراً.', back_en: "Never in a million years would I have guessed the surprise.", text_to_speak: "Never in a million years" },
@@ -157,306 +181,297 @@
                 { id: 29, front: 'Yawning', back_fa: 'خمیازه کشیدن.', back_en: "His constant yawning showed how bored he was.", text_to_speak: "Yawning" },
                 { id: 30, front: 'Ogling', back_fa: 'چشم‌چرانی کردن، دید زدن.', back_en: "The man was rudely ogling the people at the next table.", text_to_speak: "Ogling" },
                 { id: 31, front: 'Whistling', back_fa: 'سوت زدن.', back_en: "He walked down the street, whistling a cheerful tune.", text_to_speak: "Whistling" },
-        ];
-        
-        // --- STATE MANAGEMENT ---
-        let state = {};
-        let currentUserId = null;
-        let currentReviewSession = { cards: [], currentIndex: 0, boxNumber: 0 };
-        const NUM_BOXES = 5;
-        const reviewIntervals = { 1: 1, 2: 3, 3: 7, 4: 14, 5: 30 };
+            ];
+            
+            // --- STATE MANAGEMENT ---
+            let state = {};
+            let currentUserId = null;
+            let currentReviewSession = { cards: [], currentIndex: 0, boxNumber: 0 };
+            const NUM_BOXES = 5;
+            const reviewIntervals = { 1: 1, 2: 3, 3: 7, 4: 14, 5: 30 };
 
-        // --- AUTHENTICATION ---
-        onAuthStateChanged(auth, user => {
-            if (user) {
-                // User is signed in
-                currentUserId = user.uid;
-                loginView.classList.add('hidden');
-                appView.classList.remove('hidden');
-                renderAuthenticatedUI(user);
-                initializeState(currentUserId);
-            } else {
-                // User is signed out
-                currentUserId = null;
-                loginView.classList.remove('hidden');
-                appView.classList.add('hidden');
-                renderLoggedOutUI();
-            }
-        });
-
-        loginBtn.addEventListener('click', async () => {
-            try {
-                await signInWithPopup(auth, provider);
-            } catch (error) {
-                if (error.code === 'auth/unauthorized-domain') {
-                    showAuthError();
+            // --- AUTHENTICATION ---
+            onAuthStateChanged(auth, user => {
+                if (user) {
+                    currentUserId = user.uid;
+                    loginView.classList.add('hidden');
+                    configErrorView.classList.add('hidden');
+                    appView.classList.remove('hidden');
+                    renderAuthenticatedUI(user);
+                    initializeState(currentUserId);
                 } else {
-                    console.error("Login failed:", error);
-                }
-            }
-        });
-
-        function showAuthError() {
-            const errorDiv = document.createElement('div');
-            errorDiv.className = 'bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mt-4 rounded-lg text-right';
-            errorDiv.innerHTML = `
-                <p class="font-bold">خطای دسترسی (Unauthorized Domain)</p>
-                <p class="text-sm">این دامنه برای پروژه Firebase شما مجاز نیست. برای حل مشکل:</p>
-                <ol class="list-decimal list-inside text-sm mt-2">
-                    <li>به <a href="https://console.firebase.google.com/" target="_blank" class="underline font-semibold">کنسول Firebase</a> بروید.</li>
-                    <li>پروژه خود را انتخاب کنید.</li>
-                    <li>به بخش Authentication -> Settings -> Authorized domains بروید.</li>
-                    <li>روی "Add domain" کلیک کرده و دامنه زیر را اضافه کنید:</li>
-                    <li class="font-mono bg-gray-200 p-1 rounded my-1 text-left" dir="ltr">${window.location.hostname}</li>
-                </ol>
-            `;
-            const existingError = loginView.querySelector('.bg-red-100');
-            if (existingError) {
-                existingError.remove();
-            }
-            loginView.appendChild(errorDiv);
-        }
-
-        function userLogout() {
-            signOut(auth).catch((error) => console.error("Logout failed:", error));
-        }
-
-        // --- FIRESTORE DATA HANDLING ---
-        async function initializeState(userId) {
-            const docRef = doc(db, `artifacts/${appId}/users/${userId}/leitner-data`, "state");
-            const docSnap = await getDoc(docRef);
-
-            if (docSnap.exists()) {
-                state = docSnap.data();
-            } else {
-                // No saved state, create a new one
-                state = {};
-                allCardsData.forEach(card => {
-                    state[card.id] = { box: 1, nextReview: getTodayString() };
-                });
-                await saveState(userId);
-            }
-            updateUI();
-        }
-
-        async function saveState(userId) {
-            if (!userId) return;
-            const docRef = doc(db, `artifacts/${appId}/users/${userId}/leitner-data`, "state");
-            await setDoc(docRef, state);
-        }
-
-        // --- UI RENDERING ---
-        function renderAuthenticatedUI(user) {
-            authContainer.innerHTML = `
-                <div class="flex items-center gap-4">
-                    <span class="text-sm font-semibold">${user.displayName}</span>
-                    <img src="${user.photoURL}" alt="User Photo" class="w-10 h-10 rounded-full">
-                    <button id="logout-btn" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded-lg">خروج</button>
-                </div>
-            `;
-            document.getElementById('logout-btn').addEventListener('click', userLogout);
-        }
-
-        function renderLoggedOutUI() {
-            authContainer.innerHTML = ''; // Clear user info
-        }
-
-        function renderBoxes() {
-            const container = document.getElementById('boxes-container');
-            const todayNormalized = new Date(getTodayString());
-            const todayString = getTodayString();
-            container.innerHTML = '';
-            for (let i = 1; i <= NUM_BOXES; i++) {
-                const cardsInBox = Object.values(state).filter(cardState => cardState.box === i);
-                const totalCardsInBox = cardsInBox.length;
-                const cardsDueInBox = cardsInBox.filter(cardState => cardState.nextReview <= todayString).length;
-
-                let timerHTML = '';
-                if (totalCardsInBox > 0) {
-                    const earliestDateStr = cardsInBox.reduce((earliest, card) => card.nextReview < earliest ? card.nextReview : earliest, '9999-12-31');
-                    const earliestDate = new Date(earliestDateStr);
-                    const diffTime = earliestDate - todayNormalized;
-                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-                    if (diffDays <= 0) {
-                        timerHTML = `<div class="mt-2"><p class="text-sm font-semibold text-blue-600">آماده مرور!</p></div>`;
-                    } else {
-                        timerHTML = `<div class="mt-2"><p class="text-sm text-gray-500">مرور بعدی: ${diffDays} روز دیگر</p></div>`;
+                    currentUserId = null;
+                    if (firebaseConfig.apiKey !== "YOUR_API_KEY") {
+                        loginView.classList.remove('hidden');
                     }
-                } else {
-                    timerHTML = `<div class="mt-2 h-5"></div>`;
+                    appView.classList.add('hidden');
+                    renderLoggedOutUI();
                 }
+            });
 
-                const boxEl = document.createElement('div');
-                boxEl.className = `box border-2 border-gray-300 p-4 rounded-lg text-center cursor-pointer hover:border-blue-500 transition`;
-                boxEl.innerHTML = `
-                    <div>
-                        <h3 class="font-bold text-lg">جعبه ${i}</h3>
-                        <div class="text-gray-600 mt-2 flex items-center justify-center gap-2">
-                            <span class="box-count">${cardsDueInBox}</span>
-                            <span>کارت آماده مرور</span>
-                        </div>
-                        <p class="text-xs text-gray-400 mt-1">(مجموع: ${totalCardsInBox} کارت)</p>
-                    </div>
-                    ${timerHTML}
+            loginBtn.addEventListener('click', async () => {
+                try {
+                    await signInWithPopup(auth, provider);
+                } catch (error) {
+                    if (error.code === 'auth/unauthorized-domain') {
+                        showAuthError();
+                    } else {
+                        console.error("Login failed:", error);
+                    }
+                }
+            });
+
+            function showAuthError() {
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mt-4 rounded-lg text-right';
+                errorDiv.innerHTML = `
+                    <p class="font-bold">خطای دسترسی (Unauthorized Domain)</p>
+                    <p class="text-sm">دامنه <strong>${window.location.hostname}</strong> برای پروژه Firebase شما مجاز نیست. برای حل مشکل:</p>
+                    <ol class="list-decimal list-inside text-sm mt-2">
+                        <li>به <a href="https://console.firebase.google.com/" target="_blank" class="underline font-semibold">کنسول Firebase</a> بروید.</li>
+                        <li>پروژه خود را انتخاب کنید.</li>
+                        <li>به بخش Authentication -> Settings -> Authorized domains بروید.</li>
+                        <li>روی "Add domain" کلیک کرده و دامنه را اضافه کنید.</li>
+                    </ol>
                 `;
-                boxEl.dataset.boxNumber = i;
-                container.appendChild(boxEl);
-            }
-        }
-
-        function showCard(cardData) {
-            const cardFront = document.getElementById('card-front');
-            const cardBack = document.getElementById('card-back');
-            const flashcard = document.querySelector('.flashcard');
-            
-            flashcard.classList.remove('is-flipped');
-
-            cardFront.innerHTML = `<h3 class="text-2xl font-bold">${cardData.front}</h3>`;
-            cardBack.innerHTML = `
-                <p><strong>معنی:</strong> ${cardData.back_fa}</p>
-                <p><em><strong>مثال:</strong> ${cardData.back_en}</em></p>
-                <button class="pronunciation-button" data-text="${cardData.text_to_speak}">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M9.383 3.076A1 1 0 0110 4v12a1 1 0 01-1.707.707L4.586 13H2a1 1 0 01-1-1V8a1 1 0 011-1h2.586l3.707-3.707a1 1 0 011.09-.217zM14.657 2.929a1 1 0 011.414 0A9.972 9.972 0 0119 10a9.972 9.972 0 01-2.929 7.071 1 1 0 01-1.414-1.414A7.971 7.971 0 0017 10c0-2.21-.894-4.208-2.343-5.657a1 1 0 010-1.414z"/></svg>
-                    <span>تلفظ</span>
-                </button>
-            `;
-        }
-
-        // --- REVIEW LOGIC ---
-        function startReview(boxNumber) {
-            const today = getTodayString();
-            const cardIdsToReview = Object.keys(state).filter(id => 
-                state[id].box === boxNumber && state[id].nextReview <= today
-            );
-            
-            document.querySelectorAll('.box').forEach(b => b.classList.remove('active'));
-
-            if (cardIdsToReview.length === 0) {
-                alert(`هیچ کارتی برای مرور در جعبه ${boxNumber} آماده نیست.`);
-                return;
-            }
-            
-            document.querySelector(`[data-box-number='${boxNumber}']`).classList.add('active');
-
-            currentReviewSession = {
-                cards: shuffleArray(cardIdsToReview),
-                currentIndex: 0,
-                boxNumber: boxNumber
-            };
-            
-            document.getElementById('review-area').classList.remove('hidden');
-            document.getElementById('no-review-message').classList.add('hidden');
-            document.getElementById('answer-buttons').classList.add('hidden');
-            
-            showNextCard();
-        }
-
-        function showNextCard() {
-            if (currentReviewSession.currentIndex >= currentReviewSession.cards.length) {
-                endReview();
-                return;
+                const existingError = loginView.querySelector('.bg-red-100');
+                if (existingError) {
+                    existingError.remove();
+                }
+                loginView.appendChild(errorDiv);
             }
 
-            const cardId = currentReviewSession.cards[currentReviewSession.currentIndex];
-            const cardData = allCardsData.find(c => c.id == cardId);
-            
-            document.getElementById('review-message').textContent = `جعبه ${currentReviewSession.boxNumber} - کارت ${currentReviewSession.currentIndex + 1} از ${currentReviewSession.cards.length}`;
-            showCard(cardData);
-        }
-
-        function endReview() {
-            document.getElementById('review-area').classList.add('hidden');
-            document.getElementById('no-review-message').classList.remove('hidden');
-            document.getElementById('no-review-message').innerHTML = `
-                <p class="text-xl font-semibold text-green-700">مرور جعبه ${currentReviewSession.boxNumber} تمام شد!</p>
-                <p class="text-gray-500 mt-2">برای ادامه، یک جعبه دیگر را انتخاب کنید.</p>
-            `;
-            document.querySelectorAll('.box').forEach(b => b.classList.remove('active'));
-        }
-
-        async function handleAnswer(isCorrect) {
-            const cardId = currentReviewSession.cards[currentReviewSession.currentIndex];
-            const cardState = state[cardId];
-
-            if (isCorrect) {
-                const nextBox = Math.min(cardState.box + 1, NUM_BOXES);
-                state[cardId] = { box: nextBox, nextReview: calculateNextReviewDate(nextBox) };
-            } else {
-                state[cardId] = { box: 1, nextReview: calculateNextReviewDate(1) };
+            function userLogout() {
+                signOut(auth).catch((error) => console.error("Logout failed:", error));
             }
 
-            await saveState(currentUserId);
-            updateUI();
-            
-            currentReviewSession.currentIndex++;
-            showNextCard();
-        }
+            // --- FIRESTORE DATA HANDLING ---
+            async function initializeState(userId) {
+                const docRef = doc(db, `artifacts/${appId}/users/${userId}/leitner-data`, "state");
+                const docSnap = await getDoc(docRef);
 
-        // --- EVENT LISTENERS ---
-        document.getElementById('boxes-container').addEventListener('click', function(event) {
-            const box = event.target.closest('.box');
-            if (box) startReview(parseInt(box.dataset.boxNumber));
-        });
-
-        document.getElementById('flashcard-display').addEventListener('click', function(event) {
-            if (!event.target.closest('.pronunciation-button')) {
-                this.querySelector('.flashcard').classList.add('is-flipped');
-                document.getElementById('answer-buttons').classList.remove('hidden');
+                if (docSnap.exists()) {
+                    state = docSnap.data();
+                } else {
+                    state = {};
+                    allCardsData.forEach(card => {
+                        state[card.id] = { box: 1, nextReview: getTodayString() };
+                    });
+                    await saveState(userId);
+                }
+                updateUI();
             }
-        });
 
-        document.getElementById('correct-btn').addEventListener('click', () => handleAnswer(true));
-        document.getElementById('incorrect-btn').addEventListener('click', () => handleAnswer(false));
-        
-        document.body.addEventListener('click', function(event) {
-            const pronunciationButton = event.target.closest('.pronunciation-button');
-            if (pronunciationButton) {
-                event.stopPropagation();
-                const textToSpeak = pronunciationButton.dataset.text;
-                if (textToSpeak && 'speechSynthesis' in window) {
-                    const utterance = new SpeechSynthesisUtterance(textToSpeak);
-                    utterance.lang = 'en-US';
-                    utterance.rate = 0.9;
-                    speechSynthesis.speak(utterance);
+            async function saveState(userId) {
+                if (!userId) return;
+                const docRef = doc(db, `artifacts/${appId}/users/${userId}/leitner-data`, "state");
+                await setDoc(docRef, state);
+            }
+
+            // --- UI RENDERING ---
+            function renderAuthenticatedUI(user) {
+                authContainer.innerHTML = `
+                    <div class="flex items-center gap-4">
+                        <span class="text-sm font-semibold">${user.displayName}</span>
+                        <img src="${user.photoURL}" alt="User Photo" class="w-10 h-10 rounded-full">
+                        <button id="logout-btn" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded-lg">خروج</button>
+                    </div>
+                `;
+                document.getElementById('logout-btn').addEventListener('click', userLogout);
+            }
+
+            function renderLoggedOutUI() {
+                authContainer.innerHTML = '';
+            }
+
+            function renderBoxes() {
+                const container = document.getElementById('boxes-container');
+                const todayNormalized = new Date(getTodayString());
+                const todayString = getTodayString();
+                container.innerHTML = '';
+                for (let i = 1; i <= NUM_BOXES; i++) {
+                    const cardsInBox = Object.values(state).filter(cardState => cardState.box === i);
+                    const totalCardsInBox = cardsInBox.length;
+                    const cardsDueInBox = cardsInBox.filter(cardState => cardState.nextReview <= todayString).length;
+
+                    let timerHTML = '';
+                    if (totalCardsInBox > 0) {
+                        const earliestDateStr = cardsInBox.reduce((earliest, card) => card.nextReview < earliest ? card.nextReview : earliest, '9999-12-31');
+                        const earliestDate = new Date(earliestDateStr);
+                        const diffTime = earliestDate - todayNormalized;
+                        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+                        if (diffDays <= 0) {
+                            timerHTML = `<div class="mt-2"><p class="text-sm font-semibold text-blue-600">آماده مرور!</p></div>`;
+                        } else {
+                            timerHTML = `<div class="mt-2"><p class="text-sm text-gray-500">مرور بعدی: ${diffDays} روز دیگر</p></div>`;
+                        }
+                    } else {
+                        timerHTML = `<div class="mt-2 h-5"></div>`;
+                    }
+
+                    const boxEl = document.createElement('div');
+                    boxEl.className = `box border-2 border-gray-300 p-4 rounded-lg text-center cursor-pointer hover:border-blue-500 transition`;
+                    boxEl.innerHTML = `
+                        <div>
+                            <h3 class="font-bold text-lg">جعبه ${i}</h3>
+                            <div class="text-gray-600 mt-2 flex items-center justify-center gap-2">
+                                <span class="box-count">${cardsDueInBox}</span>
+                                <span>کارت آماده مرور</span>
+                            </div>
+                            <p class="text-xs text-gray-400 mt-1">(مجموع: ${totalCardsInBox} کارت)</p>
+                        </div>
+                        ${timerHTML}
+                    `;
+                    boxEl.dataset.boxNumber = i;
+                    container.appendChild(boxEl);
                 }
             }
-        });
 
-        document.getElementById('reset-progress').addEventListener('click', async function() {
-            if (confirm('آیا مطمئن هستید؟ تمام پیشرفت شما پاک خواهد شد و همه کارت‌ها به جعبه ۱ برمی‌گردند.')) {
-                allCardsData.forEach(card => {
-                    state[card.id] = { box: 1, nextReview: getTodayString() };
-                });
+            function showCard(cardData) {
+                const cardFront = document.getElementById('card-front');
+                const cardBack = document.getElementById('card-back');
+                const flashcard = document.querySelector('.flashcard');
+                
+                flashcard.classList.remove('is-flipped');
+                cardFront.innerHTML = `<h3 class="text-2xl font-bold">${cardData.front}</h3>`;
+                cardBack.innerHTML = `
+                    <p><strong>معنی:</strong> ${cardData.back_fa}</p>
+                    <p><em><strong>مثال:</strong> ${cardData.back_en}</em></p>
+                    <button class="pronunciation-button" data-text="${cardData.text_to_speak}">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M9.383 3.076A1 1 0 0110 4v12a1 1 0 01-1.707.707L4.586 13H2a1 1 0 01-1-1V8a1 1 0 011-1h2.586l3.707-3.707a1 1 0 011.09-.217zM14.657 2.929a1 1 0 011.414 0A9.972 9.972 0 0119 10a9.972 9.972 0 01-2.929 7.071 1 1 0 01-1.414-1.414A7.971 7.971 0 0017 10c0-2.21-.894-4.208-2.343-5.657a1 1 0 010-1.414z"/></svg>
+                        <span>تلفظ</span>
+                    </button>
+                `;
+            }
+
+            // --- REVIEW LOGIC ---
+            function startReview(boxNumber) {
+                const today = getTodayString();
+                const cardIdsToReview = Object.keys(state).filter(id => 
+                    state[id].box === boxNumber && state[id].nextReview <= today
+                );
+                
+                document.querySelectorAll('.box').forEach(b => b.classList.remove('active'));
+                if (cardIdsToReview.length === 0) {
+                    alert(`هیچ کارتی برای مرور در جعبه ${boxNumber} آماده نیست.`);
+                    return;
+                }
+                
+                document.querySelector(`[data-box-number='${boxNumber}']`).classList.add('active');
+                currentReviewSession = { cards: shuffleArray(cardIdsToReview), currentIndex: 0, boxNumber: boxNumber };
+                
+                document.getElementById('review-area').classList.remove('hidden');
+                document.getElementById('no-review-message').classList.add('hidden');
+                document.getElementById('answer-buttons').classList.add('hidden');
+                
+                showNextCard();
+            }
+
+            function showNextCard() {
+                if (currentReviewSession.currentIndex >= currentReviewSession.cards.length) {
+                    endReview();
+                    return;
+                }
+                const cardId = currentReviewSession.cards[currentReviewSession.currentIndex];
+                const cardData = allCardsData.find(c => c.id == cardId);
+                
+                document.getElementById('review-message').textContent = `جعبه ${currentReviewSession.boxNumber} - کارت ${currentReviewSession.currentIndex + 1} از ${currentReviewSession.cards.length}`;
+                showCard(cardData);
+            }
+
+            function endReview() {
+                document.getElementById('review-area').classList.add('hidden');
+                document.getElementById('no-review-message').classList.remove('hidden');
+                document.getElementById('no-review-message').innerHTML = `
+                    <p class="text-xl font-semibold text-green-700">مرور جعبه ${currentReviewSession.boxNumber} تمام شد!</p>
+                    <p class="text-gray-500 mt-2">برای ادامه، یک جعبه دیگر را انتخاب کنید.</p>
+                `;
+                document.querySelectorAll('.box').forEach(b => b.classList.remove('active'));
+            }
+
+            async function handleAnswer(isCorrect) {
+                const cardId = currentReviewSession.cards[currentReviewSession.currentIndex];
+                const cardState = state[cardId];
+
+                if (isCorrect) {
+                    const nextBox = Math.min(cardState.box + 1, NUM_BOXES);
+                    state[cardId] = { box: nextBox, nextReview: calculateNextReviewDate(nextBox) };
+                } else {
+                    state[cardId] = { box: 1, nextReview: calculateNextReviewDate(1) };
+                }
+
                 await saveState(currentUserId);
-                location.reload();
+                updateUI();
+                
+                currentReviewSession.currentIndex++;
+                showNextCard();
             }
-        });
 
-        // --- HELPERS ---
-        function getTodayString() {
-            const today = new Date();
-            const year = today.getFullYear();
-            const month = String(today.getMonth() + 1).padStart(2, '0');
-            const day = String(today.getDate()).padStart(2, '0');
-            return `${year}-${month}-${day}`;
-        }
+            // --- EVENT LISTENERS ---
+            document.getElementById('boxes-container').addEventListener('click', function(event) {
+                const box = event.target.closest('.box');
+                if (box) startReview(parseInt(box.dataset.boxNumber));
+            });
 
-        function calculateNextReviewDate(boxNumber) {
-            const daysToAdd = reviewIntervals[boxNumber];
-            const date = new Date();
-            date.setDate(date.getDate() + daysToAdd);
-            return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
-        }
-        
-        function shuffleArray(array) {
-            for (let i = array.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [array[i], array[j]] = [array[j], array[i]];
+            document.getElementById('flashcard-display').addEventListener('click', function(event) {
+                if (!event.target.closest('.pronunciation-button')) {
+                    this.querySelector('.flashcard').classList.add('is-flipped');
+                    document.getElementById('answer-buttons').classList.remove('hidden');
+                }
+            });
+
+            document.getElementById('correct-btn').addEventListener('click', () => handleAnswer(true));
+            document.getElementById('incorrect-btn').addEventListener('click', () => handleAnswer(false));
+            
+            document.body.addEventListener('click', function(event) {
+                const pronunciationButton = event.target.closest('.pronunciation-button');
+                if (pronunciationButton) {
+                    event.stopPropagation();
+                    const textToSpeak = pronunciationButton.dataset.text;
+                    if (textToSpeak && 'speechSynthesis' in window) {
+                        const utterance = new SpeechSynthesisUtterance(textToSpeak);
+                        utterance.lang = 'en-US';
+                        utterance.rate = 0.9;
+                        speechSynthesis.speak(utterance);
+                    }
+                }
+            });
+
+            document.getElementById('reset-progress').addEventListener('click', async function() {
+                if (confirm('آیا مطمئن هستید؟ تمام پیشرفت شما پاک خواهد شد و همه کارت‌ها به جعبه ۱ برمی‌گردند.')) {
+                    allCardsData.forEach(card => {
+                        state[card.id] = { box: 1, nextReview: getTodayString() };
+                    });
+                    await saveState(currentUserId);
+                    location.reload();
+                }
+            });
+
+            // --- HELPERS ---
+            function getTodayString() {
+                const today = new Date();
+                const year = today.getFullYear();
+                const month = String(today.getMonth() + 1).padStart(2, '0');
+                const day = String(today.getDate()).padStart(2, '0');
+                return `${year}-${month}-${day}`;
             }
-            return array;
-        }
 
+            function calculateNextReviewDate(boxNumber) {
+                const daysToAdd = reviewIntervals[boxNumber];
+                const date = new Date();
+                date.setDate(date.getDate() + daysToAdd);
+                return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+            }
+            
+            function shuffleArray(array) {
+                for (let i = array.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [array[i], array[j]] = [array[j], array[i]];
+                }
+                return array;
+            }
+        }
     </script>
 </body>
 </html>
