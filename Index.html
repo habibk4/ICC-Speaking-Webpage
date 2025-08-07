@@ -9,34 +9,34 @@
     <!-- Google Fonts: Vazirmatn -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- Font Awesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    
+    <!-- Google Sign-In API -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <style>
-        /* Applying the Vazirmatn font to the entire page */
+        /* General Styles */
         body {
             font-family: 'Vazirmatn', sans-serif;
-            /* Subtle geometric background pattern */
             background-color: #f8fafc;
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Cg fill-rule='evenodd'%3E%3Cg fill='%23e2e8f0' fill-opacity='0.4'%3E%3Cpath d='M0 38.59l2.83-2.83 1.41 1.41L1.41 40H0v-1.41zM0 1.4l2.83 2.83 1.41-1.41L1.41 0H0v1.41zM38.59 40l-2.83-2.83 1.41-1.41L40 38.59V40h-1.41zM40 1.41l-2.83 2.83-1.41-1.41L38.59 0H40v1.41z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
         }
-
-        /* Custom scrollbar for a cleaner look */
-        ::-webkit-scrollbar {
-            width: 8px;
+        .glassmorphism {
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
-        ::-webkit-scrollbar-track {
-            background: #e2e8f0;
+        .gradient-text {
+            background-image: linear-gradient(to left, #4f46e5, #a855f7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
-        ::-webkit-scrollbar-thumb {
-            background: #a5b4fc; /* Light indigo */
-            border-radius: 10px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #818cf8; /* Darker indigo */
-        }
-
-        /* Styling for the active session link */
         .session-link.active {
             background-image: linear-gradient(to left, #4f46e5, #6366f1);
             color: white;
@@ -44,27 +44,11 @@
             transform: scale(1.05);
             box-shadow: 0 4px 15px -3px rgba(79, 70, 229, 0.4);
         }
-        
-        /* Smooth transition for all elements */
-        * {
-            transition: all 0.3s ease-in-out;
-        }
-
-        /* Accordion styles */
         .accordion-content {
             max-height: 0;
             overflow: hidden;
             transition: max-height 0.4s ease-out;
         }
-
-        /* Gradient text for the main header */
-        .gradient-text {
-            background-image: linear-gradient(to left, #4f46e5, #a855f7);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        /* Animation for content fade-in */
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
@@ -72,38 +56,55 @@
         .fade-in {
             animation: fadeIn 0.5s ease-out forwards;
         }
-        
-        /* Glassmorphism effect for header and sidebar */
-        .glassmorphism {
-            background: rgba(255, 255, 255, 0.6);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
     </style>
 </head>
 <body class="text-slate-800">
 
+    <!-- Main Application Container -->
     <div id="app-container">
         <!-- Header -->
         <header class="glassmorphism shadow-sm sticky top-0 z-30">
             <div class="container mx-auto px-4 py-3 flex justify-between items-center">
-                <!-- **MODIFIED**: Link now points to the GitHub Pages root -->
-                <a href="https://habibk4.github.io/ICC-Speaking-Webpage/" id="home-button" class="text-xl sm:text-2xl font-bold gradient-text cursor-pointer no-underline">
+                <a href="https://habibk4.github.io/ICC-Speaking-Webpage/" class="text-xl sm:text-2xl font-bold gradient-text cursor-pointer no-underline">
                     خلاصه کلاس Speaking ICC
                 </a>
-                <!-- Mobile Menu Button -->
-                <button id="mobile-menu-button" class="md:hidden p-2 rounded-md text-slate-600 hover:bg-slate-100 focus:outline-none">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
-                </button>
+                <div class="flex items-center gap-4">
+                    <!-- Login Button Container -->
+                    <div id="g_id_onload"
+                        data-client_id="237587578389-ggirbrqh3ace9aura1fd6ipa5m2bepco.apps.googleusercontent.com"
+                        data-callback="handleCredentialResponse"
+                        data-auto_prompt="false"
+                        class="hidden"
+                    ></div>
+                    <div id="login-button" class="g_id_signin px-4 py-2 text-sm font-bold text-white bg-indigo-500 hover:bg-indigo-600 rounded-lg transition-colors hidden"
+                        data-type="standard"
+                        data-size="large"
+                        data-theme="outline"
+                        data-text="sign_in_with"
+                        data-shape="rectangular"
+                        data-logo_alignment="left">
+                    </div>
+                    <!-- User profile and logout button -->
+                    <div id="user-profile-actions" class="flex items-center gap-4 hidden">
+                        <div id="user-display-info" class="flex items-center gap-2">
+                            <!-- User image and name will be injected here -->
+                        </div>
+                        <button id="logout-button" class="px-4 py-2 text-sm font-bold text-white bg-red-500 hover:bg-red-600 rounded-lg transition-colors">
+                            خروج
+                        </button>
+                    </div>
+                    <button id="mobile-menu-button" class="md:hidden p-2 rounded-md text-slate-600 hover:bg-slate-100 focus:outline-none">
+                        <i class="fa-solid fa-bars fa-lg"></i>
+                    </button>
+                </div>
             </div>
         </header>
 
+        <!-- Main Body -->
         <div class="container mx-auto px-4 py-6">
             <div class="flex flex-row-reverse gap-8">
-
                 <!-- Sidebar Navigation -->
-                <aside id="sidebar" class="fixed top-0 right-0 h-full z-50 w-72 glassmorphism p-5 shadow-lg transform-gpu translate-x-full transition-transform duration-300 md:relative md:h-full md:self-start md:top-24 md:translate-x-0 md:z-auto">
+                <aside id="sidebar" class="fixed top-0 right-0 h-full z-50 w-72 glassmorphism p-5 shadow-lg transform-gpu translate-x-full transition-transform duration-300 md:relative md:h-auto md:self-start md:top-auto md:translate-x-0 md:z-auto md:!shadow-none md:!bg-transparent md:p-0">
                     <div class="mb-4 pb-2 border-b border-slate-200">
                         <h2 class="font-bold text-lg text-slate-800 flex items-center gap-2"><i class="fa-solid fa-book-open text-indigo-500"></i>سرفصل دروس</h2>
                     </div>
@@ -117,20 +118,27 @@
                 <!-- Main Content -->
                 <main class="flex-1">
                     <div id="content-area" class="bg-white rounded-2xl shadow-lg min-h-[80vh] overflow-hidden">
-                        <!-- This is the main page content -->
-                        <div id="hero-section" class="relative text-white h-full min-h-[80vh] flex flex-col justify-center items-center text-center p-6" 
-                             style="background-image: url('https://images.unsplash.com/photo-1543269865-cbf427effbad?q=80&w=2070&auto=format&fit=crop'); background-size: cover; background-position: center;">
+                        <!-- Homepage Content -->
+                        <div class="relative text-white h-full min-h-[80vh] flex flex-col justify-center items-center text-center p-6" 
+                             style="background-image: url('https://images.unsplash.com/photo-1543269865-cbf427effbad?q=80&w=2070&auto=format&fit=crop'); background-size: cover; background-position: center;"
+                             onerror="this.style.backgroundImage='url(https://placehold.co/1000x800/d1d5db/374151?text=Image+Not+Found)';">
                             <div class="absolute inset-0 bg-black/50"></div>
                             <div class="relative z-10 fade-in">
                                 <h2 class="text-4xl md:text-5xl font-bold mb-3">سفر من در دنیای مکالمه!</h2>
                                 <p class="text-lg max-w-xl mx-auto text-slate-200 leading-relaxed">
                                     اینجا قراره چکیده‌ای از چیزایی که تو هر جلسه یاد می‌گیرم رو بنویسم. این سایت به مرور کامل‌تر می‌شه، پس حتما دوباره سر بزن!
                                 </p>
+                                <div id="user-info" class="mt-4 p-4 rounded-lg bg-white/20 backdrop-blur-md hidden">
+                                    <!-- User information from login will be displayed here -->
+                                </div>
                             </div>
                         </div>
                     </div>
+                    <hr class="my-8">
+                    <div id="user-list" class="bg-white rounded-2xl shadow-lg p-6">
+                        <!-- User list for admin will be displayed here -->
+                    </div>
                 </main>
-
             </div>
         </div>
         
@@ -146,120 +154,339 @@
             </div>
         </footer>
     </div>
+    
+    <!-- Custom Modal for Alerts -->
+    <div id="custom-modal" class="modal-overlay hidden">
+      <div class="modal-content">
+        <p id="modal-message" class="mb-4"></p>
+        <button onclick="closeModal()" class="px-4 py-2 bg-indigo-500 text-white rounded-lg">باشه</button>
+      </div>
+    </div>
 
     <!-- Sidebar Overlay -->
     <div id="sidebar-overlay" class="fixed inset-0 bg-black/60 z-40 hidden md:hidden"></div>
+    <pre id="debug" style="background: #111; color: #0f0; padding: 10px; margin-top: 20px;"></pre>
 
     <script>
-        // --- CONSTANTS ---
-        const baseURL = 'https://habibk4.github.io/ICC-Speaking-Webpage/';
+        // --- SCRIPT ---
+        function logDebug(message) {
+            console.log(message);
+            const debugEl = document.getElementById("debug");
+            if (debugEl) {
+                debugEl.textContent += "\n" + message;
+            }
+        }
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            const baseURL = 'https://habibk4.github.io/ICC-Speaking-Webpage/';
+            const menuContainer = document.getElementById('menu-container');
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const sidebar = document.getElementById('sidebar');
+            const copyrightYear = document.getElementById('copyright-year');
+            const sidebarOverlay = document.getElementById('sidebar-overlay');
+            
+            // Login & user related elements
+            const loginButton = document.getElementById('login-button');
+            const userProfileActions = document.getElementById('user-profile-actions');
+            const logoutButton = document.getElementById('logout-button');
+            const userDisplayInfo = document.getElementById('user-display-info');
+            const userInfoDiv = document.getElementById('user-info');
+            const userListDiv = document.getElementById('user-list');
+            
+            // Custom Modal elements
+            const customModal = document.getElementById('custom-modal');
+            const modalMessage = document.getElementById('modal-message');
 
-        // --- ELEMENTS ---
-        const menuContainer = document.getElementById('menu-container');
-        const mobileMenuButton = document.getElementById('mobile-menu-button');
-        const sidebar = document.getElementById('sidebar');
-        const copyrightYear = document.getElementById('copyright-year');
-        const sidebarOverlay = document.getElementById('sidebar-overlay');
+            /**
+             * Shows a custom modal with a given message.
+             * @param {string} message The message to display in the modal.
+             */
+            function showModal(message) {
+                modalMessage.textContent = message;
+                customModal.classList.remove('hidden');
+            }
 
-        // --- FUNCTIONS ---
+            /**
+             * Closes the custom modal.
+             */
+            window.closeModal = function() {
+                customModal.classList.add('hidden');
+            }
 
-        /**
-         * Generates the navigation menu dynamically.
-         */
-        function createMenu() {
-            let sessionCounter = 1;
-            for (let term = 1; term <= 5; term++) {
-                const termLi = document.createElement('li');
+            // Firebase Configuration and Initialization
+            const firebaseConfig = {
+                apiKey: "AIzaSyDJf9qVKxynq0LpGcB3kn9Rk7s9HsR1ppw",
+                authDomain: "icc-speaking-bd474.firebaseapp.com",
+                projectId: "icc-speaking-bd474",
+                storageBucket: "icc-speaking-bd474.firebasestorage.app",
+                messagingSenderId: "818278585317",
+                appId: "1:818278585317:web:70a1b32846af0a342e950c"
+            };
+            firebase.initializeApp(firebaseConfig);
+            const auth = firebase.auth();
+            const db = firebase.firestore();
+            const adminEmail = "habibkamaie@gmail.com";
 
-                const termButton = document.createElement('button');
-                termButton.className = 'w-full flex justify-between items-center p-3 text-right font-bold text-slate-700 hover:bg-slate-100 rounded-lg';
-                termButton.innerHTML = `
-                    <span class="flex items-center gap-2"><i class="fa-solid fa-folder text-amber-500"></i> ترم ${term}</span>
-                    <svg class="w-5 h-5 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                `;
-
-                const sessionsUl = document.createElement('ul');
-                sessionsUl.className = 'accordion-content pr-4 mt-1 space-y-1';
-                
-                for (let session = 1; session <= 10; session++) {
-                    const sessionLi = document.createElement('li');
-                    const sessionLink = document.createElement('a');
-                    // **MODIFIED**: Link now points to the absolute GitHub Pages URL
-                    sessionLink.href = `${baseURL}session-${sessionCounter}.html`; 
-                    sessionLink.innerHTML = `<i class="fa-solid fa-file-lines fa-xs ml-2 text-slate-400"></i> جلسه ${sessionCounter}`;
-                    sessionLink.className = 'session-link block p-2 text-slate-600 hover:bg-indigo-100 hover:text-indigo-700 rounded-md';
-                    
-                    sessionLi.appendChild(sessionLink);
-                    sessionsUl.appendChild(sessionLi);
-                    sessionCounter++;
+            /**
+             * Parses the JWT token to get user data.
+             * @param {string} token The JWT token from Google.
+             * @returns {object} The parsed user data.
+             */
+            function parseJwt(token) {
+                try {
+                    const base64Url = token.split('.')[1];
+                    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+                    const jsonPayload = decodeURIComponent(window.atob(base64).split('').map(c =>
+                        '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
+                    ).join(''));
+                    return JSON.parse(jsonPayload);
+                } catch (e) {
+                    console.error("Error parsing JWT:", e);
+                    return null;
                 }
-
-                termLi.appendChild(termButton);
-                termLi.appendChild(sessionsUl);
-                menuContainer.appendChild(termLi);
-
-                termButton.addEventListener('click', () => {
-                    const content = termButton.nextElementSibling;
-                    const icon = termButton.querySelector('svg');
-                    
-                    if (content.style.maxHeight) {
-                        content.style.maxHeight = null;
-                        icon.style.transform = 'rotate(0deg)';
-                    } else {
-                        document.querySelectorAll('.accordion-content').forEach(el => {
-                            el.style.maxHeight = null;
-                            if(el.previousElementSibling.querySelector('svg')) {
-                                el.previousElementSibling.querySelector('svg').style.transform = 'rotate(0deg)';
-                            }
+            }
+            
+            /**
+             * Handles the Google Sign-In response.
+             * @param {object} response The response object from Google.
+             */
+            window.handleCredentialResponse = function(response) {
+                const data = parseJwt(response.credential);
+                if (data) {
+                    const credential = firebase.auth.GoogleAuthProvider.credential(response.credential);
+                    auth.signInWithCredential(credential)
+                        .then(() => {
+                            logDebug("✅ Firebase sign-in successful.");
+                        })
+                        .catch((error) => {
+                            logDebug("❌ Login error:");
+                            logDebug("Code: " + error.code);
+                            logDebug("Message: " + error.message);
+                            logDebug("Email: " + (error.email || "N/A"));
+                            logDebug("Credential: " + (error.credential || "N/A"));
+                            showModal("خطا در ورود: " + error.message);
                         });
-                        content.style.maxHeight = content.scrollHeight + "px";
-                        icon.style.transform = 'rotate(180deg)';
-                    }
+                }
+            }
+            
+            /**
+             * خروج از حساب کاربری
+             */
+            function logout() {
+                auth.signOut().then(() => {
+                    logDebug("خروج موفق");
+                    checkLoginStatus(); // Update UI after logout
+                }).catch((error) => {
+                    logDebug("خطا در خروج:", error);
                 });
             }
-        }
 
-        /**
-         * Highlights the active link in the sidebar based on the current URL.
-         */
-        function updateActiveLink() {
-            const currentPage = window.location.href;
-            
-            // If on the main page (or root), do nothing.
-            if (currentPage === baseURL || currentPage === `${baseURL}index.html`) return;
+            /**
+             * نمایش لیست کاربران برای ادمین
+             */
+            function loadUserList() {
+                userListDiv.innerHTML = '<p>در حال بارگذاری لیست کاربران...</p>';
+                db.collection("users").orderBy("lastLogin", "desc").get().then((querySnapshot) => {
+                    let output = "<h2 class='text-2xl font-bold mb-4'>📋 لیست کاربران واردشده</h2><ul class='space-y-4'>";
+                    querySnapshot.forEach((doc) => {
+                        const user = doc.data();
+                        const isOnline = user.isOnline ? "🟢 آنلاین" : "⚪ آفلاین";
+                        const lastLoginDate = user.lastLogin ? new Date(user.lastLogin.seconds * 1000).toLocaleString('fa-IR') : 'نامشخص';
+                        output += `
+                            <li class="flex items-center gap-4 bg-slate-50 p-4 rounded-lg shadow-sm">
+                                <img src="${user.photo}" alt="${user.name}" class="w-10 h-10 rounded-full">
+                                <div>
+                                    <strong class="text-slate-800">${user.name}</strong>
+                                    <p class="text-sm text-slate-600">${user.email}</p>
+                                </div>
+                                <span class="mr-auto text-sm font-bold text-slate-500">${isOnline}</span>
+                                <span class="text-xs text-slate-400">آخرین ورود: ${lastLoginDate}</span>
+                            </li>
+                        `;
+                    });
+                    output += "</ul>";
+                    userListDiv.innerHTML = output;
+                }).catch(error => {
+                    console.error("Error loading user list:", error);
+                    userListDiv.innerHTML = `<p class="text-red-500">❌ خطایی در بارگذاری لیست کاربران رخ داد.</p>`;
+                });
+            }
 
-            const activeLink = document.querySelector(`.session-link[href="${currentPage}"]`);
-            if (activeLink) {
-                activeLink.classList.add('active');
-                // Open the parent accordion if it's closed
-                const parentAccordion = activeLink.closest('.accordion-content');
-                if (parentAccordion && !parentAccordion.style.maxHeight) {
-                    parentAccordion.previousElementSibling.click();
+            /**
+             * این تابع منوی جلسات را به صورت پویا ایجاد می‌کند.
+             */
+            function createMenu() {
+                // Clear any existing menu items before creating new ones
+                menuContainer.innerHTML = '';
+
+                // This variable tracks the session number for link creation, starting from 1.
+                let sessionCounter = 1;
+
+                // This loop runs to create 5 terms.
+                for (let term = 1; term <= 5; term++) {
+                    const termLi = document.createElement('li');
+                    const termButton = document.createElement('button');
+                    termButton.className = 'w-full flex justify-between items-center p-3 text-right font-bold text-slate-700 hover:bg-slate-100 rounded-lg transition-all';
+                    termButton.innerHTML = `<span class="flex items-center gap-2"><i class="fa-solid fa-folder text-amber-500"></i> ترم ${term}</span><svg class="w-5 h-5 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>`;
+                    
+                    const sessionsUl = document.createElement('ul');
+                    sessionsUl.className = 'accordion-content pr-4 mt-1 space-y-1';
+
+                    // This loop runs to create 10 sessions in each term.
+                    for (let session = 1; session <= 10; session++) {
+                        const sessionLi = document.createElement('li');
+                        const sessionLink = document.createElement('a');
+                        
+                        // Here, the link for each session is created.
+                        // For example: https://.../session-1.html, https://.../session-2.html, and so on up to 50.
+                        sessionLink.href = `${baseURL}session-${sessionCounter}.html`; 
+                        sessionLink.innerHTML = `<i class="fa-solid fa-file-lines fa-xs ml-2 text-slate-400"></i> جلسه ${sessionCounter}`;
+                        sessionLink.className = 'session-link block p-2 text-slate-600 hover:bg-indigo-100 hover:text-indigo-700 rounded-md transition-colors duration-200';
+                        
+                        sessionLi.appendChild(sessionLink);
+                        sessionsUl.appendChild(sessionLi);
+
+                        // The session number is incremented for the next link.
+                        sessionCounter++;
+                    }
+
+                    termLi.appendChild(termButton);
+                    termLi.appendChild(sessionsUl);
+                    menuContainer.appendChild(termLi);
+
+                    // Event listener for accordion functionality
+                    termButton.addEventListener('click', () => {
+                        const content = termButton.nextElementSibling;
+                        const icon = termButton.querySelector('svg');
+                        
+                        // Check if the accordion is open or not
+                        if (content.style.maxHeight) {
+                            content.style.maxHeight = null;
+                            icon.style.transform = 'rotate(0deg)';
+                        } else {
+                            // Close all other accordions first
+                            document.querySelectorAll('.accordion-content').forEach(el => {
+                                el.style.maxHeight = null;
+                                const prevIcon = el.previousElementSibling.querySelector('svg');
+                                if (prevIcon) {
+                                    prevIcon.style.transform = 'rotate(0deg)';
+                                }
+                            });
+                            // Open the clicked one
+                            content.style.maxHeight = content.scrollHeight + "px";
+                            icon.style.transform = 'rotate(180deg)';
+                        }
+                    });
                 }
             }
-        }
 
-        /**
-         * Toggles the mobile sidebar visibility.
-         */
-        function toggleSidebar() {
-            sidebar.classList.toggle('translate-x-full');
-            sidebarOverlay.classList.toggle('hidden');
-        }
+            /**
+             * This function finds the link for the current page in the menu and highlights it.
+             */
+            function updateActiveLink() {
+                const currentPage = window.location.href.split('?')[0].split('#')[0];
 
-        // --- EVENT LISTENERS ---
-        mobileMenuButton.addEventListener('click', (e) => {
-            e.stopPropagation();
-            toggleSidebar();
+                // If the URL doesn't contain 'session-', we are on the homepage and do nothing.
+                if (!currentPage.includes('session-')) {
+                    return;
+                }
+
+                // Find the link corresponding to the current page.
+                const activeLink = document.querySelector(`.session-link[href="${currentPage}"]`);
+                if (activeLink) {
+                    activeLink.classList.add('active');
+                    
+                    // Open the accordion for the active session's term.
+                    const parentAccordion = activeLink.closest('.accordion-content');
+                    if (parentAccordion && !parentAccordion.style.maxHeight) {
+                        parentAccordion.previousElementSibling.click();
+                    }
+                }
+            }
+
+            /**
+             * This function controls the display of the sidebar on mobile.
+             */
+            function toggleSidebar() {
+                sidebar.classList.toggle('translate-x-full');
+                sidebarOverlay.classList.toggle('hidden');
+            }
+
+            // Event listeners
+            loginButton.addEventListener('click', () => {
+                const provider = new firebase.auth.GoogleAuthProvider();
+                auth.signInWithPopup(provider)
+                    .then((result) => {
+                        logDebug("✅ ورود موفق");
+                    })
+                    .catch((error) => {
+                        logDebug("❌ Login error:");
+                        logDebug("Code: " + error.code);
+                        logDebug("Message: " + error.message);
+                        logDebug("Email: " + (error.email || "N/A"));
+                        logDebug("Credential: " + (error.credential || "N/A"));
+                        showModal("خطا در ورود: " + error.message);
+                    });
+            });
+
+            logoutButton.addEventListener('click', logout);
+            mobileMenuButton.addEventListener('click', (e) => { 
+                e.stopPropagation(); 
+                toggleSidebar(); 
+            });
+            sidebarOverlay.addEventListener('click', toggleSidebar);
+            
+            // Set current year in footer
+            copyrightYear.textContent = new Date().getFullYear();
+            
+            // Listen for authentication state changes
+            auth.onAuthStateChanged((user) => {
+                if (user) {
+                    // User is signed in.
+                    userProfileActions.classList.remove('hidden');
+                    loginButton.classList.add('hidden');
+                    userListDiv.classList.remove('hidden');
+
+                    userDisplayInfo.innerHTML = `
+                        <img src="${user.photoURL}" alt="Profile" class="w-8 h-8 rounded-full">
+                        <span class="font-medium text-sm hidden sm:inline">${user.displayName}</span>
+                    `;
+
+                    // Update user data and set them online
+                    db.collection("users").doc(user.uid).set({
+                        name: user.displayName,
+                        email: user.email,
+                        photo: user.photoURL,
+                        lastLogin: new Date(),
+                        isOnline: true
+                    }, { merge: true });
+
+                    // If admin, load user list
+                    if (user.email === adminEmail) {
+                        loadUserList();
+                    } else {
+                        userListDiv.innerHTML = "<p class='text-gray-500 text-center mt-4'>🔒 دسترسی به لیست کاربران محدود شده است.</p>";
+                    }
+                } else {
+                    // User is signed out.
+                    userProfileActions.classList.add('hidden');
+                    loginButton.classList.remove('hidden');
+                    userListDiv.classList.add('hidden');
+                }
+            });
+
+            // Update user status to offline when they close the window
+            window.addEventListener("beforeunload", () => {
+                const user = auth.currentUser;
+                if (user) {
+                    db.collection("users").doc(user.uid).update({ isOnline: false });
+                }
+            });
+            
+            // Initial UI update and menu creation
+            createMenu();
+            updateActiveLink();
         });
-
-        sidebarOverlay.addEventListener('click', toggleSidebar);
-
-        // --- INITIALIZATION ---
-        copyrightYear.textContent = new Date().getFullYear();
-        createMenu();
-        updateActiveLink(); // Highlight the link for the current page
-
     </script>
 </body>
 </html>
