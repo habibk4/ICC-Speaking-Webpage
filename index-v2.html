@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title> Speaking ICC</title>
+    <title>خلاصه کلاس Speaking ICC</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Google Fonts: Vazirmatn -->
@@ -116,7 +116,7 @@
                     <div id="content-area" class="bg-white rounded-2xl shadow-lg min-h-[80vh] overflow-hidden">
                         <!-- Homepage Content -->
                         <div class="relative text-white h-full min-h-[80vh] flex flex-col justify-center items-center text-center p-6" 
-                             style="background-image: url('uploaded:ICC-Class.jpg-162917d4-3037-4aba-bc4c-b16f5c106c3f'); background-size: cover; background-position: center;"
+                             style="background-image: url('https://drive.google.com/uc?id=1vVQpLfhIoWWDkzHwE7TtTZLfVGnc6uNd'); background-size: cover; background-position: center;"
                              onerror="this.style.backgroundImage='url(https://placehold.co/1000x800/d1d5db/374151?text=Image+Not+Found)';">
                             <div class="absolute inset-0 bg-black/50"></div>
                             <div class="relative z-10 fade-in">
@@ -274,9 +274,8 @@
                     const content = termButton.nextElementSibling;
                     const icon = termButton.querySelector('svg');
                     
-                    // Toggle the current accordion
-                    const isCurrentlyExpanded = content.style.maxHeight !== '';
-                    if (isCurrentlyExpanded) {
+                    // Check if the accordion is open or not
+                    if (content.style.maxHeight) {
                         content.style.maxHeight = null;
                         icon.style.transform = 'rotate(0deg)';
                     } else {
