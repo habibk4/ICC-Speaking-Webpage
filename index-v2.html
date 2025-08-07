@@ -17,6 +17,8 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <!-- Google Sign-In API -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <style>
         /* General Styles */
         body {
@@ -54,6 +56,26 @@
         .fade-in {
             animation: fadeIn 0.5s ease-out forwards;
         }
+        
+        /* Custom Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+        .modal-content {
+            background-color: white;
+            padding: 24px;
+            border-radius: 8px;
+            text-align: center;
+        }
     </style>
 </head>
 <body class="text-slate-800">
@@ -67,10 +89,21 @@
                     خلاصه کلاس Speaking ICC
                 </a>
                 <div class="flex items-center gap-4">
-                    <!-- Login Button -->
-                    <button id="login-button" class="px-4 py-2 text-sm font-bold text-white bg-indigo-500 hover:bg-indigo-600 rounded-lg transition-colors hidden">
-                        ورود با گوگل
-                    </button>
+                    <!-- Login Button Container -->
+                    <div id="g_id_onload"
+                        data-client_id="237587578389-ggirbrqh3ace9aura1fd6ipa5m2bepco.apps.googleusercontent.com"
+                        data-callback="handleCredentialResponse"
+                        data-auto_prompt="false"
+                        class="hidden"
+                    ></div>
+                    <div id="login-button" class="g_id_signin px-4 py-2 text-sm font-bold text-white bg-indigo-500 hover:bg-indigo-600 rounded-lg transition-colors hidden"
+                        data-type="standard"
+                        data-size="large"
+                        data-theme="outline"
+                        data-text="sign_in_with"
+                        data-shape="rectangular"
+                        data-logo_alignment="left">
+                    </div>
                     <!-- User profile and logout button -->
                     <div id="user-profile-actions" class="flex items-center gap-4 hidden">
                         <div id="user-display-info" class="flex items-center gap-2">
@@ -141,6 +174,14 @@
             </div>
         </footer>
     </div>
+    
+    <!-- Custom Modal for Alerts -->
+    <div id="custom-modal" class="modal-overlay hidden">
+      <div class="modal-content">
+        <p id="modal-message" class="mb-4"></p>
+        <button onclick="closeModal()" class="px-4 py-2 bg-indigo-500 text-white rounded-lg">باشه</button>
+      </div>
+    </div>
 
     <!-- Sidebar Overlay -->
     <div id="sidebar-overlay" class="fixed inset-0 bg-black/60 z-40 hidden md:hidden"></div>
@@ -161,6 +202,26 @@
         const userDisplayInfo = document.getElementById('user-display-info');
         const userInfoDiv = document.getElementById('user-info');
         const userListDiv = document.getElementById('user-list');
+        
+        // Custom Modal elements
+        const customModal = document.getElementById('custom-modal');
+        const modalMessage = document.getElementById('modal-message');
+
+        /**
+         * Shows a custom modal with a given message.
+         * @param {string} message The message to display in the modal.
+         */
+        function showModal(message) {
+            modalMessage.textContent = message;
+            customModal.classList.remove('hidden');
+        }
+
+        /**
+         * Closes the custom modal.
+         */
+        function closeModal() {
+            customModal.classList.add('hidden');
+        }
 
         // Firebase Configuration and Initialization
         const firebaseConfig = {
@@ -177,21 +238,44 @@
         const adminEmail = "habibkamaie@gmail.com";
 
         /**
-         * ورود با گوگل
+         * Parses the JWT token to get user data.
+         * @param {string} token The JWT token from Google.
+         * @returns {object} The parsed user data.
          */
-        function loginWithGoogle() {
-            const provider = new firebase.auth.GoogleAuthProvider();
-            auth.signInWithPopup(provider)
-                .then((result) => {
-                    // This will be handled by the auth.onAuthStateChanged listener
-                    console.log("✅ ورود موفق");
-                })
-                .catch((error) => {
-                    console.error("❌ خطا در ورود:", error);
-                    alert("خطایی رخ داد، لطفاً دوباره تلاش کنید.");
-                });
+        function parseJwt(token) {
+            try {
+                const base64Url = token.split('.')[1];
+                const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+                const jsonPayload = decodeURIComponent(window.atob(base64).split('').map(c =>
+                    '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
+                ).join(''));
+                return JSON.parse(jsonPayload);
+            } catch (e) {
+                console.error("Error parsing JWT:", e);
+                return null;
+            }
         }
         
+        /**
+         * Handles the Google Sign-In response.
+         * @param {object} response The response object from Google.
+         */
+        function handleCredentialResponse(response) {
+            const data = parseJwt(response.credential);
+            if (data) {
+                // Use Firebase to sign in with the Google token
+                const credential = firebase.auth.GoogleAuthProvider.credential(response.credential);
+                auth.signInWithCredential(credential)
+                    .then(() => {
+                        console.log("Firebase sign-in successful.");
+                    })
+                    .catch((error) => {
+                        console.error("Firebase sign-in failed:", error);
+                        showModal("خطایی در ورود رخ داد. لطفاً دوباره تلاش کنید.");
+                    });
+            }
+        }
+
         /**
          * خروج از حساب کاربری
          */
@@ -281,7 +365,7 @@
                     const content = termButton.nextElementSibling;
                     const icon = termButton.querySelector('svg');
                     
-                    // Toggle the current accordion
+                    // Check if the accordion is open or not
                     if (content.style.maxHeight) {
                         content.style.maxHeight = null;
                         icon.style.transform = 'rotate(0deg)';
@@ -335,7 +419,8 @@
         }
 
         // Event listeners
-        loginButton.addEventListener('click', loginWithGoogle);
+        // We no longer need this because we are using a different GSI integration method
+        // loginButton.addEventListener('click', loginWithGoogle);
         logoutButton.addEventListener('click', logout);
         mobileMenuButton.addEventListener('click', (e) => { 
             e.stopPropagation(); 
