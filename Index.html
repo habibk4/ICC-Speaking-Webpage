@@ -13,6 +13,10 @@
     <!-- Font Awesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <!-- Google Sign-In API -->
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <style>
@@ -206,6 +210,20 @@
                 customModal.classList.add('hidden');
             }
             
+            // Firebase Configuration and Initialization
+            const firebaseConfig = {
+                apiKey: "AIzaSyDJf9qVKxynq0LpGcB3kn9Rk7s9HsR1ppw",
+                authDomain: "icc-speaking-bd474.firebaseapp.com",
+                projectId: "icc-speaking-bd474",
+                storageBucket: "icc-speaking-bd474.firebasestorage.app",
+                messagingSenderId: "818278585317",
+                appId: "1:818278585317:web:70a1b32846af0a342e950c"
+            };
+            firebase.initializeApp(firebaseConfig);
+            const auth = firebase.auth();
+            const db = firebase.firestore();
+            const adminEmail = "habibkamaie@gmail.com";
+            
             /**
              * Parses the JWT token to get user data.
              * @param {string} token The JWT token from Google.
@@ -232,13 +250,35 @@
             window.handleCredentialResponse = function(response) {
                 const data = parseJwt(response.credential);
                 if (data) {
-                    // Store user data in localStorage
-                    localStorage.setItem('userData', JSON.stringify(data));
-                    logDebug("User data stored in localStorage:");
-                    logDebug(JSON.stringify(data));
-                    checkLoginStatus();
-                } else {
-                    showModal("خطا در ورود: اطلاعات کاربر دریافت نشد.");
+                    const credential = firebase.auth.GoogleAuthProvider.credential(response.credential);
+                    auth.signInWithCredential(credential)
+                        .then((result) => {
+                            const user = result.user;
+                            // Check if user exists, then save data to Firestore
+                            if (user) {
+                                db.collection("users").doc(user.uid).set({
+                                    name: user.displayName,
+                                    email: user.email,
+                                    photo: user.photoURL,
+                                    lastLogin: new Date(),
+                                    isOnline: true
+                                }, { merge: true }).then(() => {
+                                    logDebug("✅ User data saved to Firestore.");
+                                }).catch(error => {
+                                    logDebug("❌ Error saving user data to Firestore: " + error.message);
+                                });
+                            }
+                            logDebug("✅ Firebase sign-in successful.");
+                            checkLoginStatus(); // Update UI
+                        })
+                        .catch((error) => {
+                            logDebug("❌ Login error:");
+                            logDebug("Code: " + error.code);
+                            logDebug("Message: " + error.message);
+                            logDebug("Email: " + (error.email || "N/A"));
+                            logDebug("Credential: " + (error.credential || "N/A"));
+                            showModal("خطا در ورود: " + error.message);
+                        });
                 }
             }
             
@@ -246,16 +286,43 @@
              * خروج از حساب کاربری
              */
             function logout() {
-                localStorage.removeItem('userData');
-                logDebug("خروج موفق. localStorage پاک شد.");
-                checkLoginStatus();
+                auth.signOut().then(() => {
+                    logDebug("خروج موفق");
+                    checkLoginStatus(); // Update UI after logout
+                }).catch((error) => {
+                    logDebug("خطا در خروج:", error);
+                });
             }
 
             /**
              * نمایش لیست کاربران برای ادمین
              */
             function loadUserList() {
-                userListDiv.innerHTML = "<p class='text-gray-500 text-center mt-4'>⚠️ به دلیل محدودیت‌های محیط، نمایش لیست کاربران ممکن نیست.</p>";
+                userListDiv.innerHTML = '<p>در حال بارگذاری لیست کاربران...</p>';
+                db.collection("users").orderBy("lastLogin", "desc").get().then((querySnapshot) => {
+                    let output = "<h2 class='text-2xl font-bold mb-4'>📋 لیست کاربران واردشده</h2><ul class='space-y-4'>";
+                    querySnapshot.forEach((doc) => {
+                        const user = doc.data();
+                        const isOnline = user.isOnline ? "🟢 آنلاین" : "⚪ آفلاین";
+                        const lastLoginDate = user.lastLogin ? new Date(user.lastLogin.seconds * 1000).toLocaleString('fa-IR') : 'نامشخص';
+                        output += `
+                            <li class="flex items-center gap-4 bg-slate-50 p-4 rounded-lg shadow-sm">
+                                <img src="${user.photo}" alt="${user.name}" class="w-10 h-10 rounded-full">
+                                <div>
+                                    <strong class="text-slate-800">${user.name}</strong>
+                                    <p class="text-sm text-slate-600">${user.email}</p>
+                                </div>
+                                <span class="mr-auto text-sm font-bold text-slate-500">${isOnline}</span>
+                                <span class="text-xs text-slate-400">آخرین ورود: ${lastLoginDate}</span>
+                            </li>
+                        `;
+                    });
+                    output += "</ul>";
+                    userListDiv.innerHTML = output;
+                }).catch(error => {
+                    logDebug("❌ Error loading user list from Firestore: " + error.message);
+                    userListDiv.innerHTML = `<p class="text-red-500">❌ خطایی در بارگذاری لیست کاربران رخ داد.</p>`;
+                });
             }
 
             /**
@@ -362,25 +429,34 @@
              * Checks for an existing user session on page load and updates the UI accordingly.
              */
             function checkLoginStatus() {
-                const userData = JSON.parse(localStorage.getItem('userData'));
-                if (userData) {
-                    // User is already logged in, show user profile and logout button
+                // Get user from Firebase Auth
+                const user = auth.currentUser;
+                
+                if (user) {
+                    // User is signed in.
                     userProfileActions.classList.remove('hidden');
                     document.getElementById('g_id_onload').classList.add('hidden');
                     document.getElementById('login-button').classList.add('hidden');
                     userDisplayInfo.innerHTML = `
-                        <img src="${userData.picture}" alt="Profile" class="w-8 h-8 rounded-full">
-                        <span class="font-medium text-sm hidden sm:inline">${userData.given_name}</span>
+                        <img src="${user.photoURL}" alt="Profile" class="w-8 h-8 rounded-full">
+                        <span class="font-medium text-sm hidden sm:inline">${user.displayName}</span>
                     `;
+
+                    userListDiv.classList.remove('hidden');
+                    // If admin, load user list
+                    if (user.email === adminEmail) {
+                        loadUserList();
+                    } else {
+                        userListDiv.innerHTML = "<p class='text-gray-500 text-center mt-4'>🔒 دسترسی به لیست کاربران محدود شده است.</p>";
+                    }
                 } else {
-                    // User is not logged in, show login button
+                    // User is signed out.
                     userProfileActions.classList.add('hidden');
                     document.getElementById('g_id_onload').classList.remove('hidden');
                     document.getElementById('login-button').classList.remove('hidden');
                     userDisplayInfo.innerHTML = '';
+                    userListDiv.classList.add('hidden');
                 }
-                // Hide user list since Firebase is not fully functional in this environment
-                userListDiv.classList.add('hidden');
             }
 
             // Event listeners
@@ -394,8 +470,30 @@
             // Set current year in footer
             copyrightYear.textContent = new Date().getFullYear();
             
+            // Listen for authentication state changes to update UI
+            auth.onAuthStateChanged((user) => {
+                if (user) {
+                    // Update user data in Firestore
+                    db.collection("users").doc(user.uid).set({
+                        name: user.displayName,
+                        email: user.email,
+                        photo: user.photoURL,
+                        lastLogin: new Date(),
+                        isOnline: true
+                    }, { merge: true });
+                }
+                checkLoginStatus();
+            });
+
+            // Update user status to offline when they close the window
+            window.addEventListener("beforeunload", () => {
+                const user = auth.currentUser;
+                if (user) {
+                    db.collection("users").doc(user.uid).update({ isOnline: false });
+                }
+            });
+
             // Initial UI update and menu creation
-            checkLoginStatus();
             createMenu();
             updateActiveLink();
         });
