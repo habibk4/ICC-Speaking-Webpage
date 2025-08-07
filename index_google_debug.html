@@ -1,0 +1,102 @@
+
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ورود با گوگل - دیباگ</title>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+</head>
+<body style="font-family: sans-serif; direction: rtl; padding: 20px;">
+  <h2>🌐 ورود با گوگل (نسخه دیباگ)</h2>
+  <button onclick="loginWithGoogle()">ورود با گوگل</button>
+  <div id="user-info" style="margin-top: 20px;"></div>
+  <h3>📋 لیست کاربران</h3>
+  <div id="user-list"></div>
+  <pre id="debug" style="background: #111; color: #0f0; padding: 10px; margin-top: 20px;"></pre>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyDJf9qVKxynq0LpGcB3kn9Rk7s9HsR1ppw",
+      authDomain: "icc-speaking-bd474.firebaseapp.com",
+      projectId: "icc-speaking-bd474",
+      storageBucket: "icc-speaking-bd474.appspot.com",
+      messagingSenderId: "818278585317",
+      appId: "1:818278585317:web:70a1b32846af0a342e950c"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+    const adminEmail = "habibkamaie@gmail.com";
+
+    function logDebug(message) {
+      console.log(message);
+      const debugEl = document.getElementById("debug");
+      debugEl.textContent += "\n" + message;
+    }
+
+    auth.onAuthStateChanged((user) => {
+      if (user) {
+        document.getElementById("user-info").innerHTML = `
+          <p>👤 ${user.displayName}</p>
+          <p>📧 ${user.email}</p>
+          <img src="${user.photoURL}" width="80" style="border-radius: 50%;" />
+        `;
+
+        db.collection("users").doc(user.uid).set({
+          name: user.displayName,
+          email: user.email,
+          photo: user.photoURL,
+          lastLogin: new Date().toISOString(),
+          isOnline: true
+        }, { merge: true })
+        .then(() => logDebug("✅ User data stored in Firestore"))
+        .catch(error => logDebug("❌ Firestore error: " + error.message));
+
+        if (user.email === adminEmail) {
+          loadUserList();
+        } else {
+          document.getElementById("user-list").innerHTML = "<p style='color: gray;'>دسترسی به لیست کاربران محدود است.</p>";
+        }
+      }
+    });
+
+    function loginWithGoogle() {
+      const provider = new firebase.auth.GoogleAuthProvider();
+      auth.signInWithPopup(provider)
+        .then((result) => {
+          logDebug("✅ Login successful for " + result.user.email);
+        })
+        .catch((error) => {
+          logDebug("❌ Login error:");
+          logDebug("Code: " + error.code);
+          logDebug("Message: " + error.message);
+          logDebug("Email: " + (error.email || "N/A"));
+          logDebug("Credential: " + (error.credential || "N/A"));
+          alert("خطا در ورود: " + error.message);
+        });
+    }
+
+    function loadUserList() {
+      db.collection("users").onSnapshot(snapshot => {
+        let html = "<ul>";
+        snapshot.forEach(doc => {
+          const data = doc.data();
+          html += `<li>
+            <img src="${data.photo}" width="30" style="vertical-align: middle; border-radius: 50%;" />
+            <strong>${data.name}</strong> – ${data.email}
+            ${data.isOnline ? "🟢 آنلاین" : "⚪ آفلاین"}
+          </li>`;
+        });
+        html += "</ul>";
+        document.getElementById("user-list").innerHTML = html;
+      }, error => {
+        logDebug("❌ Snapshot error: " + error.message);
+      });
+    }
+  </script>
+</body>
+</html>
