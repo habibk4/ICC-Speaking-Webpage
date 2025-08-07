@@ -8,6 +8,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Google Sign-In API -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <style>
         body {
             font-family: 'Vazirmatn', sans-serif;
@@ -23,18 +25,23 @@
         .flashcard.is-flipped { transform: rotateY(180deg); }
         .card-face { position: absolute; width: 100%; height: 100%; -webkit-backface-visibility: hidden; backface-visibility: hidden; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); text-align: center; }
         .card-front { background-color: #ffffff; border: 1px solid #e2e8f0; }
-        .card-back { background-color: #f8fafc; border: 1px solid #e2e8f0; transform: rotateY(180deg); font-size: 0.9em; line-height: 1.6; }
+        .card-back { background-color: #f8fafc; border: 1px solid #e2e8f0; transform: rotateY(180deg); font-size: 0.9em; line-height: 1.6; overflow: hidden; }
         .pronunciation-button { display: inline-flex; align-items: center; gap: 0.5rem; margin-top: 0.75rem; padding: 0.5rem 1rem; background-color: #e0f2fe; color: #0c4a6e; border-radius: 9999px; font-weight: 500; text-decoration: none; transition: background-color 0.2s; border: none; cursor: pointer; }
         .pronunciation-button:hover { background-color: #bae6fd; }
         .box-count { background-color: #1d4ed8; color: white; border-radius: 50%; width: 28px; height: 28px; display: inline-flex; justify-content: center; align-items: center; font-weight: bold; }
         .box.active { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5); }
         .box { display: flex; flex-direction: column; justify-content: space-between; }
+        .card-back-image {
+            width: 100%;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 8px 8px 0 0;
+        }
     </style>
 </head>
 <body class="bg-gray-100 text-gray-800">
 
     <div class="main-container container mx-auto max-w-5xl p-4 sm:p-8">
-        <!-- Header -->
         <header class="flex justify-between items-center mb-6">
             <h1 class="text-xl sm:text-2xl font-bold text-gray-800">جعبه لایتنر دوره ICC</h1>
             <div id="auth-container">
@@ -43,30 +50,26 @@
         </header>
 
         <div id="app-container" class="bg-white rounded-2xl shadow-xl p-6 sm:p-10">
-            <!-- Config Error View -->
-            <div id="config-error-view" class="hidden text-center py-10">
-                 <div class="bg-red-100 border-l-4 border-red-500 text-red-800 p-6 mt-4 rounded-lg text-right shadow-md">
-                    <p class="font-bold text-xl">پیکربندی Firebase انجام نشده است!</p>
-                    <p class="text-base mt-2">برای اینکه اپلیکیشن کار کند، باید آن را به پروژه Firebase خود متصل کنید.</p>
-                    <ol class="list-decimal list-inside text-base mt-4 space-y-2">
-                        <li>به <a href="https://console.firebase.google.com/" target="_blank" class="underline font-semibold">کنسول Firebase</a> بروید و وارد حساب گوگل خود شوید.</li>
-                        <li>یک پروژه جدید بسازید (یا پروژه موجود را انتخاب کنید).</li>
-                        <li>در پروژه خود، روی آیکون <strong></> (وب)</strong> کلیک کنید تا یک اپلیکیشن وب جدید اضافه کنید.</li>
-                        <li>پس از ثبت اپلیکیشن، Firebase یک کد حاوی اطلاعات پیکربندی (firebaseConfig) به شما می‌دهد.</li>
-                        <li>این کد را کپی کرده و در فایل HTML این اپلیکیشن، به جای متغیر <strong>`firebaseConfigPlaceholder`</strong> قرار دهید.</li>
-                    </ol>
-                </div>
-            </div>
-
             <!-- Login View -->
             <div id="login-view" class="text-center py-16">
                 <h2 class="text-2xl font-bold mb-4">به جعبه لایتنر خود خوش آمدید!</h2>
-                <p class="text-gray-600 mb-8">برای ذخیره و همگام‌سازی پیشرفت خود، وارد شوید.</p>
-                <button id="login-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg inline-flex items-center gap-3 transition">
-                    <svg class="w-6 h-6" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"></path><path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z"></path><path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z"></path><path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.574l6.19,5.238C39.712,34.464,44,28.756,44,20C44,22.659,43.862,21.35,43.611,20.083z"></path></svg>
-                    <span>ورود با گوگل</span>
-                </button>
-                <!-- Error message will be appended here by JS -->
+                <p class="text-gray-600 mb-8">برای شروع و فعال‌سازی جعبه لایتنر، وارد شوید.</p>
+                <!-- Google Sign-In Button Container -->
+                <div class="flex justify-center">
+                    <div id="g_id_onload"
+                         data-client_id="237587578389-ggirbrqh3ace9aura1fd6ipa5m2bepco.apps.googleusercontent.com"
+                         data-callback="handleCredentialResponse"
+                         data-auto_prompt="false">
+                    </div>
+                    <div class="g_id_signin"
+                         data-type="standard"
+                         data-size="large"
+                         data-theme="outline"
+                         data-text="sign_in_with"
+                         data-shape="rectangular"
+                         data-logo_alignment="left">
+                    </div>
+                </div>
             </div>
 
             <!-- App View -->
@@ -104,183 +107,162 @@
         <p>Habibkamaie@gmail.com</p>
     </footer>
 
-    <script type="module">
-        // Import Firebase modules
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    <script>
+        // --- GOOGLE SIGN-IN HANDLERS ---
+        function handleCredentialResponse(response) {
+            const data = parseJwt(response.credential);
+            
+            // UI changes for logged-in state
+            document.getElementById('login-view').classList.add('hidden');
+            document.getElementById('app-view').classList.remove('hidden');
+            
+            const authContainer = document.getElementById('auth-container');
+            authContainer.innerHTML = `
+                <div class="flex items-center gap-4">
+                    <span class="text-sm font-semibold">${data.name}</span>
+                    <img src="${data.picture}" alt="Profile" class="w-10 h-10 rounded-full">
+                    <button id="logout-btn" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded-lg">خروج</button>
+                </div>
+            `;
+            
+            document.getElementById('logout-btn').addEventListener('click', handleLogout);
 
-        // --- IMPORTANT: Firebase Configuration ---
-        // This object has been filled with your provided configuration.
-        const firebaseConfig = {
-            apiKey: "AIzaSyAqfszJfJ7gcqNXE4cnpz4H3nygZdlFY9k",
-            authDomain: "icc-speaking.firebaseapp.com",
-            projectId: "icc-speaking",
-            storageBucket: "icc-speaking.appspot.com",
-            messagingSenderId: "680379554752",
-            appId: "1:680379554752:web:6f627fdc9afefdc4588625",
-            measurementId: "G-0WTFKXBTZL"
-        };
-        
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-
-        // --- UI Elements ---
-        const loginView = document.getElementById('login-view');
-        const appView = document.getElementById('app-view');
-        const authContainer = document.getElementById('auth-container');
-        const loginBtn = document.getElementById('login-btn');
-        const configErrorView = document.getElementById('config-error-view');
-
-        // --- Config Check ---
-        // This check is no longer necessary as the config is hardcoded, but kept for safety.
-        if (firebaseConfig.apiKey === "YOUR_API_KEY" && typeof __firebase_config === 'undefined') {
-            loginView.classList.add('hidden');
-            configErrorView.classList.remove('hidden');
-        } else {
-            initializeAppAndAuth();
+            // Initialize the Leitner box app
+            initializeLeitnerApp();
         }
 
-        function initializeAppAndAuth() {
-            // Initialize Firebase
-            const app = initializeApp(firebaseConfig);
-            const auth = getAuth(app);
-            const db = getFirestore(app);
-            const provider = new GoogleAuthProvider();
+        function handleLogout() {
+            document.getElementById('login-view').classList.remove('hidden');
+            document.getElementById('app-view').classList.add('hidden');
+            document.getElementById('auth-container').innerHTML = '';
+            // Optional: You might want to disable Google's one-tap sign-in after logout
+            // google.accounts.id.disableAutoSelect();
+        }
 
+        function parseJwt(token) {
+            const base64Url = token.split('.')[1];
+            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            const jsonPayload = decodeURIComponent(window.atob(base64).split('').map(c =>
+                '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
+            ).join(''));
+            return JSON.parse(jsonPayload);
+        }
+
+        // --- LEITNER BOX APPLICATION LOGIC ---
+        function initializeLeitnerApp() {
             // --- DATA ---
             const allCardsData = [
-                { id: 1, front: 'سه سوته / In a jiffy', back_fa: 'خیلی سریع.', back_en: "I'll be back in a jiffy, just wait here.", text_to_speak: "In a jiffy" },
-                { id: 2, front: 'دو دلم / On the fence', back_fa: 'مردد بودن.', back_en: "I'm on the fence about accepting the new job offer.", text_to_speak: "On the fence" },
-                { id: 3, front: 'Never in a million years', back_fa: 'هرگز، عمراً.', back_en: "Never in a million years would I have guessed the surprise.", text_to_speak: "Never in a million years" },
-                { id: 4, front: 'Cost an arm and a leg', back_fa: 'خیلی گران بودن.', back_en: "That new designer handbag cost her an arm and a leg.", text_to_speak: "Cost an arm and a leg" },
-                { id: 5, front: 'It is what it is', back_fa: 'شرایط همین است (کاری نمی‌توان کرد).', back_en: "We can't change the past. It is what it is.", text_to_speak: "It is what it is" },
-                { id: 6, front: 'Take it or leave it', back_fa: 'پیشنهاد نهایی (یا قبول کن یا رد کن).', back_en: "This is my last offer. Take it or leave it.", text_to_speak: "Take it or leave it" },
-                { id: 7, front: 'Take a hike', back_fa: 'برو گمشو (بی‌ادبانه).', back_en: "He told his noisy neighbors to take a hike.", text_to_speak: "Take a hike" },
-                { id: 8, front: 'Backbiting', back_fa: 'پشت سر کسی بدگویی کردن.', back_en: "I hate office politics and backbiting.", text_to_speak: "Backbiting" },
-                { id: 9, front: 'Catch red-handed', back_fa: 'مچ کسی را حین ارتکاب جرم گرفتن.', back_en: "The manager caught the employee red-handed stealing office supplies.", text_to_speak: "Catch red-handed" },
-                { id: 10, front: "Don't count your chickens before they hatch", back_fa: 'جوجه را آخر پاییز می‌شمارند.', back_en: "You may get the job, but don't count your chickens before they hatch.", text_to_speak: "Don't count your chickens before they hatch" },
-                { id: 11, front: "A friend in need is a friend indeed", back_fa: 'دوست واقعی در سختی‌ها شناخته می‌شود.', back_en: "She helped me when I was broke. A friend in need is a friend indeed.", text_to_speak: "A friend in need is a friend indeed" },
-                { id: 12, front: 'The milk boiled over', back_fa: 'شیر سر رفت.', back_en: "I was on the phone and the milk boiled over.", text_to_speak: "The milk boiled over" },
-                { id: 13, front: 'The power went out', back_fa: 'برق رفت.', back_en: "The power went out, and everything went dark.", text_to_speak: "The power went out" },
-                { id: 14, front: 'Its battery died', back_fa: 'باتری‌اش تمام شد.', back_en: "My phone's battery died during the important call.", text_to_speak: "Its battery died" },
-                { id: 15, front: 'Tapped me on the shoulder', back_fa: 'به شانه‌ام زد.', back_en: "A stranger tapped me on the shoulder to ask for directions.", text_to_speak: "Tapped me on the shoulder" },
-                { id: 16, front: 'Fell asleep', back_fa: 'خوابم برد.', back_en: "After a long day, I fell asleep immediately.", text_to_speak: "Fell asleep" },
-                { id: 17, front: 'Cut my finger', back_fa: 'انگشتم را بریدم.', back_en: "Be careful with that knife, I just cut my finger.", text_to_speak: "Cut my finger" },
-                { id: 18, front: 'Sprained my ankle', back_fa: 'مچ پایم پیچ خورد.', back_en: "I slipped on the ice and sprained my ankle.", text_to_speak: "Sprained my ankle" },
-                { id: 19, front: 'To haggle', back_fa: 'چانه زدن.', back_en: "In many markets, you are expected to haggle over the price.", text_to_speak: "To haggle" },
-                { id: 20, front: 'Passed out', back_fa: 'غش کرد، از هوش رفت.', back_en: "He passed out from the heat.", text_to_speak: "Passed out" },
-                { id: 21, front: 'My car broke down', back_fa: 'ماشینم خراب شد.', back_en: "My car broke down in the middle of the highway.", text_to_speak: "My car broke down" },
-                { id: 22, front: 'I had an accident', back_fa: 'تصادف کردم.', back_en: "I had an accident on my way here, so I'm a bit late.", text_to_speak: "I had an accident" },
-                { id: 23, front: 'Someone knocked at the door', back_fa: 'یکی در زد.', back_en: "I was watching a movie when someone knocked at the door.", text_to_speak: "Someone knocked at the door" },
-                { id: 24, front: 'Dust', back_fa: 'اسم: گرد و خاک. فعل: گردگیری کردن.', back_en: "I need to dust the shelves before the guests arrive.", text_to_speak: "Dust" },
-                { id: 25, front: 'Cockroach', back_fa: 'سوسک.', back_en: "He screamed when he saw a cockroach in the bathroom.", text_to_speak: "Cockroach" },
-                { id: 26, front: 'Cheat', back_fa: 'تقلب کردن.', back_en: "The teacher warned the students not to cheat on the exam.", text_to_speak: "Cheat" },
-                { id: 27, front: 'Whispering', back_fa: 'پچ‌پچ کردن.', back_en: "They were whispering so no one else could hear.", text_to_speak: "Whispering" },
-                { id: 28, front: 'Shouting', back_fa: 'داد زدن.', back_en: "Please stop shouting, I'm right here.", text_to_speak: "Shouting" },
-                { id: 29, front: 'Yawning', back_fa: 'خمیازه کشیدن.', back_en: "His constant yawning showed how bored he was.", text_to_speak: "Yawning" },
-                { id: 30, front: 'Ogling', back_fa: 'چشم‌چرانی کردن، دید زدن.', back_en: "The man was rudely ogling the people at the next table.", text_to_speak: "Ogling" },
-                { id: 31, front: 'Whistling', back_fa: 'سوت زدن.', back_en: "He walked down the street, whistling a cheerful tune.", text_to_speak: "Whistling" },
+                { id: 1, front: 'سه سوته / In a jiffy', back_fa: 'خیلی سریع.', back_en: "I'll be back in a jiffy, just wait here.", text_to_speak: "In a jiffy", image_url: "https://placehold.co/400x200/3B82F6/FFFFFF?text=Fast+Clock" },
+                { id: 2, front: 'دو دلم / On the fence', back_fa: 'مردد بودن.', back_en: "I'm on the fence about accepting the new job offer.", text_to_speak: "On the fence", image_url: "https://placehold.co/400x200/10B981/FFFFFF?text=Question+Mark" },
+                { id: 3, front: 'Never in a million years', back_fa: 'هرگز، عمراً.', back_en: "Never in a million years would I have guessed the surprise.", text_to_speak: "Never in a million years", image_url: "https://placehold.co/400x200/8B5CF6/FFFFFF?text=Impossible" },
+                { id: 4, front: 'Cost an arm and a leg', back_fa: 'خیلی گران بودن.', back_en: "That new designer handbag cost her an arm and a leg.", text_to_speak: "Cost an arm and a leg", image_url: "https://placehold.co/400x200/EF4444/FFFFFF?text=Expensive" },
+                { id: 5, front: 'It is what it is', back_fa: 'شرایط همین است (کاری نمی‌توان کرد).', back_en: "We can't change the past. It is what it is.", text_to_speak: "It is what it is", image_url: "https://placehold.co/400x200/6B7280/FFFFFF?text=Acceptance" },
+                { id: 6, front: 'Take it or leave it', back_fa: 'پیشنهاد نهایی (یا قبول کن یا رد کن).', back_en: "This is my last offer. Take it or leave it.", text_to_speak: "Take it or leave it", image_url: "https://placehold.co/400x200/F97316/FFFFFF?text=Final+Offer" },
+                { id: 7, front: 'Take a hike', back_fa: 'برو گمشو (بی‌ادبانه).', back_en: "He told his noisy neighbors to take a hike.", text_to_speak: "Take a hike", image_url: "https://placehold.co/400x200/D97706/FFFFFF?text=Go+Away" },
+                { id: 8, front: 'Backbiting', back_fa: 'پشت سر کسی بدگویی کردن.', back_en: "I hate office politics and backbiting.", text_to_speak: "Backbiting", image_url: "https://placehold.co/400x200/4B5563/FFFFFF?text=Whispers" },
+                { id: 9, front: 'Catch red-handed', back_fa: 'مچ کسی را حین ارتکاب جرم گرفتن.', back_en: "The manager caught the employee red-handed stealing office supplies.", text_to_speak: "Catch red-handed", image_url: "https://placehold.co/400x200/DC2626/FFFFFF?text=Caught!" },
+                { id: 10, front: "Don't count your chickens before they hatch", back_fa: 'جوجه را آخر پاییز می‌شمارند.', back_en: "You may get the job, but don't count your chickens before they hatch.", text_to_speak: "Don't count your chickens before they hatch", image_url: "https://placehold.co/400x200/F59E0B/FFFFFF?text=Patience" },
+                { id: 11, front: "A friend in need is a friend indeed", back_fa: 'دوست واقعی در سختی‌ها شناخته می‌شود.', back_en: "She helped me when I was broke. A friend in need is a friend indeed.", text_to_speak: "A friend in need is a friend indeed", image_url: "https://placehold.co/400x200/22C55E/FFFFFF?text=True+Friend" },
+                { id: 12, front: 'The milk boiled over', back_fa: 'شیر سر رفت.', back_en: "I was on the phone and the milk boiled over.", text_to_speak: "The milk boiled over", image_url: "https://placehold.co/400x200/9CA3AF/FFFFFF?text=Spilled+Milk" },
+                { id: 13, front: 'The power went out', back_fa: 'برق رفت.', back_en: "The power went out, and everything went dark.", text_to_speak: "The power went out", image_url: "https://placehold.co/400x200/1F2937/FFFFFF?text=Blackout" },
+                { id: 14, front: 'Its battery died', back_fa: 'باتری‌اش تمام شد.', back_en: "My phone's battery died during the important call.", text_to_speak: "Its battery died", image_url: "https://placehold.co/400x200/78716C/FFFFFF?text=Empty+Battery" },
+                { id: 15, front: 'Tapped me on the shoulder', back_fa: 'به شانه‌ام زد.', back_en: "A stranger tapped me on the shoulder to ask for directions.", text_to_speak: "Tapped me on the shoulder", image_url: "https://placehold.co/400x200/06B6D4/FFFFFF?text=Friendly+Tap" },
+                { id: 16, front: 'Fell asleep', back_fa: 'خوابم برد.', back_en: "After a long day, I fell asleep immediately.", text_to_speak: "Fell asleep", image_url: "https://placehold.co/400x200/4338CA/FFFFFF?text=Sleeping" },
+                { id: 17, front: 'Cut my finger', back_fa: 'انگشتم را بریدم.', back_en: "Be careful with that knife, I just cut my finger.", text_to_speak: "Cut my finger", image_url: "https://placehold.co/400x200/BE123C/FFFFFF?text=Ouch!" },
+                { id: 18, front: 'Sprained my ankle', back_fa: 'مچ پایم پیچ خورد.', back_en: "I slipped on the ice and sprained my ankle.", text_to_speak: "Sprained my ankle", image_url: "https://placehold.co/400x200/9A3412/FFFFFF?text=Ankle+Injury" },
+                { id: 19, front: 'To haggle', back_fa: 'چانه زدن.', back_en: "In many markets, you are expected to haggle over the price.", text_to_speak: "To haggle", image_url: "https://placehold.co/400x200/059669/FFFFFF?text=Bargain" },
+                { id: 20, front: 'Passed out', back_fa: 'غش کرد، از هوش رفت.', back_en: "He passed out from the heat.", text_to_speak: "Passed out", image_url: "https://placehold.co/400x200/A1A1AA/FFFFFF?text=Fainted" },
+                { id: 21, front: 'My car broke down', back_fa: 'ماشینم خراب شد.', back_en: "My car broke down in the middle of the highway.", text_to_speak: "My car broke down", image_url: "https://placehold.co/400x200/57534E/FFFFFF?text=Car+Trouble" },
+                { id: 22, front: 'I had an accident', back_fa: 'تصادف کردم.', back_en: "I had an accident on my way here, so I'm a bit late.", text_to_speak: "I had an accident", image_url: "https://placehold.co/400x200/B91C1C/FFFFFF?text=Crash" },
+                { id: 23, front: 'Someone knocked at the door', back_fa: 'یکی در زد.', back_en: "I was watching a movie when someone knocked at the door.", text_to_speak: "Someone knocked at the door", image_url: "https://placehold.co/400x200/A16207/FFFFFF?text=Knock+Knock" },
+                { id: 24, front: 'Dust', back_fa: 'اسم: گرد و خاک. فعل: گردگیری کردن.', back_en: "I need to dust the shelves before the guests arrive.", text_to_speak: "Dust", image_url: "https://placehold.co/400x200/D6D3D1/000000?text=Dusting" },
+                { id: 25, front: 'Cockroach', back_fa: 'سوسک.', back_en: "He screamed when he saw a cockroach in the bathroom.", text_to_speak: "Cockroach", image_url: "https://placehold.co/400x200/3F3F46/FFFFFF?text=Cockroach" },
+                { id: 26, front: 'Cheat', back_fa: 'تقلب کردن.', back_en: "The teacher warned the students not to cheat on the exam.", text_to_speak: "Cheat", image_url: "https://placehold.co/400x200/7F1D1D/FFFFFF?text=Cheating" },
+                { id: 27, front: 'Whispering', back_fa: 'پچ‌پچ کردن.', back_en: "They were whispering so no one else could hear.", text_to_speak: "Whispering", image_url: "https://placehold.co/400x200/52525B/FFFFFF?text=Secret" },
+                { id: 28, front: 'Shouting', back_fa: 'داد زدن.', back_en: "Please stop shouting, I'm right here.", text_to_speak: "Shouting", image_url: "https://placehold.co/400x200/E11D48/FFFFFF?text=Loud!" },
+                { id: 29, front: 'Yawning', back_fa: 'خمیازه کشیدن.', back_en: "His constant yawning showed how bored he was.", text_to_speak: "Yawning", image_url: "https://placehold.co/400x200/0891B2/FFFFFF?text=Tired" },
+                { id: 30, front: 'Ogling', back_fa: 'چشم‌چرانی کردن، دید زدن.', back_en: "The man was rudely ogling the people at the next table.", text_to_speak: "Ogling", image_url: "https://placehold.co/400x200/BE185D/FFFFFF?text=Staring" },
+                { id: 31, front: 'Whistling', back_fa: 'سوت زدن.', back_en: "He walked down the street, whistling a cheerful tune.", text_to_speak: "Whistling", image_url: "https://placehold.co/400x200/1D4ED8/FFFFFF?text=Music" },
+                { id: 32, front: 'داشتم به خانه می‌رفتم.', back_fa: 'I was going home.', back_en: '', text_to_speak: 'I was going home', image_url: "https://placehold.co/400x200/16A34A/FFFFFF?text=Going+Home" },
+                { id: 33, front: 'داشتم رانندگی می‌کردم.', back_fa: 'I was driving.', back_en: '', text_to_speak: 'I was driving', image_url: "https://placehold.co/400x200/4F46E5/FFFFFF?text=Driving" },
+                { id: 34, front: 'داشتم به مادرم کمک می‌کردم.', back_fa: 'I was helping my mother.', back_en: '', text_to_speak: 'I was helping my mother', image_url: "https://placehold.co/400x200/DB2777/FFFFFF?text=Helping" },
+                { id: 35, front: 'داشتم آشپزی می‌کردم.', back_fa: 'I was cooking.', back_en: '', text_to_speak: 'I was cooking', image_url: "https://placehold.co/400x200/F59E0B/FFFFFF?text=Cooking" },
+                { id: 36, front: 'داشتم حیاط را جارو می‌کردم.', back_fa: 'I was sweeping the yard.', back_en: '', text_to_speak: 'I was sweeping the yard', image_url: "https://placehold.co/400x200/9A3412/FFFFFF?text=Sweeping" },
+                { id: 37, front: 'داشتم ماشینم را پارک می‌کردم.', back_fa: 'I was parking my car.', back_en: '', text_to_speak: 'I was parking my car', image_url: "https://placehold.co/400x200/64748B/FFFFFF?text=Parking" },
+                { id: 38, front: 'داشتم شام را سرو می‌کردم.', back_fa: 'I was serving the dinner.', back_en: '', text_to_speak: 'I was serving the dinner', image_url: "https://placehold.co/400x200/7C2D12/FFFFFF?text=Serving+Dinner" },
+                { id: 39, front: 'داشتم میز را می‌چیدم.', back_fa: 'I was setting the table.', back_en: '', text_to_speak: 'I was setting the table', image_url: "https://placehold.co/400x200/065F46/FFFFFF?text=Setting+Table" },
+                { id: 40, front: 'آنها داشتند تنیس بازی می‌کردند.', back_fa: 'They were playing tennis.', back_en: '', text_to_speak: 'They were playing tennis', image_url: "https://placehold.co/400x200/15803D/FFFFFF?text=Tennis" },
+                { id: 41, front: 'داشتم دندان‌هایم را مسواک می‌زدم.', back_fa: 'I was brushing my teeth.', back_en: '', text_to_speak: 'I was brushing my teeth', image_url: "https://placehold.co/400x200/0E7490/FFFFFF?text=Brushing+Teeth" },
+                { id: 42, front: 'داشتم با تلفن صحبت می‌کردم.', back_fa: 'I was talking on the phone.', back_en: '', text_to_speak: 'I was talking on the phone', image_url: "https://placehold.co/400x200/BE185D/FFFFFF?text=Phone+Call" },
+                { id: 43, front: 'داشتیم تلویزیون تماشا می‌کردیم.', back_fa: 'We were watching TV.', back_en: '', text_to_speak: 'We were watching TV', image_url: "https://placehold.co/400x200/5B21B6/FFFFFF?text=Watching+TV" },
+                { id: 44, front: 'داشتم ظرف‌ها را می‌شستم.', back_fa: 'I was washing the dishes.', back_en: '', text_to_speak: 'I was washing the dishes', image_url: "https://placehold.co/400x200/06B6D4/FFFFFF?text=Washing+Dishes" },
+                { id: 45, front: 'داشتم به موسیقی گوش می‌دادم.', back_fa: 'I was listening to music.', back_en: '', text_to_speak: 'I was listening to music', image_url: "https://placehold.co/400x200/C026D3/FFFFFF?text=Music" },
+                { id: 46, front: 'داشتم سالاد درست می‌کردم.', back_fa: 'I was making a salad.', back_en: '', text_to_speak: 'I was making a salad', image_url: "https://placehold.co/400x200/16A34A/FFFFFF?text=Making+Salad" },
             ];
             
-            // --- STATE MANAGEMENT ---
             let state = {};
-            let currentUserId = null;
             let currentReviewSession = { cards: [], currentIndex: 0, boxNumber: 0 };
             const NUM_BOXES = 5;
             const reviewIntervals = { 1: 1, 2: 3, 3: 7, 4: 14, 5: 30 };
+            let preferredVoice = null;
 
-            // --- AUTHENTICATION ---
-            onAuthStateChanged(auth, user => {
-                if (user) {
-                    currentUserId = user.uid;
-                    loginView.classList.add('hidden');
-                    configErrorView.classList.add('hidden');
-                    appView.classList.remove('hidden');
-                    renderAuthenticatedUI(user);
-                    initializeState(currentUserId);
-                } else {
-                    currentUserId = null;
-                    if (firebaseConfig.apiKey !== "YOUR_API_KEY") {
-                        loginView.classList.remove('hidden');
-                    }
-                    appView.classList.add('hidden');
-                    renderLoggedOutUI();
+            function loadAndSetVoice() {
+                const voices = window.speechSynthesis.getVoices();
+                preferredVoice = voices.find(voice => voice.name === 'Google US English') || 
+                                 voices.find(voice => voice.lang === 'en-US' && voice.localService);
+                if (!preferredVoice) {
+                    preferredVoice = voices.find(voice => voice.lang === 'en-US');
                 }
-            });
+            }
+            
+            window.speechSynthesis.onvoiceschanged = loadAndSetVoice;
+            loadAndSetVoice();
 
-            loginBtn.addEventListener('click', async () => {
-                try {
-                    await signInWithPopup(auth, provider);
-                } catch (error) {
-                    if (error.code === 'auth/unauthorized-domain') {
-                        showAuthError();
-                    } else {
-                        console.error("Login failed:", error);
-                    }
-                }
-            });
-
-            function showAuthError() {
-                const errorDiv = document.createElement('div');
-                errorDiv.className = 'bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mt-4 rounded-lg text-right';
-                errorDiv.innerHTML = `
-                    <p class="font-bold">خطای دسترسی (Unauthorized Domain)</p>
-                    <p class="text-sm">دامنه <strong>${window.location.hostname}</strong> برای پروژه Firebase شما مجاز نیست. برای حل مشکل:</p>
-                    <ol class="list-decimal list-inside text-sm mt-2">
-                        <li>به <a href="https://console.firebase.google.com/" target="_blank" class="underline font-semibold">کنسول Firebase</a> بروید.</li>
-                        <li>پروژه خود را انتخاب کنید.</li>
-                        <li>به بخش Authentication -> Settings -> Authorized domains بروید.</li>
-                        <li>روی "Add domain" کلیک کرده و دامنه را اضافه کنید.</li>
-                    </ol>
-                `;
-                const existingError = loginView.querySelector('.bg-red-100');
-                if (existingError) {
-                    existingError.remove();
-                }
-                loginView.appendChild(errorDiv);
+            function getTodayString() {
+                const today = new Date();
+                const year = today.getFullYear();
+                const month = String(today.getMonth() + 1).padStart(2, '0');
+                const day = String(today.getDate()).padStart(2, '0');
+                return `${year}-${month}-${day}`;
             }
 
-            function userLogout() {
-                signOut(auth).catch((error) => console.error("Logout failed:", error));
+            function calculateNextReviewDate(boxNumber) {
+                const daysToAdd = reviewIntervals[boxNumber];
+                const date = new Date();
+                date.setDate(date.getDate() + daysToAdd);
+                return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
             }
 
-            // --- FIRESTORE DATA HANDLING ---
-            async function initializeState(userId) {
-                const docRef = doc(db, `artifacts/${appId}/users/${userId}/leitner-data`, "state");
-                const docSnap = await getDoc(docRef);
-
-                if (docSnap.exists()) {
-                    state = docSnap.data();
+            function initializeState() {
+                const savedState = localStorage.getItem('leitnerStateWithDates');
+                if (savedState) {
+                    state = JSON.parse(savedState);
+                    let stateUpdated = false;
+                    allCardsData.forEach(card => {
+                        if (!state[card.id]) {
+                            state[card.id] = { box: 1, nextReview: getTodayString() };
+                            stateUpdated = true;
+                        }
+                    });
+                    if (stateUpdated) {
+                        saveState();
+                    }
                 } else {
                     state = {};
                     allCardsData.forEach(card => {
                         state[card.id] = { box: 1, nextReview: getTodayString() };
                     });
-                    await saveState(userId);
+                    saveState();
                 }
                 updateUI();
             }
 
-            async function saveState(userId) {
-                if (!userId) return;
-                const docRef = doc(db, `artifacts/${appId}/users/${userId}/leitner-data`, "state");
-                await setDoc(docRef, state);
+            function saveState() {
+                localStorage.setItem('leitnerStateWithDates', JSON.stringify(state));
             }
 
-            // --- UI RENDERING ---
-            function renderAuthenticatedUI(user) {
-                authContainer.innerHTML = `
-                    <div class="flex items-center gap-4">
-                        <span class="text-sm font-semibold">${user.displayName}</span>
-                        <img src="${user.photoURL}" alt="User Photo" class="w-10 h-10 rounded-full">
-                        <button id="logout-btn" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded-lg">خروج</button>
-                    </div>
-                `;
-                document.getElementById('logout-btn').addEventListener('click', userLogout);
-            }
-
-            function renderLoggedOutUI() {
-                authContainer.innerHTML = '';
+            function updateUI() {
+                renderBoxes();
             }
 
             function renderBoxes() {
@@ -326,29 +308,41 @@
                     container.appendChild(boxEl);
                 }
             }
-
+            
             function showCard(cardData) {
                 const cardFront = document.getElementById('card-front');
                 const cardBack = document.getElementById('card-back');
                 const flashcard = document.querySelector('.flashcard');
                 
                 flashcard.classList.remove('is-flipped');
-                cardFront.innerHTML = `<h3 class="text-2xl font-bold">${cardData.front}</h3>`;
+                cardFront.innerHTML = `<h3 class="text-2xl font-bold p-4">${cardData.front}</h3>`;
+                
+                let backContent;
+                if (cardData.back_en === '') {
+                    backContent = `<p class="font-bold text-lg">${cardData.back_fa}</p>`;
+                } else {
+                    backContent = `
+                        <p><strong>معنی:</strong> ${cardData.back_fa}</p>
+                        <p><em><strong>مثال:</strong> ${cardData.back_en}</em></p>
+                    `;
+                }
+
                 cardBack.innerHTML = `
-                    <p><strong>معنی:</strong> ${cardData.back_fa}</p>
-                    <p><em><strong>مثال:</strong> ${cardData.back_en}</em></p>
-                    <button class="pronunciation-button" data-text="${cardData.text_to_speak}">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M9.383 3.076A1 1 0 0110 4v12a1 1 0 01-1.707.707L4.586 13H2a1 1 0 01-1-1V8a1 1 0 011-1h2.586l3.707-3.707a1 1 0 011.09-.217zM14.657 2.929a1 1 0 011.414 0A9.972 9.972 0 0119 10a9.972 9.972 0 01-2.929 7.071 1 1 0 01-1.414-1.414A7.971 7.971 0 0017 10c0-2.21-.894-4.208-2.343-5.657a1 1 0 010-1.414z"/></svg>
-                        <span>تلفظ</span>
-                    </button>
+                    <img src="${cardData.image_url}" alt="${cardData.front}" class="card-back-image" onerror="this.style.display='none'">
+                    <div class="p-4 flex-grow flex flex-col justify-center items-center">
+                        ${backContent}
+                        <button class="pronunciation-button" data-text="${cardData.text_to_speak}">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M9.383 3.076A1 1 0 0110 4v12a1 1 0 01-1.707.707L4.586 13H2a1 1 0 01-1-1V8a1 1 0 011-1h2.586l3.707-3.707a1 1 0 011.09-.217zM14.657 2.929a1 1 0 011.414 0A9.972 9.972 0 0119 10a9.972 9.972 0 01-2.929 7.071 1 1 0 01-1.414-1.414A7.971 7.971 0 0017 10c0-2.21-.894-4.208-2.343-5.657a1 1 0 010-1.414z"/></svg>
+                            <span>تلفظ</span>
+                        </button>
+                    </div>
                 `;
             }
 
-            // --- REVIEW LOGIC ---
             function startReview(boxNumber) {
                 const today = getTodayString();
                 const cardIdsToReview = Object.keys(state).filter(id => 
-                    state[id].box === boxNumber && state[id].nextReview <= today
+                    state[id] && state[id].box === boxNumber && state[id].nextReview <= today
                 );
                 
                 document.querySelectorAll('.box').forEach(b => b.classList.remove('active'));
@@ -389,7 +383,7 @@
                 document.querySelectorAll('.box').forEach(b => b.classList.remove('active'));
             }
 
-            async function handleAnswer(isCorrect) {
+            function handleAnswer(isCorrect) {
                 const cardId = currentReviewSession.cards[currentReviewSession.currentIndex];
                 const cardState = state[cardId];
 
@@ -400,14 +394,13 @@
                     state[cardId] = { box: 1, nextReview: calculateNextReviewDate(1) };
                 }
 
-                await saveState(currentUserId);
+                saveState();
                 updateUI();
                 
                 currentReviewSession.currentIndex++;
                 showNextCard();
             }
 
-            // --- EVENT LISTENERS ---
             document.getElementById('boxes-container').addEventListener('click', function(event) {
                 const box = event.target.closest('.box');
                 if (box) startReview(parseInt(box.dataset.boxNumber));
@@ -430,39 +423,25 @@
                     const textToSpeak = pronunciationButton.dataset.text;
                     if (textToSpeak && 'speechSynthesis' in window) {
                         const utterance = new SpeechSynthesisUtterance(textToSpeak);
+                        if (preferredVoice) {
+                            utterance.voice = preferredVoice;
+                        }
                         utterance.lang = 'en-US';
                         utterance.rate = 0.9;
-                        speechSynthesis.speak(utterance);
+                        window.speechSynthesis.speak(utterance);
                     }
                 }
             });
 
-            document.getElementById('reset-progress').addEventListener('click', async function() {
+            document.getElementById('reset-progress').addEventListener('click', function() {
                 if (confirm('آیا مطمئن هستید؟ تمام پیشرفت شما پاک خواهد شد و همه کارت‌ها به جعبه ۱ برمی‌گردند.')) {
-                    allCardsData.forEach(card => {
-                        state[card.id] = { box: 1, nextReview: getTodayString() };
-                    });
-                    await saveState(currentUserId);
+                    localStorage.removeItem('leitnerStateWithDates');
+                    state = {};
+                    initializeState();
                     location.reload();
                 }
             });
 
-            // --- HELPERS ---
-            function getTodayString() {
-                const today = new Date();
-                const year = today.getFullYear();
-                const month = String(today.getMonth() + 1).padStart(2, '0');
-                const day = String(today.getDate()).padStart(2, '0');
-                return `${year}-${month}-${day}`;
-            }
-
-            function calculateNextReviewDate(boxNumber) {
-                const daysToAdd = reviewIntervals[boxNumber];
-                const date = new Date();
-                date.setDate(date.getDate() + daysToAdd);
-                return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
-            }
-            
             function shuffleArray(array) {
                 for (let i = array.length - 1; i > 0; i--) {
                     const j = Math.floor(Math.random() * (i + 1));
@@ -470,6 +449,10 @@
                 }
                 return array;
             }
+            
+            // This is the main entry point for the Leitner app logic
+            // It's called after a successful Google Sign-In
+            // initializeState(); // This will be called by handleCredentialResponse
         }
     </script>
 </body>
