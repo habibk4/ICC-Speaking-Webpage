@@ -105,9 +105,18 @@
                 <a href="https://habibk4.github.io/ICC-Speaking-Webpage/" class="text-xl sm:text-2xl font-bold gradient-text cursor-pointer no-underline">
                     خلاصه کلاس Speaking ICC
                 </a>
-                <button id="mobile-menu-button" class="md:hidden p-2 rounded-md text-slate-600 hover:bg-slate-100 focus:outline-none">
-                    <i class="fa-solid fa-bars fa-lg"></i>
-                </button>
+                <!-- User profile and logout button -->
+                <div class="flex items-center gap-4">
+                    <div id="user-display-info" class="flex items-center gap-2">
+                        <!-- User image and name will be injected here -->
+                    </div>
+                    <button id="logout-button" class="hidden px-4 py-2 text-sm font-bold text-white bg-red-500 hover:bg-red-600 rounded-lg transition-colors">
+                        خروج
+                    </button>
+                    <button id="mobile-menu-button" class="md:hidden p-2 rounded-md text-slate-600 hover:bg-slate-100 focus:outline-none">
+                        <i class="fa-solid fa-bars fa-lg"></i>
+                    </button>
+                </div>
             </div>
         </header>
 
@@ -176,6 +185,8 @@
         const loginSection = document.getElementById('login-section');
         const userInfoDiv = document.getElementById('user-info');
         const loggedInUserInfoDiv = document.getElementById('logged-in-user-info');
+        const logoutButton = document.getElementById('logout-button');
+        const userDisplayInfo = document.getElementById('user-display-info');
         
         /**
          * Parses the JWT token to get user data.
@@ -201,20 +212,20 @@
             // Store user data in localStorage to persist the session
             localStorage.setItem('userData', JSON.stringify(data));
             
-            // Show the main content and hide the login section
-            appContainer.classList.remove('hidden');
-            loginSection.classList.add('hidden');
-            
-            // Display user info in the main app
-            displayUserInfo(data);
-            
-            // Initialize app content after successful login
-            createMenu();
-            updateActiveLink();
+            // Update the UI
+            checkLoginStatus();
         }
 
         /**
-         * Displays the user's information in the main content area.
+         * Logs the user out by clearing localStorage and refreshing the state.
+         */
+        function logout() {
+            localStorage.removeItem('userData');
+            checkLoginStatus();
+        }
+
+        /**
+         * Displays the user's information in the main content area and header.
          * @param {object} userData The user data to display.
          */
         function displayUserInfo(userData) {
@@ -224,10 +235,16 @@
                     <p class="text-slate-300">خوش آمدید به آرشیو Speaking.</p>
                 `;
             }
+            if (userDisplayInfo) {
+                userDisplayInfo.innerHTML = `
+                    <img src="${userData.picture}" alt="Profile" class="w-8 h-8 rounded-full">
+                    <span class="font-medium text-sm hidden sm:inline">${userData.given_name}</span>
+                `;
+            }
         }
 
         /**
-         * Checks for an existing user session on page load.
+         * Checks for an existing user session on page load and updates the UI accordingly.
          */
         function checkLoginStatus() {
             const userData = JSON.parse(localStorage.getItem('userData'));
@@ -235,13 +252,18 @@
                 // User is already logged in, show app content
                 appContainer.classList.remove('hidden');
                 loginSection.classList.add('hidden');
+                logoutButton.classList.remove('hidden');
                 displayUserInfo(userData);
+                
+                // Now, create the menu and highlight the active link
                 createMenu();
                 updateActiveLink();
             } else {
                 // User is not logged in, show login section
                 appContainer.classList.add('hidden');
                 loginSection.classList.remove('hidden');
+                logoutButton.classList.add('hidden');
+                userDisplayInfo.innerHTML = '';
             }
         }
 
@@ -249,8 +271,8 @@
          * این تابع منوی جلسات را به صورت پویا ایجاد می‌کند.
          */
         function createMenu() {
-            // Check if menu already exists to prevent duplication
-            if (menuContainer.hasChildNodes()) return;
+            // Clear any existing menu items before creating new ones
+            menuContainer.innerHTML = '';
 
             // This variable tracks the session number for link creation, starting from 1.
             let sessionCounter = 1;
@@ -351,6 +373,7 @@
             toggleSidebar(); 
         });
         sidebarOverlay.addEventListener('click', toggleSidebar);
+        logoutButton.addEventListener('click', logout);
 
         // Set current year in footer
         copyrightYear.textContent = new Date().getFullYear();
