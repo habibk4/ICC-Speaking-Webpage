@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>خلاصه کلاس Speaking ICC</title>
+    <title> Speaking ICC</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Google Fonts: Vazirmatn -->
@@ -51,68 +51,44 @@
         .fade-in {
             animation: fadeIn 0.5s ease-out forwards;
         }
-        /* Styles for the login section */
-        .login-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            background-color: #f8fafc;
-        }
-        .login-box {
-            background: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            border-radius: 1rem;
-            padding: 2.5rem;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-            text-align: center;
-        }
     </style>
 </head>
 <body class="text-slate-800">
 
-    <!-- Login Container - Initially visible -->
-    <div id="login-section" class="login-container">
-        <div class="login-box">
-            <h2 class="text-2xl font-bold mb-6 text-slate-800">برای مشاهده محتوا وارد شوید</h2>
-            <!-- Google Sign-In button container -->
-            <div id="g_id_onload"
-                 data-client_id="237587578389-ggirbrqh3ace9aura1fd6ipa5m2bepco.apps.googleusercontent.com"
-                 data-callback="handleCredentialResponse"
-                 data-auto_prompt="false">
-            </div>
-            <div class="g_id_signin"
-                 data-type="standard"
-                 data-size="large"
-                 data-theme="outline"
-                 data-text="sign_in_with"
-                 data-shape="rectangular"
-                 data-logo_alignment="left">
-            </div>
-            <!-- User info will be displayed here after login -->
-            <div id="user-info" class="mt-4 text-sm text-slate-600"></div>
-        </div>
-    </div>
-
-    <!-- Main Application Container - Initially hidden -->
-    <div id="app-container" class="hidden">
+    <!-- Main Application Container -->
+    <div id="app-container">
         <!-- Header -->
         <header class="glassmorphism shadow-sm sticky top-0 z-30">
             <div class="container mx-auto px-4 py-3 flex justify-between items-center">
                 <a href="https://habibk4.github.io/ICC-Speaking-Webpage/" class="text-xl sm:text-2xl font-bold gradient-text cursor-pointer no-underline">
                     خلاصه کلاس Speaking ICC
                 </a>
-                <!-- User profile and logout button -->
                 <div class="flex items-center gap-4">
-                    <div id="user-display-info" class="flex items-center gap-2">
-                        <!-- User image and name will be injected here -->
+                    <!-- Login Button -->
+                    <div id="login-button-container" class="hidden">
+                        <div id="g_id_onload"
+                             data-client_id="237587578389-ggirbrqh3ace9aura1fd6ipa5m2bepco.apps.googleusercontent.com"
+                             data-callback="handleCredentialResponse"
+                             data-auto_prompt="false">
+                        </div>
+                        <div class="g_id_signin"
+                             data-type="standard"
+                             data-size="large"
+                             data-theme="outline"
+                             data-text="sign_in_with"
+                             data-shape="rectangular"
+                             data-logo_alignment="left">
+                        </div>
                     </div>
-                    <button id="logout-button" class="hidden px-4 py-2 text-sm font-bold text-white bg-red-500 hover:bg-red-600 rounded-lg transition-colors">
-                        خروج
-                    </button>
+                    <!-- User profile and logout button -->
+                    <div id="user-profile-actions" class="flex items-center gap-4 hidden">
+                        <div id="user-display-info" class="flex items-center gap-2">
+                            <!-- User image and name will be injected here -->
+                        </div>
+                        <button id="logout-button" class="px-4 py-2 text-sm font-bold text-white bg-red-500 hover:bg-red-600 rounded-lg transition-colors">
+                            خروج
+                        </button>
+                    </div>
                     <button id="mobile-menu-button" class="md:hidden p-2 rounded-md text-slate-600 hover:bg-slate-100 focus:outline-none">
                         <i class="fa-solid fa-bars fa-lg"></i>
                     </button>
@@ -140,16 +116,14 @@
                     <div id="content-area" class="bg-white rounded-2xl shadow-lg min-h-[80vh] overflow-hidden">
                         <!-- Homepage Content -->
                         <div class="relative text-white h-full min-h-[80vh] flex flex-col justify-center items-center text-center p-6" 
-                             style="background-image: url('https://images.unsplash.com/photo-1543269865-cbf427effbad?q=80&w=2070&auto=format&fit=crop'); background-size: cover; background-position: center;">
+                             style="background-image: url('uploaded:ICC-Class.jpg-162917d4-3037-4aba-bc4c-b16f5c106c3f'); background-size: cover; background-position: center;"
+                             onerror="this.style.backgroundImage='url(https://placehold.co/1000x800/d1d5db/374151?text=Image+Not+Found)';">
                             <div class="absolute inset-0 bg-black/50"></div>
                             <div class="relative z-10 fade-in">
                                 <h2 class="text-4xl md:text-5xl font-bold mb-3">سفر من در دنیای مکالمه!</h2>
                                 <p class="text-lg max-w-xl mx-auto text-slate-200 leading-relaxed">
                                     اینجا قراره چکیده‌ای از چیزایی که تو هر جلسه یاد می‌گیرم رو بنویسم. این سایت به مرور کامل‌تر می‌شه، پس حتما دوباره سر بزن!
                                 </p>
-                                <div id="logged-in-user-info" class="mt-4 p-4 rounded-lg bg-white/20 backdrop-blur-md">
-                                    <!-- User information from login will be displayed here -->
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -181,10 +155,8 @@
         const sidebar = document.getElementById('sidebar');
         const copyrightYear = document.getElementById('copyright-year');
         const sidebarOverlay = document.getElementById('sidebar-overlay');
-        const appContainer = document.getElementById('app-container');
-        const loginSection = document.getElementById('login-section');
-        const userInfoDiv = document.getElementById('user-info');
-        const loggedInUserInfoDiv = document.getElementById('logged-in-user-info');
+        const loginButtonContainer = document.getElementById('login-button-container');
+        const userProfileActions = document.getElementById('user-profile-actions');
         const logoutButton = document.getElementById('logout-button');
         const userDisplayInfo = document.getElementById('user-display-info');
         
@@ -225,16 +197,10 @@
         }
 
         /**
-         * Displays the user's information in the main content area and header.
+         * Displays the user's information in the header.
          * @param {object} userData The user data to display.
          */
         function displayUserInfo(userData) {
-            if (loggedInUserInfoDiv) {
-                loggedInUserInfoDiv.innerHTML = `
-                    <p class="text-xl font-bold mb-2">سلام ${userData.name} 👋</p>
-                    <p class="text-slate-300">خوش آمدید به آرشیو Speaking.</p>
-                `;
-            }
             if (userDisplayInfo) {
                 userDisplayInfo.innerHTML = `
                     <img src="${userData.picture}" alt="Profile" class="w-8 h-8 rounded-full">
@@ -249,20 +215,14 @@
         function checkLoginStatus() {
             const userData = JSON.parse(localStorage.getItem('userData'));
             if (userData) {
-                // User is already logged in, show app content
-                appContainer.classList.remove('hidden');
-                loginSection.classList.add('hidden');
-                logoutButton.classList.remove('hidden');
+                // User is already logged in, show user profile and logout button
+                loginButtonContainer.classList.add('hidden');
+                userProfileActions.classList.remove('hidden');
                 displayUserInfo(userData);
-                
-                // Now, create the menu and highlight the active link
-                createMenu();
-                updateActiveLink();
             } else {
-                // User is not logged in, show login section
-                appContainer.classList.add('hidden');
-                loginSection.classList.remove('hidden');
-                logoutButton.classList.add('hidden');
+                // User is not logged in, show login button
+                loginButtonContainer.classList.remove('hidden');
+                userProfileActions.classList.add('hidden');
                 userDisplayInfo.innerHTML = '';
             }
         }
@@ -313,23 +273,24 @@
                 termButton.addEventListener('click', () => {
                     const content = termButton.nextElementSibling;
                     const icon = termButton.querySelector('svg');
-                    const isExpanded = content.style.maxHeight;
-
-                    // Close all other accordions
-                    document.querySelectorAll('.accordion-content').forEach(el => {
-                        if (el !== content) {
+                    
+                    // Toggle the current accordion
+                    const isCurrentlyExpanded = content.style.maxHeight !== '';
+                    if (isCurrentlyExpanded) {
+                        content.style.maxHeight = null;
+                        icon.style.transform = 'rotate(0deg)';
+                    } else {
+                        // Close all other accordions first
+                        document.querySelectorAll('.accordion-content').forEach(el => {
                             el.style.maxHeight = null;
                             const prevIcon = el.previousElementSibling.querySelector('svg');
                             if (prevIcon) {
                                 prevIcon.style.transform = 'rotate(0deg)';
                             }
-                        }
-                    });
-
-                    // Open the clicked accordion if it was closed
-                    if (!isExpanded) {
+                        });
+                        // Open the clicked one
                         content.style.maxHeight = content.scrollHeight + "px";
-                        if (icon) icon.style.transform = 'rotate(180deg)';
+                        icon.style.transform = 'rotate(180deg)';
                     }
                 });
             }
@@ -378,8 +339,12 @@
         // Set current year in footer
         copyrightYear.textContent = new Date().getFullYear();
         
-        // Initial check for login status
-        window.onload = checkLoginStatus;
+        // Initial app setup
+        window.onload = () => {
+            checkLoginStatus();
+            createMenu();
+            updateActiveLink();
+        };
     </script>
 </body>
 </html>
