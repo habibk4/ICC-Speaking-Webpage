@@ -20,43 +20,188 @@
             display: flex;
             flex-direction: column;
             min-height: 100vh;
+            background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
         }
         .main-container {
             flex-grow: 1;
+            padding: 1rem;
         }
-        .flashcard-container { perspective: 1000px; height: 250px; width: 100%; max-width: 500px; }
-        .flashcard { position: relative; width: 100%; height: 100%; transition: transform 0.7s; transform-style: preserve-3d; cursor: pointer; }
-        .flashcard.is-flipped { transform: rotateY(180deg); }
-        .card-face { position: absolute; width: 100%; height: 100%; -webkit-backface-visibility: hidden; backface-visibility: hidden; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); text-align: center; }
-        .card-front { background-color: #ffffff; border: 1px solid #e2e8f0; }
-        .card-back { background-color: #f8fafc; border: 1px solid #e2e8f0; transform: rotateY(180deg); font-size: 0.9em; line-height: 1.6; overflow: hidden; }
-        .pronunciation-button { display: inline-flex; align-items: center; gap: 0.5rem; margin-top: 0.75rem; padding: 0.5rem 1rem; background-color: #e0f2fe; color: #0c4a6e; border-radius: 9999px; font-weight: 500; text-decoration: none; transition: background-color 0.2s; border: none; cursor: pointer; }
-        .pronunciation-button:hover { background-color: #bae6fd; }
-        .box-count { background-color: #1d4ed8; color: white; border-radius: 50%; width: 28px; height: 28px; display: inline-flex; justify-content: center; align-items: center; font-weight: bold; }
-        .box.active { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5); }
-        .box { display: flex; flex-direction: column; justify-content: space-between; }
+        .flashcard-container {
+            perspective: 1000px;
+            height: 280px;
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .flashcard {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.7s ease-in-out;
+            transform-style: preserve-3d;
+            cursor: pointer;
+        }
+        .flashcard.is-flipped {
+            transform: rotateY(180deg);
+        }
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 1.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+            text-align: center;
+            background-color: #ffffff;
+        }
+        .card-front {
+            border: 1px solid #d1d5db;
+        }
+        .card-back {
+            background-color: #f9fafb;
+            border: 1px solid #d1d5db;
+            transform: rotateY(180deg);
+            font-size: 0.95rem;
+            line-height: 1.7;
+            overflow: hidden;
+        }
+        .pronunciation-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            padding: 0.75rem 1.5rem;
+            background-color: #dbeafe;
+            color: #1e40af;
+            border-radius: 9999px;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+        .pronunciation-button:hover {
+            background-color: #bfdbfe;
+            transform: translateY(-2px);
+        }
+        .box-count {
+            background-color: #1e40af;
+            color: white;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+        }
+        .box.active {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.3);
+        }
+        .box {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: all 0.3s ease;
+        }
+        .box:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+        }
         .card-back-image {
             width: 100%;
-            height: 100px;
+            height: 120px;
             object-fit: cover;
-            border-radius: 12px 12px 0 0;
+            border-radius: 1rem 1rem 0 0;
         }
-        @keyframes fadeInToast {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+        /* Modal Styles */
+        #login-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
         }
-        #login-toast {
-            animation: fadeInToast 0.5s ease-out forwards;
+        #login-modal.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        #login-modal .modal-content {
+            background: white;
+            border-radius: 1rem;
+            padding: 2rem;
+            max-width: 90%;
+            width: 400px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transform: translateY(20px);
+            transition: transform 0.3s ease;
+        }
+        #login-modal.show .modal-content {
+            transform: translateY(0);
+        }
+        /* Responsive Adjustments */
+        @media (max-width: 640px) {
+            .main-container {
+                padding: 0.5rem;
+            }
+            .flashcard-container {
+                height: 220px;
+                max-width: 100%;
+            }
+            .card-face {
+                padding: 1rem;
+                font-size: 0.9rem;
+            }
+            .card-back-image {
+                height: 80px;
+            }
+            .pronunciation-button {
+                padding: 0.5rem 1rem;
+                font-size: 0.85rem;
+            }
+            .box {
+                padding: 0.75rem;
+            }
+            .box-count {
+                width: 28px;
+                height: 28px;
+                font-size: 0.9rem;
+            }
+            h1 {
+                font-size: 1.25rem;
+            }
+            #review-message {
+                font-size: 1rem;
+            }
+            #answer-buttons button {
+                padding: 0.5rem 1.5rem;
+                font-size: 0.9rem;
+            }
         }
     </style>
 </head>
-<body class="bg-gray-100 text-gray-800">
+<body class="text-gray-900">
 
-    <div class="main-container container mx-auto max-w-5xl p-4 sm:p-8">
-        <header class="flex justify-between items-center mb-6">
-            <h1 class="text-xl sm:text-2xl font-bold text-gray-800">جعبه لایتنر دوره ICC</h1>
+    <div class="main-container container mx-auto max-w-6xl p-4 sm:p-6 md:p-8">
+        <header class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
+            <h1 class="text-2xl sm:text-3xl font-bold text-gray-900">جعبه لایتنر دوره ICC</h1>
             <div id="auth-container">
-                <button id="login-button" class="px-4 py-2 text-sm font-bold text-white bg-indigo-500 hover:bg-indigo-600 rounded-lg transition-colors hidden">
+                <button id="login-button" class="px-4 py-2 text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-all duration-300 hidden">
                     ورود با گوگل
                 </button>
                 <div id="user-profile-actions" class="flex items-center gap-4 hidden">
@@ -65,43 +210,46 @@
             </div>
         </header>
 
-        <div id="app-container" class="bg-white rounded-2xl shadow-xl p-6 sm:p-10">
-            <div id="boxes-container" class="grid grid-cols-2 sm:grid-cols-5 gap-4 mb-8"></div>
+        <div id="app-container" class="bg-white rounded-2xl shadow-lg p-4 sm:p-6 md:p-8">
+            <div id="boxes-container" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 mb-8"></div>
             <div id="review-area" class="w-full mx-auto text-center hidden">
-                <p id="review-message" class="text-lg font-semibold mb-4"></p>
+                <p id="review-message" class="text-lg sm:text-xl font-semibold text-gray-800 mb-6"></p>
                 <div id="flashcard-display" class="flashcard-container mx-auto mb-6">
                     <div class="flashcard">
                         <div id="card-front" class="card-face card-front"></div>
                         <div id="card-back" class="card-face card-back p-0"></div>
                     </div>
                 </div>
-                <div id="answer-buttons" class="flex justify-center gap-4 hidden">
-                    <button id="correct-btn" class="bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-8 rounded-lg">درست</button>
-                    <button id="incorrect-btn" class="bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-8 rounded-lg">غلط</button>
+                <div id="answer-buttons" class="flex justify-center gap-4 sm:gap-6 hidden">
+                    <button id="correct-btn" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 sm:py-3 px-6 sm:px-8 rounded-lg transition-all duration-300">درست</button>
+                    <button id="incorrect-btn" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 sm:py-3 px-6 sm:px-8 rounded-lg transition-all duration-300">غلط</button>
                 </div>
             </div>
-            <div id="no-review-message" class="text-center py-10 px-6 bg-gray-50 rounded-lg">
-                <p class="text-xl font-semibold text-gray-700">برای شروع، یک جعبه را انتخاب کنید.</p>
+            <div id="no-review-message" class="text-center py-8 sm:py-10 px-4 bg-gray-50 rounded-lg">
+                <p class="text-lg sm:text-xl font-semibold text-gray-700">برای شروع، یک جعبه را انتخاب کنید.</p>
             </div>
-            <div class="text-center mt-8">
-                <button id="reset-progress" class="text-sm text-gray-400 hover:text-red-500 hover:underline">شروع مجدد و پاک کردن تمام پیشرفت</button>
+            <div class="text-center mt-6 sm:mt-8">
+                <button id="reset-progress" class="text-sm text-gray-500 hover:text-red-600 hover:underline transition-colors duration-300">شروع مجدد و پاک کردن تمام پیشرفت</button>
             </div>
         </div>
     </div>
     
-    <!-- Toast Notification -->
-    <div id="login-toast" class="hidden fixed bottom-5 right-5 bg-white shadow-lg rounded-lg p-4 max-w-sm z-50 flex items-start gap-4">
-        <div class="flex-shrink-0">
-            <svg class="w-8 h-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+    <!-- Login Modal -->
+    <div id="login-modal" class="hidden">
+        <div class="modal-content">
+            <div class="flex justify-end">
+                <button id="close-modal-btn" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+            </div>
+            <div class="flex justify-center mb-4">
+                <svg class="w-12 h-12 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            </div>
+            <p class="font-bold text-lg sm:text-xl text-gray-800 mb-2">برای ذخیره پیشرفت خود وارد شوید!</p>
+            <p class="text-sm sm:text-base text-gray-600 mb-6">با ورود از طریق گوگل، اطلاعات جعبه لایتنر شما به صورت آنلاین ذخیره می‌شود و از هر دستگاهی قابل دسترس خواهد بود.</p>
+            <button id="modal-login-btn" class="px-6 py-2 text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-all duration-300">ورود با گوگل</button>
         </div>
-        <div>
-            <p class="font-bold text-gray-800">برای ذخیره پیشرفت خود وارد شوید!</p>
-            <p class="text-sm text-gray-600 mt-1">با ورود از طریق گوگل، اطلاعات جعبه لایتنر شما به صورت آنلاین ذخیره می‌شود و از هر دستگاهی قابل دسترس خواهد بود.</p>
-        </div>
-        <button id="close-toast-btn" class="text-gray-400 hover:text-gray-600 text-2xl leading-none">&times;</button>
     </div>
 
-    <footer class="text-center p-4 mt-auto text-gray-500 text-sm">
+    <footer class="text-center p-4 mt-auto text-gray-600 text-sm">
         <p>طراحی و توسعه حبیب کمایی</p>
         <p>Habibkamaie@gmail.com</p>
     </footer>
@@ -126,13 +274,13 @@
         document.addEventListener('DOMContentLoaded', function () {
             // --- UI Elements ---
             const loginButton = document.getElementById('login-button');
+            const modalLoginButton = document.getElementById('modal-login-btn');
             const userProfileActions = document.getElementById('user-profile-actions');
-            const loginToast = document.getElementById('login-toast');
-            const closeToastBtn = document.getElementById('close-toast-btn');
+            const loginModal = document.getElementById('login-modal');
+            const closeModalBtn = document.getElementById('close-modal-btn');
 
             // --- DATA ---
             const allCardsData = [
-                // Idioms & Words
                 { id: 1, front: 'سه سوته / In a jiffy', back_fa: 'خیلی سریع.', back_en: "I'll be back in a jiffy, just wait here.", text_to_speak: "In a jiffy", image_url: "https://placehold.co/400x200/3B82F6/FFFFFF?text=Fast+Clock" },
                 { id: 2, front: 'دو دلم / On the fence', back_fa: 'مردد بودن.', back_en: "I'm on the fence about accepting the new job offer.", text_to_speak: "On the fence", image_url: "https://placehold.co/400x200/10B981/FFFFFF?text=Question+Mark" },
                 { id: 3, front: 'Never in a million years', back_fa: 'هرگز، عمراً.', back_en: "Never in a million years would I have guessed the surprise.", text_to_speak: "Never in a million years", image_url: "https://placehold.co/400x200/8B5CF6/FFFFFF?text=Impossible" },
@@ -266,23 +414,26 @@
                             <img src="${user.photoURL}" alt="Profile" class="w-8 h-8 rounded-full">
                             <span class="font-medium text-sm hidden sm:inline">${user.displayName}</span>
                         </div>
-                        <button id="logout-button" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg">خروج</button>
+                        <button id="logout-button" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg transition-all duration-300">خروج</button>
                     `;
                     document.getElementById('logout-button').addEventListener('click', () => auth.signOut());
                     initializeState(currentUserId);
-                    loginToast.classList.add('hidden'); // Hide toast on login
+                    loginModal.classList.remove('show');
+                    loginModal.classList.add('hidden');
+                    attachAnswerButtonListeners();
                 } else {
                     currentUserId = null;
                     userProfileActions.classList.add('hidden');
                     loginButton.classList.remove('hidden');
                     initializeState(null);
-                    // Show login toast only once per session if not logged in
-                    if (!sessionStorage.getItem('loginToastShown')) {
+                    if (!sessionStorage.getItem('loginModalShown')) {
                         setTimeout(() => {
-                            loginToast.classList.remove('hidden');
-                            sessionStorage.setItem('loginToastShown', 'true');
-                        }, 2000); // Show after 2 seconds
+                            loginModal.classList.remove('hidden');
+                            loginModal.classList.add('show');
+                            sessionStorage.setItem('loginModalShown', 'true');
+                        }, 2000);
                     }
+                    attachAnswerButtonListeners();
                 }
             });
 
@@ -293,14 +444,22 @@
                 });
             });
 
-            closeToastBtn.addEventListener('click', () => {
-                loginToast.classList.add('hidden');
+            modalLoginButton.addEventListener('click', () => {
+                auth.signInWithPopup(provider).catch(error => {
+                    console.error("Login failed:", error);
+                    alert("خطا در ورود: " + error.message);
+                });
             });
 
+            closeModalBtn.addEventListener('click', () => {
+                loginModal.classList.remove('show');
+                loginModal.classList.add('hidden');
+            });
 
             // --- UI FUNCTIONS ---
             function updateUI() {
                 renderBoxes();
+                attachAnswerButtonListeners();
             }
 
             function renderBoxes() {
@@ -330,13 +489,13 @@
                     }
 
                     const boxEl = document.createElement('div');
-                    boxEl.className = `box border-2 border-gray-300 p-4 rounded-lg text-center cursor-pointer hover:border-blue-500 transition`;
+                    boxEl.className = `box border-2 border-gray-200 p-4 rounded-lg text-center cursor-pointer hover:border-blue-500 transition-all duration-300 bg-white`;
                     boxEl.innerHTML = `
                         <div>
-                            <h3 class="font-bold text-lg">جعبه ${i}</h3>
+                            <h3 class="font-bold text-lg sm:text-xl">جعبه ${i}</h3>
                             <div class="text-gray-600 mt-2 flex items-center justify-center gap-2">
                                 <span class="box-count">${cardsDueInBox}</span>
-                                <span>کارت آماده مرور</span>
+                                <span class="text-sm sm:text-base">کارت آماده مرور</span>
                             </div>
                             <p class="text-xs text-gray-400 mt-1">(مجموع: ${totalCardsInBox} کارت)</p>
                         </div>
@@ -353,15 +512,15 @@
                 const flashcard = document.querySelector('.flashcard');
                 
                 flashcard.classList.remove('is-flipped');
-                cardFront.innerHTML = `<h3 class="text-2xl font-bold p-4">${cardData.front}</h3>`;
+                cardFront.innerHTML = `<h3 class="text-xl sm:text-2xl font-bold p-4">${cardData.front}</h3>`;
                 
                 let backContent;
                 if (cardData.back_en === '') {
-                    backContent = `<p class="font-bold text-lg">${cardData.back_fa}</p>`;
+                    backContent = `<p class="font-bold text-base sm:text-lg">${cardData.back_fa}</p>`;
                 } else {
                     backContent = `
-                        <p><strong>معنی:</strong> ${cardData.back_fa}</p>
-                        <p><em><strong>مثال:</strong> ${cardData.back_en}</em></p>
+                        <p class="text-sm sm:text-base"><strong>معنی:</strong> ${cardData.back_fa}</p>
+                        <p class="text-sm sm:text-base"><em><strong>مثال:</strong> ${cardData.back_en}</em></p>
                     `;
                 }
 
@@ -416,7 +575,7 @@
                 document.getElementById('review-area').classList.add('hidden');
                 document.getElementById('no-review-message').classList.remove('hidden');
                 document.getElementById('no-review-message').innerHTML = `
-                    <p class="text-xl font-semibold text-green-700">مرور جعبه ${currentReviewSession.boxNumber} تمام شد!</p>
+                    <p class="text-lg sm:text-xl font-semibold text-green-600">مرور جعبه ${currentReviewSession.boxNumber} تمام شد!</p>
                     <p class="text-gray-500 mt-2">برای ادامه، یک جعبه دیگر را انتخاب کنید.</p>
                 `;
                 document.querySelectorAll('.box').forEach(b => b.classList.remove('active'));
@@ -441,6 +600,21 @@
             }
 
             // --- EVENT LISTENERS ---
+            function attachAnswerButtonListeners() {
+                const correctBtn = document.getElementById('correct-btn');
+                const incorrectBtn = document.getElementById('incorrect-btn');
+                
+                if (correctBtn && incorrectBtn) {
+                    correctBtn.removeEventListener('click', handleAnswer);
+                    incorrectBtn.removeEventListener('click', handleAnswer);
+                    
+                    correctBtn.addEventListener('click', () => handleAnswer(true));
+                    incorrectBtn.addEventListener('click', () => handleAnswer(false));
+                } else {
+                    console.warn('دکمه‌های درست یا غلط در DOM یافت نشدند.');
+                }
+            }
+
             document.getElementById('boxes-container').addEventListener('click', function(event) {
                 const box = event.target.closest('.box');
                 if (box) startReview(parseInt(box.dataset.boxNumber));
@@ -453,9 +627,6 @@
                 }
             });
 
-            document.getElementById('correct-btn').addEventListener('click', () => handleAnswer(true));
-            document.getElementById('incorrect-btn').addEventListener('click', () => handleAnswer(false));
-            
             document.body.addEventListener('click', function(event) {
                 const pronunciationButton = event.target.closest('.pronunciation-button');
                 if (pronunciationButton) {
@@ -492,6 +663,9 @@
                 }
                 return array;
             }
+
+            // اتصال اولیه شنونده‌ها
+            attachAnswerButtonListeners();
         });
     </script>
 </body>
