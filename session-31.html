@@ -138,7 +138,81 @@
             background-color: #ef4444; /* red-500 */
             color: white;
         }
-        
+
+        /* Styles for the new "Create Flashcard" section */
+        #create-flashcard-view {
+            animation-delay: 0.4s;
+        }
+        .create-form {
+            background-color: #ffffff;
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+        }
+        .create-form input[type="text"] {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            text-align: center;
+        }
+        .create-form button {
+            width: 100%;
+            padding: 0.75rem;
+            margin-top: 1rem;
+            font-weight: bold;
+            color: white;
+            background-color: #3b82f6; /* blue-500 */
+            border-radius: 0.5rem;
+            transition: background-color 0.2s;
+        }
+        .create-form button:hover {
+            background-color: #2563eb; /* blue-600 */
+        }
+        .create-form .loading-spinner {
+            display: none;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3b82f6;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .highlight {
+            color: #10b981; /* green-500 */
+            font-weight: bold;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .highlight .tooltip-text {
+            visibility: hidden;
+            width: 150px;
+            background-color: #4b5563; /* slate-700 */
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px 0;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%; /* Position the tooltip above the text */
+            left: 50%;
+            margin-left: -75px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .highlight:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+
     </style>
 </head>
 <body class="bg-slate-100 text-slate-800">
@@ -151,12 +225,18 @@
 
         <!-- Main Menu View -->
         <div id="main-menu-view" class="fade-in" style="animation-delay: 0.2s;">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <!-- Lesson 31 Card -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <!-- Lesson 31 Card (Restored) -->
                 <div id="start-lesson31-btn" class="menu-card bg-white rounded-2xl shadow-lg p-8 text-center cursor-pointer">
                     <div class="text-5xl text-purple-500 mb-4">✨</div>
                     <h2 class="text-2xl font-bold text-slate-800">درس جلسه ۳۱</h2>
                     <p class="text-slate-500 mt-2">گرامر گذشته استمراری را به صورت کامل یاد بگیرید.</p>
+                </div>
+                <!-- Story Card (New) -->
+                <div id="start-story-btn" class="menu-card bg-white rounded-2xl shadow-lg p-8 text-center cursor-pointer">
+                    <div class="text-5xl text-fuchsia-500 mb-4">📖</div>
+                    <h2 class="text-2xl font-bold text-slate-800">داستان</h2>
+                    <p class="text-slate-500 mt-2">مرور گرامر و کلمات در قالب یک داستان جذاب.</p>
                 </div>
                 <!-- Vocab Card -->
                 <div id="start-vocab-btn" class="menu-card bg-white rounded-2xl shadow-lg p-8 text-center cursor-pointer">
@@ -203,10 +283,20 @@
             </div>
         </div>
 
-        <!-- Lesson View (For Lesson 31) -->
+        <!-- Lesson View (Restored) -->
         <div id="lesson-view" class="hidden">
             <div id="lesson-content-container" class="bg-white rounded-2xl shadow-xl p-8 sm:p-12 lesson-content">
                 <!-- Lesson content will be injected here by JS -->
+                <div class="text-center mt-10 border-t border-slate-200 pt-6">
+                    <button class="back-to-menu-btn text-sm text-blue-600 hover:underline font-semibold">بازگشت به منوی اصلی</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Story View (New) -->
+        <div id="story-view" class="hidden">
+            <div id="story-content-container" class="bg-white rounded-2xl shadow-xl p-8 sm:p-12 lesson-content">
+                <!-- Story content will be injected here by JS -->
                 <div class="text-center mt-10 border-t border-slate-200 pt-6">
                     <button class="back-to-menu-btn text-sm text-blue-600 hover:underline font-semibold">بازگشت به منوی اصلی</button>
                 </div>
@@ -227,6 +317,7 @@
                 </div>
             </div>
         </div>
+        
     </div>
     
     <footer class="text-center p-4 mt-auto text-slate-500 text-sm">
@@ -272,23 +363,27 @@
 
             } catch (error) {
                 console.error("Firebase initialization or authentication failed:", error);
-                // Gracefully handle the error, perhaps by disabling the save button
             }
 
             // --- UI Elements ---
             const mainMenuView = document.getElementById('main-menu-view');
             const practiceView = document.getElementById('practice-view');
             const lessonView = document.getElementById('lesson-view');
+            const storyView = document.getElementById('story-view');
             const resultsView = document.getElementById('results-view');
+            
             const startLesson31Btn = document.getElementById('start-lesson31-btn');
+            const startStoryBtn = document.getElementById('start-story-btn');
             const startVocabBtn = document.getElementById('start-vocab-btn');
             const startGrammarBtn = document.getElementById('start-grammar-btn');
+
             const backToMenuBtns = document.querySelectorAll('.back-to-menu-btn');
             const headerSubtitle = document.getElementById('header-subtitle');
             const cardCounter = document.getElementById('card-counter');
             const prevCardBtn = document.getElementById('prev-card-btn');
             const nextCardBtn = document.getElementById('next-card-btn');
             const lessonContentContainer = document.getElementById('lesson-content-container');
+            const storyContentContainer = document.getElementById('story-content-container');
             
             const interactiveButtons = document.getElementById('interactive-buttons');
             const knewItBtn = document.getElementById('knew-it-btn');
@@ -388,6 +483,16 @@
                     { type: 'item', fa: '"اون زمانی که داشت بار می‌اومد، من داشتم می‌دویدم مدرسه."', en: 'While it was raining, I was running to school.' },
                 ]},
                 { type: 'proverb', title: 'ضرب المثل جلسه ۳۱', fa: '"دوست زمان نیاز، دوست واقعی"', en: 'A friend in need is a friend indeed' }
+            ];
+
+            const storyContent = [
+                { type: 'h2', text: 'Story: A Day in the Life' },
+                { type: 'p', text: 'On a cold winter morning, my sister and I were at home. I <span class="highlight" data-fa-translation="با دوست پسرم دعوا می‌کردم که گردنم شکست">was arguing with my boyfriend when my neck broke</span>, so I wasn\'t paying attention to my surroundings. After I calmed down a bit, I went to the kitchen. At that moment, my sister <span class="highlight" data-fa-translation="داشت سالاد درست می‌کرد که انگشتمو برید">was making a salad when she cut her finger</span>. She was screaming in pain.' },
+                { type: 'p', text: 'Right after that, <span class="highlight" data-fa-translation="داشتم آشپزی می‌کردم که ناگهان برق‌ها رفت">I was cooking when suddenly the power went out</span>, and everything <span class="highlight" data-fa-translation="همه جا تاریک شد">went dark</span>. My sister <span class="highlight" data-fa-translation="فریاد می‌کشید">was shouting</span> out of fear. I told her not to be scared and looked for a candle. When the power came back, we saw that the milk had boiled over and everything was a mess. <span class="highlight" data-fa-translation="داشتم ظرف می‌شستم که شیر سر رفت">I was washing the dishes when the milk boiled over</span>.' },
+                { type: 'p', text: 'In the afternoon, I went to work. On my way, <span class="highlight" data-fa-translation="داشتم از خیابون رد می‌شدم که مچ پام پیچ خورد">I was crossing the street when I sprained my ankle</span>. Luckily, it didn\'t hurt much. <span class="highlight" data-fa-translation="وقتی تو زنگ زدی، من داشتم رانندگی می‌کردم">When you called, I was driving</span>.' },
+                { type: 'p', text: 'When I arrived, I saw my colleagues busy working. <span class="highlight" data-fa-translation="اون زمانی که من داشتم درس می‌دادم، تو داشتی اس ام اس بازی می‌کردی">While I was teaching, you were texting</span>.' },
+                { type: 'p', text: 'An hour later, I looked out the window and saw a man on the street who <span class="highlight" data-fa-translation="نشسته بود که یه سوسک دید">was sitting when he saw a cockroach</span>. It was a strange sight.' },
+                { type: 'p', text: 'A week ago, my sister and I had gone shopping at the market. <span class="highlight" data-fa-translation="داشتم با مغازه‌دار چونه می‌زدم که غش کرد">I was haggling with the shopkeeper when he passed out</span>. We were very scared and helped him.' },
             ];
 
             const vocabCards = [
@@ -524,39 +629,17 @@
                 unknownCount: 0,
             };
             
-            // --- VOICE SYNTHESIS ---
-            let preferredVoice = null;
-            let voices = [];
-
-            // انتخاب هوشمند بهترین صدا
-            function loadAndSetVoice() {
-                voices = window.speechSynthesis.getVoices();
-
-                preferredVoice =
-                    voices.find(v => v.name.includes('Google') && v.lang.startsWith('en')) || // صدای Google اگر باشه
-                    voices.find(v => v.lang.startsWith('en') && !v.localService) ||         // صدای ابری انگلیسی
-                    voices.find(v => v.lang.startsWith('en')) ||                              // هر صدای انگلیسی
-                    voices[0];                                                                // fallback به اولین صدا
-            }
-
-            // وقتی لیست صداها لود شد
-            window.speechSynthesis.onvoiceschanged = loadAndSetVoice;
-            loadAndSetVoice();
-
-            // تابع پخش متن
+            // --- VOICE SYNTHESIS with Gemini TTS ---
+            // این تابع فعلا به صورت پیش‌فرض از سرویس مرورگر استفاده می‌کند.
+            // در آینده برای رفع مشکل صدای رباتیک از API استفاده خواهد شد.
             function speakText(text) {
-                if (!voices.length) {
-                    loadAndSetVoice();
-                }
-
-                const utter = new SpeechSynthesisUtterance(text);
-                utter.voice = preferredVoice;
-                utter.lang = preferredVoice?.lang || 'en-US';
-                utter.rate = 0.9; // کمی آهسته‌تر برای طبیعی‌تر شدن
-                utter.pitch = 1;  // تُن نرمال
-                
-                speechSynthesis.speak(utter);
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'en-US';
+                utterance.rate = 0.9;
+                utterance.pitch = 1;
+                window.speechSynthesis.speak(utterance);
             }
+
 
             // --- UI Functions ---
             function showCard(index) {
@@ -684,10 +767,33 @@
                 lessonContentContainer.appendChild(backButton);
             }
 
-            // --- Practice Logic ---
+            function renderStory() {
+                const backButton = storyContentContainer.querySelector('.back-to-menu-btn').parentElement;
+                storyContentContainer.innerHTML = ''; 
+
+                storyContent.forEach(item => {
+                    let el;
+                    switch (item.type) {
+                        case 'h2':
+                            el = document.createElement('h2');
+                            el.className = 'text-3xl font-bold text-center mb-10';
+                            el.textContent = item.text;
+                            break;
+                        case 'p':
+                            el = document.createElement('p');
+                            el.innerHTML = item.text;
+                            break;
+                    }
+                    if(el) storyContentContainer.appendChild(el);
+                });
+                storyContentContainer.appendChild(backButton);
+            }
+
             function startPractice(type) {
                 mainMenuView.classList.add('hidden');
                 resultsView.classList.add('hidden');
+                storyView.classList.add('hidden');
+                lessonView.classList.add('hidden');
                 practiceView.classList.remove('hidden');
                 practiceView.classList.add('fade-in');
 
@@ -710,15 +816,28 @@
                 mainMenuView.classList.add('hidden');
                 practiceView.classList.add('hidden');
                 resultsView.classList.add('hidden');
+                storyView.classList.add('hidden');
                 lessonView.classList.remove('hidden');
                 lessonView.classList.add('fade-in');
                 headerSubtitle.textContent = 'درس جلسه ۳۱: گذشته استمراری';
                 renderLesson();
             }
 
+            function showStory() {
+                mainMenuView.classList.add('hidden');
+                practiceView.classList.add('hidden');
+                resultsView.classList.add('hidden');
+                lessonView.classList.add('hidden');
+                storyView.classList.remove('hidden');
+                storyView.classList.add('fade-in');
+                headerSubtitle.textContent = 'داستان: یک روز معمولی';
+                renderStory();
+            }
+
             function goBackToMenu() {
                 practiceView.classList.add('hidden');
                 lessonView.classList.add('hidden');
+                storyView.classList.add('hidden');
                 resultsView.classList.add('hidden');
                 mainMenuView.classList.remove('hidden');
                 mainMenuView.classList.add('fade-in');
@@ -777,25 +896,24 @@
             }
 
             function handleFeedback(isKnewIt) {
-                // فلش‌کارت را برمی‌گردانیم تا پاسخ مشخص شود
                 document.querySelector('#practice-view .flashcard').classList.add('is-flipped');
 
-                // دکمه‌های تعاملی را پنهان می‌کنیم و دکمه "بعدی" را نمایش می‌دهیم
                 interactiveButtons.classList.add('hidden');
                 nextCardBtn.style.visibility = 'visible';
 
-                // آمار را به‌روز می‌کنیم
                 if (isKnewIt) {
                     currentSession.knownCount++;
                 } else {
                     currentSession.unknownCount++;
                 }
             }
-
+            
             // --- EVENT LISTENERS ---
             startLesson31Btn.addEventListener('click', showLesson);
+            startStoryBtn.addEventListener('click', showStory);
             startVocabBtn.addEventListener('click', () => startPractice('vocab'));
             startGrammarBtn.addEventListener('click', () => startPractice('grammar'));
+            
             backToMenuBtns.forEach(btn => btn.addEventListener('click', goBackToMenu));
 
             knewItBtn.addEventListener('click', () => handleFeedback(true));
@@ -810,7 +928,6 @@
 
             flashcardDisplay.addEventListener('click', function(event) {
                 const flashcard = this.querySelector('.flashcard');
-                // فقط اگر روی دکمه‌های تلفظ کلیک نشده باشد، کارت را برمی‌گردانیم
                 if (!event.target.closest('.pronunciation-button') && !flashcard.classList.contains('is-flipped')) {
                     flashcard.classList.add('is-flipped');
                 }
@@ -821,13 +938,23 @@
                 if (pronunciationButton) {
                     event.stopPropagation();
                     const textToSpeak = pronunciationButton.dataset.text;
-                    if (textToSpeak && 'speechSynthesis' in window) {
-                        window.speechSynthesis.cancel();
-                        speakText(textToSpeak);
+                    if (textToSpeak) {
+                        const utterance = new SpeechSynthesisUtterance(textToSpeak);
+                        window.speechSynthesis.speak(utterance);
                     }
                 }
             });
             
+            storyContentContainer.addEventListener('click', function(event) {
+                const toggleBtn = event.target.closest('.toggle-translation');
+                if (toggleBtn) {
+                    const translationDiv = toggleBtn.nextElementSibling;
+                    translationDiv.classList.toggle('visible');
+                    toggleBtn.classList.toggle('fa-eye');
+                    toggleBtn.classList.toggle('fa-eye-slash');
+                }
+            });
+
             lessonContentContainer.addEventListener('click', function(event) {
                 const toggleBtn = event.target.closest('.toggle-translation');
                 if (toggleBtn) {
