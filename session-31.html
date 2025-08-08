@@ -527,10 +527,17 @@
             // --- VOICE SYNTHESIS ---
             let preferredVoice = null;
             function loadAndSetVoice() {
+                // این تابع بهترین صدای انگلیسی را برای تلفظ انتخاب می‌کند.
+                // کیفیت صدا به مرورگر و سیستم عامل دستگاه بستگی دارد و ممکن است در موبایل رباتیک باشد.
                 const voices = window.speechSynthesis.getVoices();
                 preferredVoice = voices.find(voice => voice.name === 'Google US English') || 
                                  voices.find(voice => voice.lang === 'en-US' && voice.localService) ||
                                  voices.find(voice => voice.lang === 'en-US');
+                if (preferredVoice) {
+                    console.log("Using voice:", preferredVoice.name);
+                } else {
+                    console.log("No suitable English voice found. Using default.");
+                }
             }
             window.speechSynthesis.onvoiceschanged = loadAndSetVoice;
             loadAndSetVoice();
