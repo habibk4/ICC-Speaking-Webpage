@@ -420,7 +420,7 @@
                     initializeState(currentUserId);
                     loginModal.classList.remove('show');
                     loginModal.classList.add('hidden');
-                    attachAnswerButtonListeners();
+                    attachAnswerButtonListeners(); // اتصال شنونده‌ها پس از ورود
                 } else {
                     currentUserId = null;
                     userProfileActions.classList.add('hidden');
@@ -433,7 +433,7 @@
                             sessionStorage.setItem('loginModalShown', 'true');
                         }, 2000);
                     }
-                    attachAnswerButtonListeners();
+                    attachAnswerButtonListeners(); // اتصال شنونده‌ها پس از خروج
                 }
             });
 
@@ -459,7 +459,7 @@
             // --- UI FUNCTIONS ---
             function updateUI() {
                 renderBoxes();
-                attachAnswerButtonListeners();
+                attachAnswerButtonListeners(); // اتصال مجدد شنونده‌ها پس از به‌روزرسانی UI
             }
 
             function renderBoxes() {
@@ -582,6 +582,7 @@
             }
 
             async function handleAnswer(isCorrect) {
+                console.log(`پاسخ ثبت شد: ${isCorrect ? 'درست' : 'غلط'}`);
                 const cardId = currentReviewSession.cards[currentReviewSession.currentIndex];
                 const cardState = state[cardId];
 
@@ -608,8 +609,14 @@
                     correctBtn.removeEventListener('click', handleAnswer);
                     incorrectBtn.removeEventListener('click', handleAnswer);
                     
-                    correctBtn.addEventListener('click', () => handleAnswer(true));
-                    incorrectBtn.addEventListener('click', () => handleAnswer(false));
+                    correctBtn.addEventListener('click', () => {
+                        console.log('دکمه درست کلیک شد');
+                        handleAnswer(true);
+                    });
+                    incorrectBtn.addEventListener('click', () => {
+                        console.log('دکمه غلط کلیک شد');
+                        handleAnswer(false);
+                    });
                 } else {
                     console.warn('دکمه‌های درست یا غلط در DOM یافت نشدند.');
                 }
