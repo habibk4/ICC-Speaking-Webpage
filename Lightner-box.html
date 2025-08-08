@@ -107,23 +107,23 @@
     </footer>
 
     <script>
+        // --- Firebase Configuration ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyDJf9qVKxynq0LpGcB3kn9Rk7s9HsR1ppw",
+            authDomain: "icc-speaking-bd474.firebaseapp.com",
+            projectId: "icc-speaking-bd474",
+            storageBucket: "icc-speaking-bd474.appspot.com",
+            messagingSenderId: "818278585317",
+            appId: "1:818278585317:web:70a1b32846af0a342e950c"
+        };
+
+        // --- Initialize Firebase ---
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        const provider = new firebase.auth.GoogleAuthProvider();
+
         document.addEventListener('DOMContentLoaded', function () {
-            // --- Firebase Configuration ---
-            const firebaseConfig = {
-                apiKey: "AIzaSyDJf9qVKxynq0LpGcB3kn9Rk7s9HsR1ppw",
-                authDomain: "icc-speaking-bd474.firebaseapp.com",
-                projectId: "icc-speaking-bd474",
-                storageBucket: "icc-speaking-bd474.appspot.com",
-                messagingSenderId: "818278585317",
-                appId: "1:818278585317:web:70a1b32846af0a342e950c"
-            };
-
-            // --- Initialize Firebase ---
-            firebase.initializeApp(firebaseConfig);
-            const auth = firebase.auth();
-            const db = firebase.firestore();
-            const provider = new firebase.auth.GoogleAuthProvider();
-
             // --- UI Elements ---
             const loginButton = document.getElementById('login-button');
             const userProfileActions = document.getElementById('user-profile-actions');
