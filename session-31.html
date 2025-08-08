@@ -526,21 +526,37 @@
             
             // --- VOICE SYNTHESIS ---
             let preferredVoice = null;
+            let voices = [];
+
+            // انتخاب هوشمند بهترین صدا
             function loadAndSetVoice() {
-                // این تابع بهترین صدای انگلیسی را برای تلفظ انتخاب می‌کند.
-                // کیفیت صدا به مرورگر و سیستم عامل دستگاه بستگی دارد و ممکن است در موبایل رباتیک باشد.
-                const voices = window.speechSynthesis.getVoices();
-                preferredVoice = voices.find(voice => voice.name === 'Google US English') || 
-                                 voices.find(voice => voice.lang === 'en-US' && voice.localService) ||
-                                 voices.find(voice => voice.lang === 'en-US');
-                if (preferredVoice) {
-                    console.log("Using voice:", preferredVoice.name);
-                } else {
-                    console.log("No suitable English voice found. Using default.");
-                }
+                voices = window.speechSynthesis.getVoices();
+
+                preferredVoice =
+                    voices.find(v => v.name.includes('Google') && v.lang.startsWith('en')) || // صدای Google اگر باشه
+                    voices.find(v => v.lang.startsWith('en') && !v.localService) ||         // صدای ابری انگلیسی
+                    voices.find(v => v.lang.startsWith('en')) ||                              // هر صدای انگلیسی
+                    voices[0];                                                                // fallback به اولین صدا
             }
+
+            // وقتی لیست صداها لود شد
             window.speechSynthesis.onvoiceschanged = loadAndSetVoice;
             loadAndSetVoice();
+
+            // تابع پخش متن
+            function speakText(text) {
+                if (!voices.length) {
+                    loadAndSetVoice();
+                }
+
+                const utter = new SpeechSynthesisUtterance(text);
+                utter.voice = preferredVoice;
+                utter.lang = preferredVoice?.lang || 'en-US';
+                utter.rate = 0.9; // کمی آهسته‌تر برای طبیعی‌تر شدن
+                utter.pitch = 1;  // تُن نرمال
+                
+                speechSynthesis.speak(utter);
+            }
 
             // --- UI Functions ---
             function showCard(index) {
@@ -556,15 +572,12 @@
                 
                 flashcard.classList.remove('is-flipped');
                 
-                // دکمه‌های "بلد بودم" و "بلد نبودم" را نمایش می‌دهیم
                 interactiveButtons.classList.remove('hidden');
 
-                // دکمه‌های پیمایش را نمایش می‌دهیم
                 prevCardBtn.style.visibility = (index > 0) ? 'visible' : 'hidden';
-                nextCardBtn.style.visibility = 'hidden'; // دکمه بعدی تا زمانی که کاربر جواب ندهد، پنهان می‌ماند
+                nextCardBtn.style.visibility = 'hidden'; 
 
                 setTimeout(() => {
-                    // بر اساس نوع تمرین، محتوای کارت را تنظیم می‌کنیم
                     if (currentSession.type === 'vocab') {
                         cardFront.innerHTML = `<h3 class="text-xl font-semibold p-4">${cardData.back_fa}</h3>`;
                         cardBack.innerHTML = `
@@ -810,13 +823,7 @@
                     const textToSpeak = pronunciationButton.dataset.text;
                     if (textToSpeak && 'speechSynthesis' in window) {
                         window.speechSynthesis.cancel();
-                        const utterance = new SpeechSynthesisUtterance(textToSpeak);
-                        if (preferredVoice) {
-                            utterance.voice = preferredVoice;
-                        }
-                        utterance.lang = 'en-US';
-                        utterance.rate = 0.9;
-                        window.speechSynthesis.speak(utterance);
+                        speakText(textToSpeak);
                     }
                 }
             });
