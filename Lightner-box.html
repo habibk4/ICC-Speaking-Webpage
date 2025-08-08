@@ -278,6 +278,9 @@
             const userProfileActions = document.getElementById('user-profile-actions');
             const loginModal = document.getElementById('login-modal');
             const closeModalBtn = document.getElementById('close-modal-btn');
+            const correctBtn = document.getElementById('correct-btn');
+            const incorrectBtn = document.getElementById('incorrect-btn');
+            let listenersAttached = false;
 
             // --- DATA ---
             const allCardsData = [
@@ -368,17 +371,21 @@
             }
 
             async function initializeState(userId) {
+                console.log(`Initializing state for userId: ${userId}`);
                 if (userId) {
                     const docRef = db.collection("leitner-data").doc(userId);
                     const doc = await docRef.get();
                     if (doc.exists) {
                         state = doc.data();
+                        console.log('State loaded from Firebase:', state);
                     } else {
                         state = {};
+                        console.log('No existing state found, initializing new state');
                     }
                 } else {
                     const savedState = localStorage.getItem('leitnerStateWithDates');
                     state = savedState ? JSON.parse(savedState) : {};
+                    console.log('State loaded from Local Storage:', state);
                 }
 
                 let stateUpdated = false;
@@ -391,20 +398,29 @@
 
                 if (stateUpdated) {
                     await saveState(userId);
+                    console.log('State updated and saved:', state);
                 }
                 updateUI();
             }
 
             async function saveState(userId) {
+                console.log(`Saving state for userId: ${userId}`);
                 if (userId) {
-                    await db.collection("leitner-data").doc(userId).set(state);
+                    try {
+                        await db.collection("leitner-data").doc(userId).set(state);
+                        console.log('State saved to Firebase successfully');
+                    } catch (error) {
+                        console.error('Error saving state to Firebase:', error);
+                    }
                 } else {
                     localStorage.setItem('leitnerStateWithDates', JSON.stringify(state));
+                    console.log('State saved to Local Storage');
                 }
             }
             
             // --- AUTHENTICATION ---
             auth.onAuthStateChanged(user => {
+                console.log('Auth state changed, user:', user);
                 if (user) {
                     currentUserId = user.uid;
                     userProfileActions.classList.remove('hidden');
@@ -420,7 +436,7 @@
                     initializeState(currentUserId);
                     loginModal.classList.remove('show');
                     loginModal.classList.add('hidden');
-                    attachAnswerButtonListeners(); // اتصال شنونده‌ها پس از ورود
+                    attachAnswerButtonListeners();
                 } else {
                     currentUserId = null;
                     userProfileActions.classList.add('hidden');
@@ -433,7 +449,7 @@
                             sessionStorage.setItem('loginModalShown', 'true');
                         }, 2000);
                     }
-                    attachAnswerButtonListeners(); // اتصال شنونده‌ها پس از خروج
+                    attachAnswerButtonListeners();
                 }
             });
 
@@ -459,7 +475,7 @@
             // --- UI FUNCTIONS ---
             function updateUI() {
                 renderBoxes();
-                attachAnswerButtonListeners(); // اتصال مجدد شنونده‌ها پس از به‌روزرسانی UI
+                attachAnswerButtonListeners();
             }
 
             function renderBoxes() {
@@ -538,6 +554,7 @@
 
             // --- REVIEW LOGIC ---
             function startReview(boxNumber) {
+                console.log(`Starting review for box ${boxNumber}`);
                 const today = getTodayString();
                 const cardIdsToReview = Object.keys(state).filter(id => 
                     state[id] && state[id].box === boxNumber && state[id].nextReview <= today
@@ -551,15 +568,17 @@
                 
                 document.querySelector(`[data-box-number='${boxNumber}']`).classList.add('active');
                 currentReviewSession = { cards: shuffleArray(cardIdsToReview), currentIndex: 0, boxNumber: boxNumber };
+                console.log('Current review session cards:', currentReviewSession.cards.length);
                 
                 document.getElementById('review-area').classList.remove('hidden');
                 document.getElementById('no-review-message').classList.add('hidden');
-                document.getElementById('answer-buttons').classList.add('hidden');
+                document.getElementById('answer-buttons').classList.remove('hidden');
                 
                 showNextCard();
             }
 
             function showNextCard() {
+                console.log(`Showing card at index ${currentReviewSession.currentIndex}`);
                 if (currentReviewSession.currentIndex >= currentReviewSession.cards.length) {
                     endReview();
                     return;
@@ -578,19 +597,28 @@
                     <p class="text-lg sm:text-xl font-semibold text-green-600">مرور جعبه ${currentReviewSession.boxNumber} تمام شد!</p>
                     <p class="text-gray-500 mt-2">برای ادامه، یک جعبه دیگر را انتخاب کنید.</p>
                 `;
+                document.getElementById('answer-buttons').classList.add('hidden');
                 document.querySelectorAll('.box').forEach(b => b.classList.remove('active'));
             }
 
             async function handleAnswer(isCorrect) {
-                console.log(`پاسخ ثبت شد: ${isCorrect ? 'درست' : 'غلط'}`);
+                console.log(`Handling answer: ${isCorrect ? 'درست' : 'غلط'}, currentIndex: ${currentReviewSession.currentIndex}, total cards: ${currentReviewSession.cards.length}`);
+                if (!currentReviewSession.cards || currentReviewSession.currentIndex >= currentReviewSession.cards.length) {
+                    console.error('Invalid review session state');
+                    return;
+                }
+
                 const cardId = currentReviewSession.cards[currentReviewSession.currentIndex];
+                console.log(`Processing card ID: ${cardId}`);
                 const cardState = state[cardId];
 
                 if (isCorrect) {
                     const nextBox = Math.min(cardState.box + 1, NUM_BOXES);
                     state[cardId] = { box: nextBox, nextReview: calculateNextReviewDate(nextBox) };
+                    console.log(`Card ${cardId} moved to box ${nextBox}`);
                 } else {
                     state[cardId] = { box: 1, nextReview: calculateNextReviewDate(1) };
+                    console.log(`Card ${cardId} moved back to box 1`);
                 }
 
                 await saveState(currentUserId);
@@ -602,13 +630,8 @@
 
             // --- EVENT LISTENERS ---
             function attachAnswerButtonListeners() {
-                const correctBtn = document.getElementById('correct-btn');
-                const incorrectBtn = document.getElementById('incorrect-btn');
-                
+                if (listenersAttached) return;
                 if (correctBtn && incorrectBtn) {
-                    correctBtn.removeEventListener('click', handleAnswer);
-                    incorrectBtn.removeEventListener('click', handleAnswer);
-                    
                     correctBtn.addEventListener('click', () => {
                         console.log('دکمه درست کلیک شد');
                         handleAnswer(true);
@@ -617,6 +640,7 @@
                         console.log('دکمه غلط کلیک شد');
                         handleAnswer(false);
                     });
+                    listenersAttached = true;
                 } else {
                     console.warn('دکمه‌های درست یا غلط در DOM یافت نشدند.');
                 }
