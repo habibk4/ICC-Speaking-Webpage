@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تمرین زبان دوره ICC</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <style>
+        body {
+            font-family: 'Vazirmatn', sans-serif;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            background-color: #f1f5f9; /* slate-100 */
+        }
+        .main-container {
+            flex-grow: 1;
+        }
+        .flashcard-container { perspective: 1000px; height: 320px; width: 100%; max-width: 600px; }
+        .flashcard { position: relative; width: 100%; height: 100%; transition: transform 0.7s; transform-style: preserve-3d; }
+        .flashcard.is-flipped { transform: rotateY(180deg); }
+        .card-face { position: absolute; width: 100%; height: 100%; -webkit-backface-visibility: hidden; backface-visibility: hidden; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 1.5rem; border-radius: 1rem; box-shadow: 0 8px 24px rgba(0,0,0,0.1); text-align: center; border: 1px solid #e2e8f0; }
+        .card-front { background-color: #ffffff; }
+        .card-back { background-color: #f8fafc; transform: rotateY(180deg); }
+        .pronunciation-button { display: inline-flex; align-items: center; gap: 0.5rem; margin-top: 1rem; padding: 0.5rem 1rem; background-color: #e0f2fe; color: #0c4a6e; border-radius: 9999px; font-weight: 500; transition: all 0.2s; border: none; cursor: pointer; }
+        .pronunciation-button:hover { background-color: #bae6fd; transform: scale(1.05); }
+        .card-back-image {
+            width: 100%;
+            height: 110px;
+            object-fit: cover;
+            border-radius: 0.75rem 0.75rem 0 0;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .fade-in {
+            animation: fadeIn 0.6s ease-out forwards;
+        }
+        .menu-card {
+            transition: all 0.3s ease-in-out;
+        }
+        .menu-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        .lesson-content h3 {
+            font-size: 1.5rem; /* Larger headings */
+            font-weight: 700;
+            margin-top: 2.5rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 2px solid #e2e8f0;
+        }
+         .lesson-content h4 {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+        }
+        .lesson-content p {
+            line-height: 1.9;
+            margin-bottom: 1rem;
+            color: #334155;
+        }
+        .lesson-content .example {
+            background-color: #f8fafc;
+            border-right: 4px solid #3b82f6;
+            padding: 1rem 1.5rem;
+            border-radius: 0.5rem;
+            color: #475569;
+        }
+        .lesson-content .example ul {
+            list-style-type: none;
+            padding-right: 0;
+        }
+        .lesson-content .example li {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.75rem;
+        }
+        .lesson-content .note {
+            background-color: #fffbeb;
+            border-right: 4px solid #f59e0b;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            font-style: italic;
+        }
+        .proverb-banner {
+            background-image: linear-gradient(to left, #dc2626, #ef4444);
+            color: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            margin-top: 3rem;
+            text-align: center;
+            box-shadow: 0 10px 20px -5px rgba(239, 68, 68, 0.4);
+        }
+        .translation {
+            transition: all 0.3s ease-out;
+            max-height: 0;
+            overflow: hidden;
+        }
+        .translation.visible {
+            max-height: 100px; /* Adjust as needed */
+        }
+
+        /* New styles for interactive elements */
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        .action-buttons .btn {
+            padding: 0.75rem 2rem;
+            font-weight: bold;
+            border-radius: 0.75rem;
+            transition: all 0.2s;
+            cursor: pointer;
+            border: none;
+        }
+        .action-buttons .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .btn-correct {
+            background-color: #10b981; /* green-500 */
+            color: white;
+        }
+        .btn-incorrect {
+            background-color: #ef4444; /* red-500 */
+            color: white;
+        }
+        
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800">
+
+    <div class="main-container container mx-auto max-w-6xl p-4 sm:p-8">
+        <header class="text-center mb-8 sm:mb-12 fade-in">
+            <h1 class="text-3xl sm:text-4xl font-bold text-slate-800">تمرین زبان دوره ICC</h1>
+            <p id="header-subtitle" class="text-slate-500 mt-2">یک بخش را برای شروع تمرین انتخاب کنید.</p>
+        </header>
+
+        <!-- Main Menu View -->
+        <div id="main-menu-view" class="fade-in" style="animation-delay: 0.2s;">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Lesson 31 Card -->
+                <div id="start-lesson31-btn" class="menu-card bg-white rounded-2xl shadow-lg p-8 text-center cursor-pointer">
+                    <div class="text-5xl text-purple-500 mb-4">✨</div>
+                    <h2 class="text-2xl font-bold text-slate-800">درس جلسه ۳۱</h2>
+                    <p class="text-slate-500 mt-2">گرامر گذشته استمراری را به صورت کامل یاد بگیرید.</p>
+                </div>
+                <!-- Vocab Card -->
+                <div id="start-vocab-btn" class="menu-card bg-white rounded-2xl shadow-lg p-8 text-center cursor-pointer">
+                    <div class="text-5xl text-blue-500 mb-4">🔤</div>
+                    <h2 class="text-2xl font-bold text-slate-800">تمرین کلمات و اصطلاحات</h2>
+                    <p class="text-slate-500 mt-2">واژگان، اصطلاحات و عبارات کاربردی را مرور کنید.</p>
+                </div>
+                <!-- Grammar Card -->
+                <div id="start-grammar-btn" class="menu-card bg-white rounded-2xl shadow-lg p-8 text-center cursor-pointer">
+                    <div class="text-5xl text-teal-500 mb-4">📝</div>
+                    <h2 class="text-2xl font-bold text-slate-800">تمرین گرامر</h2>
+                    <p class="text-slate-500 mt-2">ساختار زمان گذشته استمراری را تمرین کنید.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Practice View (For Flashcards) -->
+        <div id="practice-view" class="hidden">
+            <div class="bg-white rounded-2xl shadow-xl p-6 sm:p-10">
+                <div id="review-area" class="w-full mx-auto text-center">
+                    <div id="flashcard-display" class="flashcard-container mx-auto mb-8">
+                        <div class="flashcard">
+                            <div id="card-front" class="card-face card-front"></div>
+                            <div id="card-back" class="card-face card-back p-0"></div>
+                        </div>
+                    </div>
+
+                    <!-- دکمه‌های تعاملی جدید -->
+                    <div id="interactive-buttons" class="action-buttons">
+                        <button id="knew-it-btn" class="btn btn-correct">بلد بودم</button>
+                        <button id="did-not-know-btn" class="btn btn-incorrect">بلد نبودم</button>
+                    </div>
+
+                    <!-- دکمه‌های پیمایش اصلی -->
+                    <div class="flex justify-center items-center gap-4 mt-8 border-t border-slate-200 pt-6">
+                        <button id="prev-card-btn" class="px-6 py-3 text-sm font-bold bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-lg transition">قبلی</button>
+                        <p id="card-counter" class="text-slate-500 font-medium text-sm w-20 text-center"></p>
+                        <button id="next-card-btn" class="px-6 py-3 text-sm font-bold bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-lg transition">بعدی</button>
+                    </div>
+                </div>
+                <div class="text-center mt-8 border-t border-slate-200 pt-6">
+                    <button class="back-to-menu-btn text-sm text-blue-600 hover:underline font-semibold">بازگشت به منوی اصلی</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lesson View (For Lesson 31) -->
+        <div id="lesson-view" class="hidden">
+            <div id="lesson-content-container" class="bg-white rounded-2xl shadow-xl p-8 sm:p-12 lesson-content">
+                <!-- Lesson content will be injected here by JS -->
+                <div class="text-center mt-10 border-t border-slate-200 pt-6">
+                    <button class="back-to-menu-btn text-sm text-blue-600 hover:underline font-semibold">بازگشت به منوی اصلی</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results View -->
+        <div id="results-view" class="hidden">
+             <div class="bg-white rounded-2xl shadow-xl p-6 sm:p-10 text-center">
+                <h2 class="text-2xl sm:text-3xl font-bold text-slate-800 mb-4">نتایج تمرین</h2>
+                <div id="results-stats" class="text-lg text-slate-700 mb-6">
+                    <!-- Results will be injected here -->
+                </div>
+                <button id="save-results-btn" class="px-6 py-3 text-sm font-bold bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition mb-4">ذخیره نتایج</button>
+                <div id="save-message" class="text-sm font-medium text-green-700"></div>
+                <div class="text-center mt-8 border-t border-slate-200 pt-6">
+                    <button class="back-to-menu-btn text-sm text-blue-600 hover:underline font-semibold">بازگشت به منوی اصلی</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <footer class="text-center p-4 mt-auto text-slate-500 text-sm">
+        <p>طراحی و توسعه حبیب کمایی</p>
+        <p>Habibkamaie@gmail.com</p>
+    </footer>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        document.addEventListener('DOMContentLoaded', async function () {
+            // --- Firebase Setup ---
+            const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+            const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+            const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : '';
+            
+            let db, auth, userId;
+            let firebaseInitialized = false;
+
+            try {
+                const app = initializeApp(firebaseConfig);
+                auth = getAuth(app);
+                db = getFirestore(app);
+                firebaseInitialized = true;
+                console.log("Firebase initialized successfully.");
+
+                if (initialAuthToken) {
+                    await signInWithCustomToken(auth, initialAuthToken);
+                } else {
+                    await signInAnonymously(auth);
+                }
+
+                onAuthStateChanged(auth, (user) => {
+                    if (user) {
+                        userId = user.uid;
+                        console.log("User authenticated with UID:", userId);
+                    } else {
+                        console.log("User signed out.");
+                    }
+                });
+
+            } catch (error) {
+                console.error("Firebase initialization or authentication failed:", error);
+                // Gracefully handle the error, perhaps by disabling the save button
+            }
+
+            // --- UI Elements ---
+            const mainMenuView = document.getElementById('main-menu-view');
+            const practiceView = document.getElementById('practice-view');
+            const lessonView = document.getElementById('lesson-view');
+            const resultsView = document.getElementById('results-view');
+            const startLesson31Btn = document.getElementById('start-lesson31-btn');
+            const startVocabBtn = document.getElementById('start-vocab-btn');
+            const startGrammarBtn = document.getElementById('start-grammar-btn');
+            const backToMenuBtns = document.querySelectorAll('.back-to-menu-btn');
+            const headerSubtitle = document.getElementById('header-subtitle');
+            const cardCounter = document.getElementById('card-counter');
+            const prevCardBtn = document.getElementById('prev-card-btn');
+            const nextCardBtn = document.getElementById('next-card-btn');
+            const lessonContentContainer = document.getElementById('lesson-content-container');
+            
+            const interactiveButtons = document.getElementById('interactive-buttons');
+            const knewItBtn = document.getElementById('knew-it-btn');
+            const didNotKnowBtn = document.getElementById('did-not-know-btn');
+            const flashcardDisplay = document.getElementById('flashcard-display');
+            const resultsStats = document.getElementById('results-stats');
+            const saveResultsBtn = document.getElementById('save-results-btn');
+            const saveMessage = document.getElementById('save-message');
+
+            // --- DATA ---
+            const lesson31Content = [
+                { type: 'h2', text: 'درس ۳۱: گذشته استمراری (Past Continuous)' },
+                { type: 'p', text: 'استاد می‌گن این درس "بسیار بسیار به درد بخور و بسیار ساده" هست، "اصلاً یه چیز عجیب غریبی ساده‌ست". کد فارسیش چیه؟ "داشتم یه کاری می‌کردم".' },
+                { type: 'h3', text: 'مفهوم و تعریف' },
+                { type: 'p', text: 'خب، تعریف گرامری گذشته استمراری چیه؟ استاد می‌فرمایند: "کاری که در یک بازه زمانی مشخص در گذشته به شکل موقتی در حال انجام بوده".' },
+                { type: 'p', text: 'اگه حال استمراری (Present Continuous) یعنی "دارم راه می‌رم" یا "دارم آشپزی می‌کنم"، پس گذشته استمراری چیه؟ بله، دقیقاً همینه: "داشتم راه می‌رفتم" یا "داشتم آشپزی می‌کردم".' },
+                { type: 'note', text: 'این زمان دیگه نقطه‌چینم نداره. چرا؟ چون "متوجه می‌شه تموم شده دیگه داشتی یه کاری می‌کردی تموم شده".' },
+                { type: 'h3', text: 'ساختار جمله' },
+                { type: 'h4', text: 'مثبت (+)' },
+                { type: 'p', text: 'خیلی شبیه حال استمراریه.' },
+                { type: 'example', content: [
+                    { type: 'structure', text: '"was + فعل + ing" برای I, he, she, it' },
+                    { type: 'structure', text: '"were + فعل + ing" برای you, we, they' },
+                    { type: 'divider' },
+                    { type: 'list_title', text: 'مثال‌های استاد:' },
+                    { type: 'item', fa: '"داشتم آشپزی می‌کردم."', en: 'I was cooking.' },
+                    { type: 'item', fa: '"داشتم به مادرم کمک می‌کردم."', en: 'I was helping my mother.' },
+                    { type: 'item', fa: '"داشتم گردگیری می‌کردم."', en: 'I was dusting.' },
+                    { type: 'item', fa: '"اونا داشتن تو حیاط دعوا می‌کردن."', en: 'They were fighting in the yard.' },
+                    { type: 'item', fa: '"این سگ کل شبو داشت جیک‌جیک می‌کرد."', en: 'This dog was barking all night.' },
+                    { type: 'item', fa: '"فاطمه دیدی کل هفته داشت بارون میومد."', en: 'Fatemeh, did you see it was raining all week?' },
+                    { type: 'item', fa: '"داشتن غیبت می‌کردن پشت سر شما."', en: 'They were backbiting behind you.' },
+                    { type: 'item', fa: '"این آقا داشت منو غلغلک می‌داد."', en: 'This man was tickling me.' },
+                ]},
+                { type: 'h4', text: 'منفی (-)' },
+                { type: 'example', content: [
+                    { type: 'structure', text: '"wasn\'t / weren\'t + فعل + ing"' },
+                    { type: 'divider' },
+                    { type: 'list_title', text: 'مثال‌ها:' },
+                    { type: 'item', fa: '"من به تو نمی‌خندیدم."', en: 'I wasn\'t laughing at you.' },
+                    { type: 'item', fa: '"تو به من نمی‌خندیدی."', en: 'You weren\'t laughing at me.' },
+                    { type: 'item', fa: '"من اصلا راجع به تو حرف نمی‌زدم."', en: 'I wasn\'t talking about you at all.' },
+                ]},
+                { type: 'h4', text: 'سؤالی (?)' },
+                { type: 'example', content: [
+                    { type: 'structure', text: '"Was/Were + فاعل + فعل + ing؟"' },
+                    { type: 'divider' },
+                    { type: 'list_title', text: 'مثال‌ها:' },
+                    { type: 'item', fa: '"داشتی غذا می‌خوردی؟"', en: 'Were you eating?' },
+                    { type: 'item', fa: '"داشتی آشپزی می‌کردی؟"', en: 'Were you cooking?' },
+                    { type: 'item', fa: '"داشتی منو مسخره می‌کردی؟"', en: 'Were you making fun of me?' },
+                    { type: 'item', fa: '"صبح کجا داشتی می‌رفتی شیطون؟"', en: 'Where were you going in the morning, mischievous one?' },
+                    { type: 'item', fa: '"چرا داشتی گریه می‌کردی؟"', en: 'Why were you crying?' },
+                ]},
+                { type: 'note', text: 'استاد می‌گن: "این سؤالات گذشت استمراری خوراک بازجوییه!". "فیلم کارآگاه پلیسی همش این شکلیه". مثل: "خب خانم محترم ببین خب دیشب ساعت ۱ شما داشتی چیکار می‌کردی؟".' },
+                { type: 'h3', text: 'افعال خاص (که با "داشتم" نمی‌آیند)' },
+                { type: 'p', text: 'یادتونه استاد گفتن ۵ تا فعل توی حال استمراری (مثل stand, sit, sleep) با "دارم" نمی‌اومد؟ اینجا هم همینطوره، با "داشتم" نمی‌آیند.' },
+                { type: 'p', text: 'مثلاً نمی‌گیم "داشتم وایساده بودم"، می‌گیم "وایساده بودم". همینطور "داشتم نشسته بودم" غلطه، می‌گیم "نشسته بودم". و "خواب" هم همینطور، "داشتم می‌خوابیدم" غلطه، می‌گیم "خواب بودم".' },
+                
+                { type: 'h3', text: 'کاربردهای اصلی گذشته استمراری' },
+                { type: 'h4', text: 'الف) عملی در حال انجام در گذشته (به تنهایی)' },
+                { type: 'p', text: 'یعنی فقط می‌خوای بگی یه کاری در یه مقطع خاصی در گذشته ادامه داشته، بدون اینکه اتفاق دیگه‌ای پیش بیاد.' },
+                { type: 'example', content: [
+                    { type: 'list_title', text: 'مثال استاد:' },
+                    { type: 'item', fa: '"داشتم آشپزی می‌کردم."', en: 'I was cooking.' },
+                    { type: 'item', fa: '"آقا کل آخر هفته‌ش بار میومد."', en: 'It was raining all weekend.' },
+                ]},
+                { type: 'note', text: 'استاد می‌گن: "خیلی استفاده می‌شه". "اصلاً چه می‌دونم شما فرض کنید اینجا من نیستم تو کلاس بعد اینجا هم سر و صداه یهو من درو باز می‌کنم می‌بینم چه خبره اینجا ببینی اصلاً هیچ نیازی به جمله دوم نداره خیلی زیاد می‌گیم".' },
+
+                { type: 'h4', text: 'ب) عملی در حال انجام که توسط یک اتفاق ناگهانی قطع می‌شود (با "When")' },
+                { type: 'note', text: 'استاد می‌گن: "داشتم یه کاری می‌کردم که فلان اتفاق افتاد." این اتفاق ناگهانی با "یک جمله گذشته ساده" بیان می‌شه.' },
+                { type: 'example', content: [
+                    { type: 'list_title', text: 'مثال‌های استاد:' },
+                    { type: 'item', fa: '"امروز ظهر داشتم میومدم اینجا که کاظمو دیدم."', en: 'I was coming here this afternoon when I saw Kazem.' },
+                    { type: 'item', fa: '"داشتم سالاد درست می‌کردم که انگشتمو بریدم."', en: 'I was making a salad when I cut my finger.' },
+                    { type: 'item', fa: '"داشت خیابون رد می‌شد که پاش پیچ خورد."', en: 'He was crossing the street when he sprained his ankle.' },
+                    { type: 'item', fa: '"داشتم تلویزیون نگاه می‌کردم که برقا رفت."', en: 'I was watching TV when the power went out.' },
+                    { type: 'item', fa: '"من نشسته بودم که یه سوسک (کاکروچ) دیدم."', en: 'I was sitting when I saw a cockroach.' },
+                    { type: 'item', fa: '"مامانم داشت آشپزی می‌کرد که بابام اومد خونه."', en: 'My mom was cooking when my dad came home.' },
+                ]},
+
+                { type: 'h4', text: 'ج) دو یا چند کار همزمان توسط یک نفر در گذشته' },
+                { type: 'note', text: 'استاد می‌گن: "دیگه نیاز نیست واز واز واز بگیم." "یه آی واز می‌گی ۳۰۰ تا فعل آی می‌چینیم سر هم بعد با بن سالمی جمله‌تو می‌بندی".' },
+                { type: 'example', content: [
+                    { type: 'list_title', text: 'مثال‌های استاد:' },
+                    { type: 'item', fa: '"داشتم رانندگی می‌کردم و آهنگ گوش می‌دادم و ساندویچ می‌خوردم... که یهو تصادف کردم."', en: 'I was driving, listening to music, and eating a sandwich... when I suddenly had an accident.' },
+                    { type: 'item', fa: '"داشتم امتحان می‌دادم و تقلب می‌کردم (چیتوز)."', en: 'I was taking an exam and cheating.' },
+                    { type: 'item', fa: '"نشسته بودم و آواز می‌خوندم و به تو فکر می‌کردم."', en: 'I was sitting, singing a song, and thinking about you.' },
+                ]},
+
+                { type: 'h4', text: 'د) دو کار همزمان توسط دو نفر مختلف در گذشته (با "While")' },
+                { type: 'note', text: 'استاد تأکید می‌کنند: "اینو با اون قاطی نکنید!" ساختار: "While + جمله گذشته استمراری، جمله گذشته استمراری دیگر". هر دو جمله کامل و هر دو استمراری هستند.' },
+                { type: 'example', content: [
+                    { type: 'list_title', text: 'مثال‌های استاد:' },
+                    { type: 'item', fa: '"اون زمانی که من داشتم درس می‌دادم، تو داشتی اس ام اس بازی می‌کردی."', en: 'While I was teaching, you were texting.' },
+                    { type: 'item', fa: '"اون زمانی که تو داشتی فوتبال نگاه می‌کردی، من داشتم آشپزی می‌کردم."', en: 'While you were watching football, I was cooking.' },
+                    { type: 'item', fa: '"اون زمانی که داشت بار می‌اومد، من داشتم می‌دویدم مدرسه."', en: 'While it was raining, I was running to school.' },
+                ]},
+                { type: 'proverb', title: 'ضرب المثل جلسه ۳۱', fa: '"دوست زمان نیاز، دوست واقعی"', en: 'A friend in need is a friend indeed' }
+            ];
+
+            const vocabCards = [
+                { id: 1, front: 'In GP / سه سوته', back_fa: 'استاد می‌گن: "به کسری از ثانیه". یعنی وقتی یه کاری رو خیلی سریع انجام میدی، یا سریع برمی‌گردی.', back_en: 'I\'ll be back in a jiffy.', text_to_speak: "In a jiffy" },
+                { id: 2, front: 'دو دلم / On the fence', back_fa: 'وقتی در مورد انجام کاری مردد هستید. استاد می‌فرمایند: "یه سری اصطلاحات تابلو هستن."', back_en: 'I\'m on the fence about selling my car.', text_to_speak: "On the fence" },
+                { id: 3, front: 'Never in a million years', back_fa: 'یعنی "عمراً / هرگز". وقتی می‌خوای بگی یه چیزی هیچ وقت اتفاق نمی‌افته.', back_en: 'Never in a million years would I do that.', text_to_speak: "Never in a million years" },
+                { id: 4, front: 'Cost, Cost, Cost', back_fa: 'فعل بی‌قاعده به معنی "ارزش داشتن، قیمت داشتن". استاد می‌گن: "سه تاشم یه شکله".', back_en: 'The ticket cost a lot of money.', text_to_speak: "Cost" },
+                { id: 5, front: 'پول خون پدرشو گرفت', back_fa: 'وقتی کسی خیلی زیاد پول ازت می‌گیره. معادل انگلیسی: Cost an arm and a leg', back_en: 'Fixing the car cost me an arm and a leg.', text_to_speak: "Cost an arm and a leg" },
+                { id: 6, front: 'Just (در حال کامل)', back_fa: 'استاد تأکید می‌کنن: "در پرزنت پرفکت کلمه جست یعنی تازه".', back_en: 'I have just arrived.', text_to_speak: "Just" },
+                { id: 7, front: 'Take it or leave it / همینه که هست', back_fa: 'یعنی "می‌خوای بخواه، نمی‌خوای نخواه!".', back_en: 'My final offer is $100. Take it or leave it.', text_to_speak: "Take it or leave it" },
+                { id: 8, front: 'Take a hike / بزن به چاک', back_fa: 'وقتی می‌خوای یکی رو با خشونت از خودت دور کنی.', back_en: 'If you don\'t like my rules, take a hike!', text_to_speak: "Take a hike" },
+                { id: 9, front: 'Wake me up', back_fa: 'خیلی ساده: "منو بیدار کن".', back_en: 'Please wake me up at 7 AM.', text_to_speak: "Wake me up" },
+                { id: 10, front: 'Dust', back_fa: 'هم اسم (گرد) و هم فعل (گردگیری کردن).', back_en: 'I was dusting the furniture.', text_to_speak: "Dust" },
+                { id: 11, front: 'Gossip / Rumor / Backbiting', back_fa: 'Rumor: شایعه. Gossip: تجسس. Backbiting: غیبت کردن.', back_en: 'They were talking behind your back (backbiting).', text_to_speak: "Gossip, Rumor, Backbiting" },
+                { id: 12, front: 'Tickle', back_fa: 'غلغلک دادن.', back_en: 'I was tickling my cousin.', text_to_speak: "Tickle" },
+                { id: 13, front: 'Catch red-handed', back_fa: 'مچ کسی را حین انجام کار بد گرفتن.', back_en: 'My teacher caught me red-handed.', text_to_speak: "Catch red-handed" },
+                { id: 14, front: 'Cereal', back_fa: 'به غلاتی مثل "cereal" اشاره دارد که با شیر خورده می‌شود.', back_en: 'I ate cereal for dinner.', text_to_speak: "Cereal" },
+                { id: 15, front: 'Cockroach', back_fa: 'سوسک.', back_en: 'I saw a cockroach.', text_to_speak: "Cockroach" },
+                { id: 16, front: 'Tap', back_fa: 'ضربه زدن آروم با دست روی شانه یا بازو.', back_en: 'My father tapped me on the shoulder.', text_to_speak: "Tap" },
+                { id: 17, front: 'The power went out', back_fa: '"برقا رفت".', back_en: 'I was watching TV when the power went out.', text_to_speak: "The power went out" },
+                { id: 18, front: 'A friend in need is a friend indeed', back_fa: 'ضرب‌المثل: "دوست آن باشد که گیرد دست دوست...".', back_en: 'She helped me when I was broke. A friend in need is a friend indeed.', text_to_speak: "A friend in need is a friend indeed" },
+                { id: 19, front: 'افعال خاص (Sit, Stand, etc.)', back_fa: 'این افعال در گذشته استمراری با "داشتم" نمی‌آیند. مثال: "نشسته بودم".', back_en: 'I was wearing a tie at the party.', text_to_speak: "Sit, Stand, Lie, Sleep, Wear" },
+                { id: 20, front: 'The milk boiled over', back_fa: 'شیر سر رفت.', back_en: 'The milk boiled over while I was on the phone.', text_to_speak: "The milk boiled over" },
+                { id: 21, front: 'Battery died', back_fa: 'باتری تمام شد.', back_en: 'I was talking on the phone when its battery died.', text_to_speak: "Battery died" },
+                { id: 22, front: 'Car broke down', back_fa: 'ماشین خراب شد.', back_en: 'My car broke down on the way to work.', text_to_speak: "Car broke down" },
+                { id: 23, front: 'Had an accident', back_fa: 'تصادف کردم.', back_en: 'He had an accident because he was driving too fast.', text_to_speak: "Had an accident" },
+                { id: 24, front: 'The police arrested me', back_fa: 'پلیس دستگیرم کرد.', back_en: 'The police arrested the suspect.', text_to_speak: "The police arrested me" },
+                { id: 25, front: 'Fell asleep', back_fa: 'خوابم برد.', back_en: 'I was so tired I fell asleep in the middle of the movie.', text_to_speak: "Fell asleep" },
+                { id: 26, front: 'Cut my finger', back_fa: 'انگشتمو بریدم.', back_en: 'She cut her finger while chopping vegetables.', text_to_speak: "Cut my finger" },
+                { id: 27, front: 'Luckily / Fortunately', back_fa: 'خوشبختانه.', back_en: 'Luckily, I had some candles when the power went out.', text_to_speak: "Luckily, Fortunately" },
+                { id: 28, front: "Couldn't finish my meal", back_fa: 'نتونستم غذامو تموم کنم.', back_en: 'The power went out, so I couldn\'t finish making my meal.', text_to_speak: "Couldn't finish my meal" },
+                { id: 29, front: 'Sprained my ankle', back_fa: 'مچ پام پیچ خورد.', back_en: 'He sprained his ankle playing basketball.', text_to_speak: "Sprained my ankle" },
+                { id: 30, front: 'Everything went dark', back_fa: 'همه چیز تاریک شد.', back_en: 'Suddenly, everything went dark.', text_to_speak: "Everything went dark" },
+                { id: 31, front: 'Haggle', back_fa: 'چونه زدن.', back_en: 'I managed to haggle the price down by 10%.', text_to_speak: "Haggle" },
+                { id: 32, front: 'Passed out', back_fa: 'از حال رفتن.', back_en: 'It was so hot in the room that he passed out.', text_to_speak: "Passed out" },
+                { id: 33, front: 'The bell went / rang', back_fa: 'زنگ خورد.', back_en: 'The bell rang for the end of the class.', text_to_speak: "The bell rang" },
+                { id: 34, front: 'Whistling', back_fa: 'سوت زدن.', back_en: 'He was whistling a happy tune.', text_to_speak: "Whistling" },
+                { id: 35, front: 'Ogling', back_fa: 'چشم‌چرانی کردن.', back_en: 'It\'s rude to ogle people.', text_to_speak: "Ogling" },
+                { id: 36, front: 'Picking my nose', back_fa: 'دست در بینی کردن.', back_en: 'It\'s a bad habit to be picking your nose in public.', text_to_speak: "Picking my nose" },
+                { id: 37, front: 'Thinking about you', back_fa: 'به تو فکر می‌کردم.', back_en: 'I was just thinking about you.', text_to_speak: "Thinking about you" },
+                { id: 38, front: 'Someone knocked at the door', back_fa: 'کسی در زد.', back_en: 'I was about to sleep when someone knocked at the door.', text_to_speak: "Someone knocked at the door" },
+                { id: 39, front: 'Hit me on the head', back_fa: 'زد تو سرم.', back_en: 'A falling book hit me on the head.', text_to_speak: "Hit me on the head" },
+                { id: 40, front: 'Eating nuts', back_fa: 'آجیل می‌خوردم.', back_en: 'He was sitting on the bench, eating nuts.', text_to_speak: "Eating nuts" },
+                { id: 41, front: 'Cheating', back_fa: 'تقلب کردن.', back_en: 'He was caught cheating on the final exam.', text_to_speak: "Cheating" },
+                { id: 42, front: 'Whispering', back_fa: 'پچ‌پچ کردن.', back_en: 'What are you two whispering about?', text_to_speak: "Whispering" },
+                { id: 43, front: 'Shouting', back_fa: 'فریاد زدن.', back_en: 'There\'s no need for shouting, I can hear you.', text_to_speak: "Shouting" },
+                { id: 44, front: 'Yawning', back_fa: 'خمیازه کشیدن.', back_en: 'I couldn\'t stop yawning during the meeting.', text_to_speak: "Yawning" },
+                { id: 45, front: 'Make fun of someone', back_fa: 'کسی رو مسخره کردن.', back_en: 'The other kids were making fun of him.', text_to_speak: "Make fun of someone" },
+            ];
+
+            const grammarCards = [
+                { id: 47, front: 'داشتم سالاد درست می‌کردم که انگشتمو بریدم.', back_fa: 'I was making a salad when I cut my finger.', text_to_speak: 'I was making a salad when I cut my finger.' },
+                { id: 48, front: 'داشتم با دوست پسرم دعوا می‌کردم که گردنم شکست.', back_fa: 'I was arguing with my boyfriend when my neck broke.', text_to_speak: 'I was arguing with my boyfriend when my neck broke.' },
+                { id: 49, front: 'داشت خیابون رد می‌شد که پایش پیچ خورد.', back_fa: 'He was crossing the street when he sprained his ankle.', text_to_speak: 'He was crossing the street when he sprained his ankle.' },
+                { id: 50, front: 'داشتم تلویزیون نگاه می‌کردم که برق‌ها رفت.', back_fa: 'I was watching TV when the power went out.', text_to_speak: 'I was watching TV when the power went out.' },
+                { id: 51, front: 'داشتم آشپزی می‌کردم که آن‌ها رسیدند.', back_fa: 'I was cooking when they arrived.', text_to_speak: 'I was cooking when they arrived.' },
+                { id: 52, front: 'داشتم می‌رقصیدم که پسرم رسید.', back_fa: 'I was dancing when my son arrived.', text_to_speak: 'I was dancing when my son arrived.' },
+                { id: 53, front: 'داشتم تلفن حرف می‌زدم که باتریش تموم شد.', back_fa: 'I was talking on the phone when its battery died.', text_to_speak: 'I was talking on the phone when its battery died.' },
+                { id: 54, front: 'نشسته بودم که یه سوسک دیدم.', back_fa: 'I was sitting when I saw a cockroach.', text_to_speak: 'I was sitting when I saw a cockroach.' },
+                { id: 55, front: 'مامانم داشت آشپزی می‌کرد که بابام اومد خونه.', back_fa: 'My mom was cooking when my dad came home.', text_to_speak: 'My mom was cooking when my dad came home.' },
+                { id: 56, front: 'داشتم از خیابون رد می‌شدم که مچ پام پیچ خورد.', back_fa: 'I was crossing the street when I sprained my ankle.', text_to_speak: 'I was crossing the street when I sprained my ankle.' },
+                { id: 57, front: 'داشتم رانندگی می‌کردم و آهنگ گوش می‌دادم و ساندویچ می‌خوردم و پیشونیمو می‌خاروندم و ایزی می‌کردم که یهو خب تصادف کردم.', back_fa: 'I was driving, listening to music, eating a sandwich, scratching my forehead and doing something when suddenly I had an accident.', text_to_speak: 'I was driving, listening to music, eating a sandwich, scratching my forehead and doing something when suddenly I had an accident.' },
+                { id: 58, front: 'داشتم امتحان می‌دادم و تقلب می‌کردم که معلم مچمو گرفت.', back_fa: 'I was taking the exam and cheating when my teacher caught me red-handed.', text_to_speak: 'I was taking the exam and cheating when my teacher caught me red-handed.' },
+                { id: 59, front: 'نشسته بودم و آواز می‌خوندم و به تو فکر می‌کردم که یهو یکی در زد.', back_fa: 'I was sitting and singing and thinking about you when suddenly someone knocked at the door.', text_to_speak: 'I was sitting and singing and thinking about you when suddenly someone knocked at the door.' },
+                { id: 60, front: 'داشتم آشپزی می‌کردم (پاستا) که یهو همه جا تاریک شد.', back_fa: 'I was cooking pasta when suddenly everything went dark.', text_to_speak: 'I was cooking pasta when suddenly everything went dark.' },
+                { id: 61, front: 'داشتم راه می‌رفتم که یهو افتادم.', back_fa: 'I was walking when suddenly I fell down.', text_to_speak: 'I was walking when suddenly I fell down.' },
+                { id: 62, front: 'داشتم ظرف می‌شستم که یهو شیر سر رفت.', back_fa: 'I was washing the dishes when suddenly the milk boiled over.', text_to_speak: 'I was washing the dishes when suddenly the milk boiled over.' },
+                { id: 63, front: 'داشتم درس می‌خوندم که یهو برق رفت.', back_fa: 'I was studying when suddenly the power went out.', text_to_speak: 'I was studying when suddenly the power went out.' },
+                { id: 64, front: 'داشتم با مغازه‌دار چونه می‌زدم که یهو غش کرد.', back_fa: 'I was haggling with the shopkeeper when suddenly he passed out.', text_to_speak: 'I was haggling with the shopkeeper when suddenly he passed out.' },
+                { id: 65, front: 'داشتم درس می‌دادم که یهو زنگ خورد.', back_fa: 'I was teaching when suddenly the bell rang.', text_to_speak: 'I was teaching when suddenly the bell rang.' },
+                { id: 66, front: 'داشتم رانندگی می‌کردم که یهو ماشینم خراب شد.', back_fa: 'I was driving when suddenly my car broke down.', text_to_speak: 'I was driving when suddenly my car broke down.' },
+                { id: 67, front: 'داشتم راه می‌رفتم، سوت می‌زدم، هیزی می‌کردم که یهو پلیس دستگیرم کرد.', back_fa: 'I was walking, whistling, ogling when suddenly the police arrested me.', text_to_speak: 'I was walking, whistling, ogling when suddenly the police arrested me.' },
+                { id: 68, front: 'داشتم رو مبل نشسته بودم، تلویزیون تماشا می‌کردم، بستنی می‌خوردم که یهو یه سوسک دیدم.', back_fa: 'I was sitting on the sofa, watching TV, eating ice cream when suddenly I saw a cockroach.', text_to_speak: 'I was sitting on the sofa, watching TV, eating ice cream when suddenly I saw a cockroach.' },
+                { id: 69, front: 'داشتم دراز کشیده بودم، دماغم رو می‌گرفتم، به تو فکر می‌کردم که یهو یکی در زد.', back_fa: 'I was lying on the bed, picking my nose, thinking about you when suddenly someone knocked at the door.', text_to_speak: 'I was lying on the bed, picking my nose, thinking about you when suddenly someone knocked at the door.' },
+                { id: 70, front: 'داشتم در خیابون راه می‌رفتم، سوت می‌زدم، سیگار می‌کشیدم که یهو پدرم زد رو شونم.', back_fa: 'I was walking along the street, whistling, smoking when suddenly my father tapped me on the shoulder.', text_to_speak: 'I was walking along the street, whistling, smoking when suddenly my father tapped me on the shoulder.' },
+                { id: 71, front: 'داشتم در ساحل دراز کشیده بودم، سیگار می‌کشیدم، آب پرتقال می‌نوشیدم که یهو زنم زد تو سرم.', back_fa: 'I was lying on the beach, smoking, drinking orange juice when suddenly my wife hit me on the head.', text_to_speak: 'I was lying on the beach, smoking, drinking orange juice when suddenly my wife hit me on the head.' },
+                { id: 72, front: 'داشتم در کلاس نشسته بودم، تقلب می‌کردم، پچ‌پچ می‌کردم که یهو معلم مچمو گرفت.', back_fa: 'I was sitting in the class, cheating, whispering when suddenly my teacher caught me red-handed.', text_to_speak: 'I was sitting in the class, cheating, whispering when suddenly my teacher caught me red-handed.' },
+                { id: 73, front: 'داشتم رو مبل نشسته بودم، آهنگ گوش می‌دادم، روزنامه می‌خوندم که یهو خوابم برد.', back_fa: 'I was sitting on the sofa, listening to music, reading a newspaper when suddenly I fell asleep.', text_to_speak: 'I was sitting on the sofa, listening to music, reading a newspaper when suddenly I fell asleep.' },
+                { id: 74, front: 'وقتی تو زنگ زدی، من داشتم رانندگی می‌کردم.', back_fa: 'When you called, I was driving.', text_to_speak: 'When you called, I was driving.' },
+                { id: 75, front: 'وقتی تو رسیدی، برادرم داشت دوش می‌گرفت.', back_fa: 'When you arrived, my brother was taking a shower.', text_to_speak: 'When you arrived, my brother was taking a shower.' },
+                { id: 76, front: 'اون زمانی که من داشتم درس می‌دادم، تو داشتی اس ام اس بازی می‌کردی.', back_fa: 'While I was teaching, you were fooling around/texting.', text_to_speak: 'While I was teaching, you were fooling around/texting.' },
+                { id: 77, front: 'اون زمانی که تو داشتی فوتبال نگاه می‌کردی، من داشتم آشپزی می‌کردم.', back_fa: 'While you were watching TV, I was cooking.', text_to_speak: 'While you were watching TV, I was cooking.' },
+                { id: 78, front: 'اون زمانی که داشت بارون می‌اومد، من داشتم می‌دویدم مدرسه.', back_fa: 'While it was raining, I was running to school.', text_to_speak: 'While it was raining, I was running to school.' },
+                { id: 79, front: 'اون زمانی که تو داشتی شرنگ تخته می‌داختی (تخته پاک می‌کردی)، اون داشت می‌زد تو رو هیزی می‌کرد (اذیت می‌کرد).', back_fa: 'While you were cleaning the board, he was bothering/teasing you.', text_to_speak: 'While you were cleaning the board, he was bothering/teasing you.' },
+                { id: 80, front: 'اون زمانی که من داشتم (به) سؤال (تو) گری (فکر می‌کردم)، تو داشتی می‌خندیدی بیشعور.', back_fa: 'While I was grappling with your question, you were laughing, you idiot.', text_to_speak: 'While I was grappling with your question, you were laughing, you idiot.' },
+                { id: 81, front: 'اون زمانی که تو داشتی درس می‌دادی، داشت منو هیگ می‌داد (مسخره می‌کرد).', back_fa: 'While you were teaching, he was mocking me.', text_to_speak: 'While you were teaching, he was mocking me.' },
+                { id: 82, front: 'وقتی که من داشتم درس می‌خوندم، تو داشتی تلفن حرف می‌زدی.', back_fa: 'While I was studying, you were talking on the phone.', text_to_speak: 'While I was studying, you were talking on the phone.' },
+                { id: 83, front: 'وقتی که من داشتم تو اتاقم درس می‌خوندم، تو داشتی تلویزیون تماشا می‌کردی.', back_fa: 'While I was studying in my room, you were watching TV.', text_to_speak: 'While I was studying in my room, you were watching TV.' },
+                { id: 84, front: 'وقتی که من داشتم شام درست می‌کردم، تو داشتی می‌خوابیدی.', back_fa: 'While I was making dinner, you were sleeping.', text_to_speak: 'While I was making dinner, you were sleeping.' },
+                { id: 85, front: 'وقتی که جک داشت رانندگی می‌کرد، من داشتم می‌خوابیدم.', back_fa: 'While Jack was driving, I was sleeping.', text_to_speak: 'While Jack was driving, I was sleeping.' },
+                { id: 86, front: 'وقتی که ما داشتیم خونه رو تمیز می‌کردیم، اونا داشتن بازی می‌کردند.', back_fa: 'While we were cleaning the house, they were playing.', text_to_speak: 'While we were cleaning the house, they were playing.' },
+                { id: 87, front: 'من نمی‌خندیدم به تو.', back_fa: 'I wasn\'t laughing at you.', text_to_speak: 'I wasn\'t laughing at you.' },
+                { id: 88, front: 'من اصلاً راجع به تو حرف نمی‌زدم.', back_fa: 'I wasn\'t talking about you at all.', text_to_speak: 'I wasn\'t talking about you at all.' },
+                { id: 89, front: 'من خمیازه نمی‌کشیدم.', back_fa: 'I wasn\'t yawning.', text_to_speak: 'I wasn\'t yawning.' },
+                { id: 90, front: 'من پچ‌پچ نمی‌کردم.', back_fa: 'I wasn\'t whispering.', text_to_speak: 'I wasn\'t whispering.' },
+                { id: 91, front: 'من فریاد نمی‌کشیدم.', back_fa: 'I wasn\'t shouting.', text_to_speak: 'I wasn\'t shouting.' },
+                { id: 92, front: 'داشتی منو مسخره می‌کردی؟', back_fa: 'Were you making fun of me?', text_to_speak: 'Were you making fun of me?' },
+                { id: 93, front: 'تو کلاس چی داشتی می‌خوردی؟', back_fa: 'What were you eating in class?', text_to_speak: 'What were you eating in class?' },
+                { id: 94, front: 'صبح کجا داشتی می‌رفتی؟', back_fa: 'Where were you going this morning?', text_to_speak: 'Where were you going this morning?' },
+                { id: 95, front: 'چرا داشتی می‌رفتی سر کار؟', back_fa: 'Why were you going to work?', text_to_speak: 'Why were you going to work?' },
+                { id: 96, front: 'چرا داشتی گریه می‌کردی؟', back_fa: 'Why were you crying?', text_to_speak: 'Why were you crying?' },
+                { id: 97, front: 'چرا تو مهمونی داشتی گریه می‌کردی؟', back_fa: 'Why were you crying at the party?', text_to_speak: 'Why were you crying at the party?' },
+                { id: 98, front: 'مسخره می‌کردیش؟ کتک می‌زدی؟', back_fa: 'Were you mocking him? Were you hitting him?', text_to_speak: 'Were you mocking him? Were you hitting him?' },
+                { id: 99, front: 'دیشب ساعت ۱ شما داشتی چیکار می‌کردی؟', back_fa: 'What were you doing at 1 o\'clock last night?', text_to_speak: 'What were you doing at 1 o\'clock last night?' },
+                { id: 100, front: 'چه کار داشتی می‌کردی؟', back_fa: 'What were you doing?', text_to_speak: 'What were you doing?' },
+                { id: 101, front: 'برادرت دیشب داشت چیکار می‌کرد؟', back_fa: 'What was your brother doing last night?', text_to_speak: 'What was your brother doing last night?' },
+                { id: 102, front: 'ساعت ۱۰ شب دیشب کجا داشتی می‌رفتی؟', back_fa: 'Where were you going at 10:00 last night?', text_to_speak: 'Where were you going at 10:00 last night?' },
+                { id: 103, front: 'چرا تو حیاط نشسته بودی؟', back_fa: 'Why were you sitting in the yard?', text_to_speak: 'Why were you sitting in the yard?' },
+                { id: 104, front: 'چرا داشتی سر پسرت داد می‌زدی؟', back_fa: 'Why were you shouting at your son?', text_to_speak: 'Why were you shouting at your son?' },
+                { id: 105, front: 'چرا ساعت ۲ صبح داشتی آشپزی می‌کردی؟', back_fa: 'Why were you cooking at 2:00 in the morning?', text_to_speak: 'Why were you cooking at 2:00 in the morning?' },
+                { id: 106, front: 'چرا داشتی می‌خندیدی؟', back_fa: 'Why were you laughing?', text_to_speak: 'Why were you laughing?' },
+                { id: 107, front: 'چرا داشتی به من می‌خندیدی؟', back_fa: 'Why were you laughing at me?', text_to_speak: 'Why were you laughing at me?' },
+                { id: 108, front: 'کی داشت راجع به من حرف می‌زد؟', back_fa: 'Who was talking about me?', text_to_speak: 'Who was talking about me?' },
+                { id: 109, front: 'داشتی راجع به کی حرف می‌زدی؟', back_fa: 'Who were you talking about?', text_to_speak: 'Who were you talking about?' },
+                { id: 110, front: 'کی داشت با تو می‌رقصید؟', back_fa: 'Who was dancing with you?', text_to_speak: 'Who was dancing with you?' },
+                { id: 111, front: 'داشتی با کی می‌رقصیدی؟', back_fa: 'Who were you dancing with?', text_to_speak: 'Who were you dancing with?' },
+                { id: 112, front: 'کی داشت به تو می‌خندید؟', back_fa: 'Who was laughing at you?', text_to_speak: 'Who was laughing at you?' },
+                { id: 113, front: 'داشتی به کی می‌خندیدی؟', back_fa: 'Who were you laughing at?', text_to_speak: 'Who were you laughing at?' },
+                { id: 114, front: 'کی داشت بهت کمک می‌کرد؟', back_fa: 'Who was helping you?', text_to_speak: 'Who was helping you?' },
+                { id: 115, front: 'داشتی به کی کمک می‌کردی؟', back_fa: 'Who were you helping?', text_to_speak: 'Who were you helping?' },
+                { id: 116, front: 'آیا داشتی تو مهمونی آواز می‌خوندی؟', back_fa: 'Were you singing at the party?', text_to_speak: 'Were you singing at the party?' },
+                { id: 117, front: 'آیا داشتی موهات رو خشک می‌کردی؟', back_fa: 'Were you drying your hair?', text_to_speak: 'Were you drying your hair?' },
+                { id: 118, front: 'آیا داشتی لباست رو می‌پوشیدی؟', back_fa: 'Were you wearing your suit?', text_to_speak: 'Were you wearing your suit?' },
+                { id: 119, front: 'آیا داشتی پسرعموت رو قلقلک می‌دادی؟', back_fa: 'Were you tickling your cousin?', text_to_speak: 'Were you tickling your cousin?' },
+                { id: 120, front: 'آیا داشتی خمیازه می‌کشیدی؟', back_fa: 'Were you yawning?', text_to_speak: 'Were you yawning?' }
+            ];
+            
+            // --- App State ---
+            let currentSession = {
+                cards: [],
+                currentIndex: 0,
+                type: '',
+                knownCount: 0,
+                unknownCount: 0,
+            };
+            
+            // --- VOICE SYNTHESIS ---
+            let preferredVoice = null;
+            function loadAndSetVoice() {
+                const voices = window.speechSynthesis.getVoices();
+                preferredVoice = voices.find(voice => voice.name === 'Google US English') || 
+                                 voices.find(voice => voice.lang === 'en-US' && voice.localService) ||
+                                 voices.find(voice => voice.lang === 'en-US');
+            }
+            window.speechSynthesis.onvoiceschanged = loadAndSetVoice;
+            loadAndSetVoice();
+
+            // --- UI Functions ---
+            function showCard(index) {
+                if (index >= currentSession.cards.length) {
+                    showResults();
+                    return;
+                }
+                
+                const cardData = currentSession.cards[index];
+                const cardFront = document.getElementById('card-front');
+                const cardBack = document.getElementById('card-back');
+                const flashcard = document.querySelector('#practice-view .flashcard');
+                
+                flashcard.classList.remove('is-flipped');
+                
+                // دکمه‌های "بلد بودم" و "بلد نبودم" را نمایش می‌دهیم
+                interactiveButtons.classList.remove('hidden');
+
+                // دکمه‌های پیمایش را نمایش می‌دهیم
+                prevCardBtn.style.visibility = (index > 0) ? 'visible' : 'hidden';
+                nextCardBtn.style.visibility = 'hidden'; // دکمه بعدی تا زمانی که کاربر جواب ندهد، پنهان می‌ماند
+
+                setTimeout(() => {
+                    // بر اساس نوع تمرین، محتوای کارت را تنظیم می‌کنیم
+                    if (currentSession.type === 'vocab') {
+                        cardFront.innerHTML = `<h3 class="text-xl font-semibold p-4">${cardData.back_fa}</h3>`;
+                        cardBack.innerHTML = `
+                            <div class="p-4 flex-grow flex flex-col justify-center items-center">
+                                <p class="text-2xl font-bold">${cardData.front}</p>
+                                <p class="text-base italic mt-2 text-slate-600">"${cardData.back_en}"</p>
+                                <div class="flex gap-4">
+                                    <button class="pronunciation-button" data-text="${cardData.text_to_speak}">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M9.383 3.076A1 1 0 0110 4v12a1 1 0 01-1.707.707L4.586 13H2a1 1 0 01-1-1V8a1 1 0 011-1h2.586l3.707-3.707a1 1 0 011.09-.217zM14.657 2.929a1 1 0 011.414 0A9.972 9.972 0 0119 10a9.972 9.972 0 01-2.929 7.071 1 1 0 01-1.414-1.414A7.971 7.971 0 0017 10c0-2.21-.894-4.208-2.343-5.657a1 1 0 010-1.414z"/></svg>
+                                        <span>کلمه</span>
+                                    </button>
+                                    <button class="pronunciation-button" data-text="${cardData.back_en}">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M9.383 3.076A1 1 0 0110 4v12a1 1 0 01-1.707.707L4.586 13H2a1 1 0 01-1-1V8a1 1 0 011-1h2.586l3.707-3.707a1 1 0 011.09-.217zM14.657 2.929a1 1 0 011.414 0A9.972 9.972 0 0119 10a9.972 9.972 0 01-2.929 7.071 1 1 0 01-1.414-1.414A7.971 7.971 0 0017 10c0-2.21-.894-4.208-2.343-5.657a1 1 0 010-1.414z"/></svg>
+                                        <span>مثال</span>
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                    } else { // Grammar
+                        cardFront.innerHTML = `<h3 class="text-2xl font-bold p-4">${cardData.front}</h3>`;
+                        cardBack.innerHTML = `
+                            <div class="p-4 flex-grow flex flex-col justify-center items-center">
+                                <p class="font-bold text-lg">${cardData.back_fa}</p>
+                                <button class="pronunciation-button" data-text="${cardData.text_to_speak}">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M9.383 3.076A1 1 0 0110 4v12a1 1 0 01-1.707.707L4.586 13H2a1 1 0 01-1-1V8a1 1 0 011-1h2.586l3.707-3.707a1 1 0 011.09-.217zM14.657 2.929a1 1 0 011.414 0A9.972 9.972 0 0119 10a9.972 9.972 0 01-2.929 7.071 1 1 0 01-1.414-1.414A7.971 7.971 0 0017 10c0-2.21-.894-4.208-2.343-5.657a1 1 0 010-1.414z"/></svg>
+                                    <span>تلفظ</span>
+                                </button>
+                            </div>
+                        `;
+                    }
+                }, 150);
+
+                cardCounter.textContent = `${index + 1} / ${currentSession.cards.length}`;
+            }
+
+            function renderLesson() {
+                const backButton = lessonContentContainer.querySelector('.back-to-menu-btn').parentElement;
+                lessonContentContainer.innerHTML = ''; 
+
+                lesson31Content.forEach(item => {
+                    let el;
+                    switch (item.type) {
+                        case 'h2':
+                            el = document.createElement('h2');
+                            el.className = 'text-3xl font-bold text-center mb-10';
+                            el.textContent = item.text;
+                            break;
+                        case 'h3':
+                            el = document.createElement('h3');
+                            el.textContent = item.text;
+                            break;
+                        case 'h4':
+                            el = document.createElement('h4');
+                            el.textContent = item.text;
+                            break;
+                        case 'p':
+                            el = document.createElement('p');
+                            el.textContent = item.text;
+                            break;
+                        case 'note':
+                            el = document.createElement('p');
+                            el.className = 'note';
+                            el.textContent = item.text;
+                            break;
+                        case 'proverb':
+                            el = document.createElement('div');
+                            el.className = 'proverb-banner';
+                            el.innerHTML = `
+                                <h4 class="text-sm font-semibold opacity-80 mb-2">🍎 ${item.title}</h4>
+                                <p class="text-3xl font-bold">${item.en}</p>
+                                <p class="text-lg mt-3 opacity-90">"${item.fa}"</p>
+                            `;
+                            break;
+                        case 'example':
+                            el = document.createElement('div');
+                            el.className = 'example';
+                            const ul = document.createElement('ul');
+                            item.content.forEach(ex => {
+                                if (ex.type === 'divider') {
+                                    ul.appendChild(document.createElement('hr')).className = 'my-3 border-slate-300';
+                                } else if (ex.type === 'structure' || ex.type === 'list_title') {
+                                    const p = document.createElement('p');
+                                    p.className = ex.type === 'structure' ? 'font-mono' : 'font-semibold';
+                                    p.innerHTML = ex.text;
+                                    ul.appendChild(p);
+                                } else if (ex.type === 'item') {
+                                    const li = document.createElement('li');
+                                    li.innerHTML = `
+                                        <span>${ex.fa}</span>
+                                        <i class="toggle-translation fa-solid fa-eye text-slate-400 hover:text-blue-500 cursor-pointer transition"></i>
+                                        <div class="translation flex items-center gap-2">
+                                            <span class="text-blue-600 font-semibold">${ex.en}</span>
+                                            <i class="play-translation fa-solid fa-volume-high text-slate-400 hover:text-blue-500 cursor-pointer transition" data-text="${ex.en}"></i>
+                                        </div>
+                                    `;
+                                    ul.appendChild(li);
+                                }
+                            });
+                            el.appendChild(ul);
+                            break;
+                    }
+                    if(el) lessonContentContainer.appendChild(el);
+                });
+                lessonContentContainer.appendChild(backButton);
+            }
+
+            // --- Practice Logic ---
+            function startPractice(type) {
+                mainMenuView.classList.add('hidden');
+                resultsView.classList.add('hidden');
+                practiceView.classList.remove('hidden');
+                practiceView.classList.add('fade-in');
+
+                if (type === 'vocab') {
+                    currentSession.cards = shuffleArray([...vocabCards]);
+                    currentSession.type = 'vocab';
+                    headerSubtitle.textContent = 'تمرین کلمات و اصطلاحات';
+                } else if (type === 'grammar') {
+                    currentSession.cards = shuffleArray([...grammarCards]);
+                    currentSession.type = 'grammar';
+                    headerSubtitle.textContent = 'تمرین گرامر';
+                }
+                currentSession.currentIndex = 0;
+                currentSession.knownCount = 0;
+                currentSession.unknownCount = 0;
+                showCard(0);
+            }
+
+            function showLesson() {
+                mainMenuView.classList.add('hidden');
+                practiceView.classList.add('hidden');
+                resultsView.classList.add('hidden');
+                lessonView.classList.remove('hidden');
+                lessonView.classList.add('fade-in');
+                headerSubtitle.textContent = 'درس جلسه ۳۱: گذشته استمراری';
+                renderLesson();
+            }
+
+            function goBackToMenu() {
+                practiceView.classList.add('hidden');
+                lessonView.classList.add('hidden');
+                resultsView.classList.add('hidden');
+                mainMenuView.classList.remove('hidden');
+                mainMenuView.classList.add('fade-in');
+                headerSubtitle.textContent = 'یک بخش را برای شروع تمرین انتخاب کنید.';
+            }
+
+            function showResults() {
+                practiceView.classList.add('hidden');
+                resultsView.classList.remove('hidden');
+                resultsView.classList.add('fade-in');
+                headerSubtitle.textContent = 'نتایج تمرین شما';
+
+                const totalCards = currentSession.cards.length;
+                const knownPercentage = totalCards > 0 ? ((currentSession.knownCount / totalCards) * 100).toFixed(0) : 0;
+                const unknownPercentage = totalCards > 0 ? ((currentSession.unknownCount / totalCards) * 100).toFixed(0) : 0;
+
+                resultsStats.innerHTML = `
+                    <p class="mb-2">تعداد کل کارت‌ها: ${totalCards}</p>
+                    <p class="text-green-600 font-bold mb-1">کارت‌های بلد بودم: ${currentSession.knownCount} (${knownPercentage}%)</p>
+                    <p class="text-red-600 font-bold">کارت‌های بلد نبودم: ${currentSession.unknownCount} (${unknownPercentage}%)</p>
+                `;
+            }
+
+            async function saveStats() {
+                if (!firebaseInitialized || !userId) {
+                    saveMessage.textContent = 'خطا: امکان ذخیره نتایج وجود ندارد. لطفاً دوباره تلاش کنید.';
+                    return;
+                }
+
+                try {
+                    const statsCollection = collection(db, `artifacts/${appId}/users/${userId}/flashcard_stats`);
+                    await addDoc(statsCollection, {
+                        known: currentSession.knownCount,
+                        unknown: currentSession.unknownCount,
+                        total: currentSession.cards.length,
+                        type: currentSession.type,
+                        timestamp: new Date()
+                    });
+                    saveMessage.textContent = 'نتایج با موفقیت ذخیره شد! 🎉';
+                    saveResultsBtn.disabled = true;
+                    saveResultsBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                } catch (e) {
+                    console.error("Error adding document: ", e);
+                    saveMessage.textContent = 'خطا در ذخیره نتایج.';
+                }
+            }
+
+            function navigateCards(direction) {
+                const newIndex = currentSession.currentIndex + direction;
+                if (newIndex >= 0 && newIndex < currentSession.cards.length) {
+                    currentSession.currentIndex = newIndex;
+                    showCard(newIndex);
+                } else if (newIndex >= currentSession.cards.length) {
+                     showResults();
+                }
+            }
+
+            function handleFeedback(isKnewIt) {
+                // فلش‌کارت را برمی‌گردانیم تا پاسخ مشخص شود
+                document.querySelector('#practice-view .flashcard').classList.add('is-flipped');
+
+                // دکمه‌های تعاملی را پنهان می‌کنیم و دکمه "بعدی" را نمایش می‌دهیم
+                interactiveButtons.classList.add('hidden');
+                nextCardBtn.style.visibility = 'visible';
+
+                // آمار را به‌روز می‌کنیم
+                if (isKnewIt) {
+                    currentSession.knownCount++;
+                } else {
+                    currentSession.unknownCount++;
+                }
+            }
+
+            // --- EVENT LISTENERS ---
+            startLesson31Btn.addEventListener('click', showLesson);
+            startVocabBtn.addEventListener('click', () => startPractice('vocab'));
+            startGrammarBtn.addEventListener('click', () => startPractice('grammar'));
+            backToMenuBtns.forEach(btn => btn.addEventListener('click', goBackToMenu));
+
+            knewItBtn.addEventListener('click', () => handleFeedback(true));
+            didNotKnowBtn.addEventListener('click', () => handleFeedback(false));
+
+            nextCardBtn.addEventListener('click', () => {
+                navigateCards(1);
+            });
+            prevCardBtn.addEventListener('click', () => {
+                navigateCards(-1);
+            });
+
+            flashcardDisplay.addEventListener('click', function(event) {
+                const flashcard = this.querySelector('.flashcard');
+                // فقط اگر روی دکمه‌های تلفظ کلیک نشده باشد، کارت را برمی‌گردانیم
+                if (!event.target.closest('.pronunciation-button') && !flashcard.classList.contains('is-flipped')) {
+                    flashcard.classList.add('is-flipped');
+                }
+            });
+
+            document.body.addEventListener('click', function(event) {
+                const pronunciationButton = event.target.closest('.pronunciation-button, .play-translation');
+                if (pronunciationButton) {
+                    event.stopPropagation();
+                    const textToSpeak = pronunciationButton.dataset.text;
+                    if (textToSpeak && 'speechSynthesis' in window) {
+                        window.speechSynthesis.cancel();
+                        const utterance = new SpeechSynthesisUtterance(textToSpeak);
+                        if (preferredVoice) {
+                            utterance.voice = preferredVoice;
+                        }
+                        utterance.lang = 'en-US';
+                        utterance.rate = 0.9;
+                        window.speechSynthesis.speak(utterance);
+                    }
+                }
+            });
+            
+            lessonContentContainer.addEventListener('click', function(event) {
+                const toggleBtn = event.target.closest('.toggle-translation');
+                if (toggleBtn) {
+                    const translationDiv = toggleBtn.nextElementSibling;
+                    translationDiv.classList.toggle('visible');
+                    toggleBtn.classList.toggle('fa-eye');
+                    toggleBtn.classList.toggle('fa-eye-slash');
+                }
+            });
+
+            saveResultsBtn.addEventListener('click', saveStats);
+
+            // --- HELPERS ---
+            function shuffleArray(array) {
+                for (let i = array.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [array[i], array[j]] = [array[j], array[i]];
+                }
+                return array;
+            }
+        });
+    </script>
+</body>
+</html>
