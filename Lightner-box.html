@@ -8,8 +8,12 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700&display=swap" rel="stylesheet">
-    <!-- Google Sign-In API -->
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+
     <style>
         body {
             font-family: 'Vazirmatn', sans-serif;
@@ -35,7 +39,7 @@
             width: 100%;
             height: 100px;
             object-fit: cover;
-            border-radius: 8px 8px 0 0;
+            border-radius: 12px 12px 0 0;
         }
     </style>
 </head>
@@ -45,59 +49,35 @@
         <header class="flex justify-between items-center mb-6">
             <h1 class="text-xl sm:text-2xl font-bold text-gray-800">جعبه لایتنر دوره ICC</h1>
             <div id="auth-container">
-                <!-- Auth state will be rendered here -->
+                <button id="login-button" class="px-4 py-2 text-sm font-bold text-white bg-indigo-500 hover:bg-indigo-600 rounded-lg transition-colors hidden">
+                    ورود با گوگل
+                </button>
+                <div id="user-profile-actions" class="flex items-center gap-4 hidden">
+                    <!-- User info will be injected here -->
+                </div>
             </div>
         </header>
 
         <div id="app-container" class="bg-white rounded-2xl shadow-xl p-6 sm:p-10">
-            <!-- Login View -->
-            <div id="login-view" class="text-center py-16">
-                <h2 class="text-2xl font-bold mb-4">به جعبه لایتنر خود خوش آمدید!</h2>
-                <p class="text-gray-600 mb-8">برای شروع و فعال‌سازی جعبه لایتنر، وارد شوید.</p>
-                <!-- Google Sign-In Button Container -->
-                <div class="flex justify-center">
-                    <div id="g_id_onload"
-                         data-client_id="237587578389-ggirbrqh3ace9aura1fd6ipa5m2bepco.apps.googleusercontent.com"
-                         data-callback="handleCredentialResponse"
-                         data-auto_prompt="false">
+            <div id="boxes-container" class="grid grid-cols-2 sm:grid-cols-5 gap-4 mb-8"></div>
+            <div id="review-area" class="w-full mx-auto text-center hidden">
+                <p id="review-message" class="text-lg font-semibold mb-4"></p>
+                <div id="flashcard-display" class="flashcard-container mx-auto mb-6">
+                    <div class="flashcard">
+                        <div id="card-front" class="card-face card-front"></div>
+                        <div id="card-back" class="card-face card-back p-0"></div>
                     </div>
-                    <div class="g_id_signin"
-                         data-type="standard"
-                         data-size="large"
-                         data-theme="outline"
-                         data-text="sign_in_with"
-                         data-shape="rectangular"
-                         data-logo_alignment="left">
-                    </div>
+                </div>
+                <div id="answer-buttons" class="flex justify-center gap-4 hidden">
+                    <button id="correct-btn" class="bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-8 rounded-lg">درست</button>
+                    <button id="incorrect-btn" class="bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-8 rounded-lg">غلط</button>
                 </div>
             </div>
-
-            <!-- App View -->
-            <div id="app-view" class="hidden">
-                 <!-- Boxes Display -->
-                <div id="boxes-container" class="grid grid-cols-2 sm:grid-cols-5 gap-4 mb-8"></div>
-
-                <!-- Review Area -->
-                <div id="review-area" class="w-full mx-auto text-center hidden">
-                    <p id="review-message" class="text-lg font-semibold mb-4"></p>
-                    <div id="flashcard-display" class="flashcard-container mx-auto mb-6">
-                        <div class="flashcard">
-                            <div id="card-front" class="card-face card-front"></div>
-                            <div id="card-back" class="card-face card-back"></div>
-                        </div>
-                    </div>
-                    <div id="answer-buttons" class="flex justify-center gap-4 hidden">
-                        <button id="correct-btn" class="bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-8 rounded-lg">درست</button>
-                        <button id="incorrect-btn" class="bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-8 rounded-lg">غلط</button>
-                    </div>
-                </div>
-                 <div id="no-review-message" class="text-center py-10 px-6 bg-gray-50 rounded-lg">
-                    <p class="text-xl font-semibold text-gray-700">برای شروع، یک جعبه را انتخاب کنید.</p>
-                </div>
-                
-                <div class="text-center mt-8">
-                    <button id="reset-progress" class="text-sm text-gray-400 hover:text-red-500 hover:underline">شروع مجدد و پاک کردن تمام پیشرفت</button>
-                </div>
+            <div id="no-review-message" class="text-center py-10 px-6 bg-gray-50 rounded-lg">
+                <p class="text-xl font-semibold text-gray-700">برای شروع، یک جعبه را انتخاب کنید.</p>
+            </div>
+            <div class="text-center mt-8">
+                <button id="reset-progress" class="text-sm text-gray-400 hover:text-red-500 hover:underline">شروع مجدد و پاک کردن تمام پیشرفت</button>
             </div>
         </div>
     </div>
@@ -108,50 +88,30 @@
     </footer>
 
     <script>
-        // --- GOOGLE SIGN-IN HANDLERS ---
-        function handleCredentialResponse(response) {
-            const data = parseJwt(response.credential);
-            
-            // UI changes for logged-in state
-            document.getElementById('login-view').classList.add('hidden');
-            document.getElementById('app-view').classList.remove('hidden');
-            
-            const authContainer = document.getElementById('auth-container');
-            authContainer.innerHTML = `
-                <div class="flex items-center gap-4">
-                    <span class="text-sm font-semibold">${data.name}</span>
-                    <img src="${data.picture}" alt="Profile" class="w-10 h-10 rounded-full">
-                    <button id="logout-btn" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded-lg">خروج</button>
-                </div>
-            `;
-            
-            document.getElementById('logout-btn').addEventListener('click', handleLogout);
+        // --- Firebase Configuration ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyDJf9qVKxynq0LpGcB3kn9Rk7s9HsR1ppw",
+            authDomain: "icc-speaking-bd474.firebaseapp.com",
+            projectId: "icc-speaking-bd474",
+            storageBucket: "icc-speaking-bd474.appspot.com",
+            messagingSenderId: "818278585317",
+            appId: "1:818278585317:web:70a1b32846af0a342e950c"
+        };
 
-            // Initialize the Leitner box app
-            initializeLeitnerApp();
-        }
+        // --- Initialize Firebase ---
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        const provider = new firebase.auth.GoogleAuthProvider();
 
-        function handleLogout() {
-            document.getElementById('login-view').classList.remove('hidden');
-            document.getElementById('app-view').classList.add('hidden');
-            document.getElementById('auth-container').innerHTML = '';
-            // Optional: You might want to disable Google's one-tap sign-in after logout
-            // google.accounts.id.disableAutoSelect();
-        }
+        document.addEventListener('DOMContentLoaded', function () {
+            // --- UI Elements ---
+            const loginButton = document.getElementById('login-button');
+            const userProfileActions = document.getElementById('user-profile-actions');
 
-        function parseJwt(token) {
-            const base64Url = token.split('.')[1];
-            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-            const jsonPayload = decodeURIComponent(window.atob(base64).split('').map(c =>
-                '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
-            ).join(''));
-            return JSON.parse(jsonPayload);
-        }
-
-        // --- LEITNER BOX APPLICATION LOGIC ---
-        function initializeLeitnerApp() {
             // --- DATA ---
             const allCardsData = [
+                // Idioms & Words
                 { id: 1, front: 'سه سوته / In a jiffy', back_fa: 'خیلی سریع.', back_en: "I'll be back in a jiffy, just wait here.", text_to_speak: "In a jiffy", image_url: "https://placehold.co/400x200/3B82F6/FFFFFF?text=Fast+Clock" },
                 { id: 2, front: 'دو دلم / On the fence', back_fa: 'مردد بودن.', back_en: "I'm on the fence about accepting the new job offer.", text_to_speak: "On the fence", image_url: "https://placehold.co/400x200/10B981/FFFFFF?text=Question+Mark" },
                 { id: 3, front: 'Never in a million years', back_fa: 'هرگز، عمراً.', back_en: "Never in a million years would I have guessed the surprise.", text_to_speak: "Never in a million years", image_url: "https://placehold.co/400x200/8B5CF6/FFFFFF?text=Impossible" },
@@ -200,10 +160,14 @@
                 { id: 46, front: 'داشتم سالاد درست می‌کردم.', back_fa: 'I was making a salad.', back_en: '', text_to_speak: 'I was making a salad', image_url: "https://placehold.co/400x200/16A34A/FFFFFF?text=Making+Salad" },
             ];
             
+            // --- STATE MANAGEMENT ---
             let state = {};
+            let currentUserId = null;
             let currentReviewSession = { cards: [], currentIndex: 0, boxNumber: 0 };
             const NUM_BOXES = 5;
             const reviewIntervals = { 1: 1, 2: 3, 3: 7, 4: 14, 5: 30 };
+            
+            // --- VOICE SYNTHESIS ---
             let preferredVoice = null;
 
             function loadAndSetVoice() {
@@ -218,6 +182,7 @@
             window.speechSynthesis.onvoiceschanged = loadAndSetVoice;
             loadAndSetVoice();
 
+            // --- DATE HELPERS ---
             function getTodayString() {
                 const today = new Date();
                 const year = today.getFullYear();
@@ -233,34 +198,73 @@
                 return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
             }
 
-            function initializeState() {
-                const savedState = localStorage.getItem('leitnerStateWithDates');
-                if (savedState) {
-                    state = JSON.parse(savedState);
-                    let stateUpdated = false;
-                    allCardsData.forEach(card => {
-                        if (!state[card.id]) {
-                            state[card.id] = { box: 1, nextReview: getTodayString() };
-                            stateUpdated = true;
-                        }
-                    });
-                    if (stateUpdated) {
-                        saveState();
+            async function initializeState(userId) {
+                if (userId) {
+                    const docRef = db.collection("leitner-data").doc(userId);
+                    const doc = await docRef.get();
+                    if (doc.exists) {
+                        state = doc.data();
+                    } else {
+                        state = {};
                     }
                 } else {
-                    state = {};
-                    allCardsData.forEach(card => {
+                    const savedState = localStorage.getItem('leitnerStateWithDates');
+                    state = savedState ? JSON.parse(savedState) : {};
+                }
+
+                let stateUpdated = false;
+                allCardsData.forEach(card => {
+                    if (!state[card.id]) {
                         state[card.id] = { box: 1, nextReview: getTodayString() };
-                    });
-                    saveState();
+                        stateUpdated = true;
+                    }
+                });
+
+                if (stateUpdated) {
+                    await saveState(userId);
                 }
                 updateUI();
             }
 
-            function saveState() {
-                localStorage.setItem('leitnerStateWithDates', JSON.stringify(state));
+            async function saveState(userId) {
+                if (userId) {
+                    await db.collection("leitner-data").doc(userId).set(state);
+                } else {
+                    localStorage.setItem('leitnerStateWithDates', JSON.stringify(state));
+                }
             }
+            
+            // --- AUTHENTICATION ---
+            auth.onAuthStateChanged(user => {
+                if (user) {
+                    currentUserId = user.uid;
+                    userProfileActions.classList.remove('hidden');
+                    loginButton.classList.add('hidden');
+                    userProfileActions.innerHTML = `
+                        <div class="flex items-center gap-2">
+                            <img src="${user.photoURL}" alt="Profile" class="w-8 h-8 rounded-full">
+                            <span class="font-medium text-sm hidden sm:inline">${user.displayName}</span>
+                        </div>
+                        <button id="logout-button" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg">خروج</button>
+                    `;
+                    document.getElementById('logout-button').addEventListener('click', () => auth.signOut());
+                    initializeState(currentUserId);
+                } else {
+                    currentUserId = null;
+                    userProfileActions.classList.add('hidden');
+                    loginButton.classList.remove('hidden');
+                    initializeState(null);
+                }
+            });
 
+            loginButton.addEventListener('click', () => {
+                auth.signInWithPopup(provider).catch(error => {
+                    console.error("Login failed:", error);
+                    alert("خطا در ورود: " + error.message);
+                });
+            });
+
+            // --- UI FUNCTIONS ---
             function updateUI() {
                 renderBoxes();
             }
@@ -339,6 +343,7 @@
                 `;
             }
 
+            // --- REVIEW LOGIC ---
             function startReview(boxNumber) {
                 const today = getTodayString();
                 const cardIdsToReview = Object.keys(state).filter(id => 
@@ -383,7 +388,7 @@
                 document.querySelectorAll('.box').forEach(b => b.classList.remove('active'));
             }
 
-            function handleAnswer(isCorrect) {
+            async function handleAnswer(isCorrect) {
                 const cardId = currentReviewSession.cards[currentReviewSession.currentIndex];
                 const cardState = state[cardId];
 
@@ -394,13 +399,14 @@
                     state[cardId] = { box: 1, nextReview: calculateNextReviewDate(1) };
                 }
 
-                saveState();
+                await saveState(currentUserId);
                 updateUI();
                 
                 currentReviewSession.currentIndex++;
                 showNextCard();
             }
 
+            // --- EVENT LISTENERS ---
             document.getElementById('boxes-container').addEventListener('click', function(event) {
                 const box = event.target.closest('.box');
                 if (box) startReview(parseInt(box.dataset.boxNumber));
@@ -433,15 +439,18 @@
                 }
             });
 
-            document.getElementById('reset-progress').addEventListener('click', function() {
+            document.getElementById('reset-progress').addEventListener('click', async function() {
                 if (confirm('آیا مطمئن هستید؟ تمام پیشرفت شما پاک خواهد شد و همه کارت‌ها به جعبه ۱ برمی‌گردند.')) {
-                    localStorage.removeItem('leitnerStateWithDates');
                     state = {};
-                    initializeState();
+                    allCardsData.forEach(card => {
+                        state[card.id] = { box: 1, nextReview: getTodayString() };
+                    });
+                    await saveState(currentUserId);
                     location.reload();
                 }
             });
 
+            // --- HELPERS ---
             function shuffleArray(array) {
                 for (let i = array.length - 1; i > 0; i--) {
                     const j = Math.floor(Math.random() * (i + 1));
@@ -449,11 +458,7 @@
                 }
                 return array;
             }
-            
-            // This is the main entry point for the Leitner app logic
-            // It's called after a successful Google Sign-In
-            // initializeState(); // This will be called by handleCredentialResponse
-        }
+        });
     </script>
 </body>
 </html>
