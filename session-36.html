@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تمرین زبان دوره ICC - جلسه ۳۶</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <style>
+        body {
+            font-family: 'Vazirmatn', sans-serif;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            background-color: #f8f9fa; 
+        }
+        .main-container {
+            flex-grow: 1;
+        }
+        .flashcard-container { perspective: 1000px; height: 320px; width: 100%; max-width: 600px; }
+        .flashcard { position: relative; width: 100%; height: 100%; transition: transform 0.7s; transform-style: preserve-3d; cursor: pointer; }
+        .flashcard.is-flipped { transform: rotateY(180deg); }
+        .card-face { position: absolute; width: 100%; height: 100%; -webkit-backface-visibility: hidden; backface-visibility: hidden; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 1.5rem; border-radius: 1rem; box-shadow: 0 8px 24px rgba(0,0,0,0.1); text-align: center; border: 1px solid #e2e8f0; }
+        .card-front { background-color: #ffffff; }
+        .card-back { background-color: #f8fafc; transform: rotateY(180deg); }
+        .pronunciation-button { display: inline-flex; align-items: center; gap: 0.5rem; margin-top: 1rem; padding: 0.5rem 1rem; background-color: #e0f2fe; color: #0c4a6e; border-radius: 9999px; font-weight: 500; transition: all 0.2s; border: none; cursor: pointer; }
+        .pronunciation-button:hover { background-color: #bae6fd; transform: scale(1.05); }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .fade-in {
+            animation: fadeIn 0.6s ease-out forwards;
+        }
+        .menu-card {
+            transition: all 0.3s ease-in-out;
+        }
+        .menu-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+       
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        .action-buttons .btn {
+            padding: 0.75rem 2rem;
+            font-weight: bold;
+            border-radius: 0.75rem;
+            transition: all 0.2s;
+            cursor: pointer;
+            border: none;
+        }
+        .action-buttons .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .btn-correct {
+            background-color: #10b981; /* green-500 */
+            color: white;
+        }
+        .btn-incorrect {
+            background-color: #ef4444; /* red-500 */
+            color: white;
+        }
+        
+        /* New Infographic Styles from session-36-info */
+        .lesson-content .card {
+            background-color: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .lesson-content .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 150px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 150px;
+        }
+        .lesson-content .correct { color: #06D6A0; }
+        .lesson-content .incorrect { color: #EF4444; }
+        .lesson-content .proverb-banner {
+            background: linear-gradient(135deg, #06D6A0 0%, #118AB2 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 1.5rem;
+            margin-top: 3rem;
+            text-align: center;
+            box-shadow: 0 10px 20px -5px rgba(6, 214, 160, 0.4);
+        }
+        .highlight {
+            color: #118AB2;
+            font-weight: bold;
+            position: relative;
+            cursor: pointer;
+        }
+        .highlight .tooltip-text {
+            visibility: hidden;
+            width: 150px;
+            background-color: #073B4C;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px 0;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -75px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .highlight:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+        #story-content-container p {
+            line-height: 2;
+            margin-bottom: 1.5rem;
+            font-size: 1.1rem;
+            color: #334155;
+        }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800">
+
+    <div class="main-container container mx-auto max-w-6xl p-4 sm:p-8">
+        <header class="text-center mb-8 sm:mb-12 fade-in">
+            <h1 class="text-3xl sm:text-4xl font-bold text-slate-800">تمرین زبان دوره ICC - جلسه ۳۶</h1>
+            <p id="header-subtitle" class="text-slate-500 mt-2">یک بخش را برای شروع تمرین انتخاب کنید.</p>
+        </header>
+
+        <!-- Main Menu View -->
+        <div id="main-menu-view" class="fade-in" style="animation-delay: 0.2s;">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <!-- Lesson 36 Card -->
+                <div id="start-lesson36-btn" class="menu-card bg-white rounded-2xl shadow-lg p-8 text-center cursor-pointer">
+                    <div class="text-5xl text-yellow-400 mb-4">✨</div>
+                    <h2 class="text-2xl font-bold text-slate-800">درس جلسه ۳۶</h2>
+                    <p class="text-slate-500 mt-2">گرامر زمان حال کامل و نکات دیگر.</p>
+                </div>
+                <!-- Story Card -->
+                <div id="start-story-btn" class="menu-card bg-white rounded-2xl shadow-lg p-8 text-center cursor-pointer">
+                    <div class="text-5xl text-yellow-400 mb-4">📖</div>
+                    <h2 class="text-2xl font-bold text-slate-800">داستان</h2>
+                    <p class="text-slate-500 mt-2">مرور گرامر و کلمات در قالب یک داستان جذاب.</p>
+                </div>
+                <!-- Vocab Card -->
+                <div id="start-vocab-btn" class="menu-card bg-white rounded-2xl shadow-lg p-8 text-center cursor-pointer">
+                    <div class="text-5xl text-green-400 mb-4">🔤</div>
+                    <h2 class="text-2xl font-bold text-slate-800">تمرین کلمات و اصطلاحات</h2>
+                    <p class="text-slate-500 mt-2">واژگان، اصطلاحات و عبارات کاربردی را مرور کنید.</p>
+                </div>
+                <!-- Grammar Card -->
+                <div id="start-grammar-btn" class="menu-card bg-white rounded-2xl shadow-lg p-8 text-center cursor-pointer">
+                    <div class="text-5xl text-blue-400 mb-4">📝</div>
+                    <h2 class="text-2xl font-bold text-slate-800">تمرین گرامر</h2>
+                    <p class="text-slate-500 mt-2">ساختارهای گرامری جدید را تمرین کنید.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Practice View (For Flashcards) -->
+        <div id="practice-view" class="hidden">
+            <div class="bg-white rounded-2xl shadow-xl p-6 sm:p-10">
+                <div id="review-area" class="w-full mx-auto text-center">
+                    <div id="flashcard-display" class="flashcard-container mx-auto mb-8">
+                        <div class="flashcard">
+                            <div id="card-front" class="card-face card-front"></div>
+                            <div id="card-back" class="card-face card-back p-0"></div>
+                        </div>
+                    </div>
+                    <div id="interactive-buttons" class="action-buttons hidden">
+                        <button id="did-not-know-btn" class="btn btn-incorrect">بلد نبودم</button>
+                        <button id="knew-it-btn" class="btn btn-correct">بلد بودم</button>
+                    </div>
+                    <div class="flex justify-center items-center gap-4 mt-8 border-t border-slate-200 pt-6">
+                        <button id="prev-card-btn" class="px-6 py-3 text-sm font-bold bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-lg transition">قبلی</button>
+                        <p id="card-counter" class="text-slate-500 font-medium text-sm w-20 text-center"></p>
+                        <button id="next-card-btn" class="px-6 py-3 text-sm font-bold bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-lg transition">بعدی</button>
+                    </div>
+                </div>
+                <div class="text-center mt-8 border-t border-slate-200 pt-6">
+                    <button class="back-to-menu-btn text-sm text-blue-600 hover:underline font-semibold">بازگشت به منوی اصلی</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lesson View -->
+        <div id="lesson-view" class="hidden">
+            <div id="lesson-content-container" class="bg-gray-50 rounded-2xl shadow-xl p-8 sm:p-12 lesson-content">
+                <!-- Lesson content will be injected here by JS -->
+                <div class="text-center mt-10 border-t border-slate-200 pt-6">
+                    <button class="back-to-menu-btn text-sm text-blue-600 hover:underline font-semibold">بازگشت به منوی اصلی</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Story View -->
+        <div id="story-view" class="hidden">
+            <div id="story-content-container" class="bg-white rounded-2xl shadow-xl p-8 sm:p-12 lesson-content" dir="ltr">
+                <!-- Story content will be injected here by JS -->
+                <div class="text-center mt-10 border-t border-slate-200 pt-6" dir="rtl">
+                    <button class="back-to-menu-btn text-sm text-blue-600 hover:underline font-semibold">بازگشت به منوی اصلی</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results View -->
+        <div id="results-view" class="hidden">
+             <div class="bg-white rounded-2xl shadow-xl p-6 sm:p-10 text-center">
+                <h2 class="text-2xl sm:text-3xl font-bold text-slate-800 mb-4">نتایج تمرین</h2>
+                <div id="results-stats" class="text-lg text-slate-700 mb-6"></div>
+                <button id="save-results-btn" class="px-6 py-3 text-sm font-bold bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition mb-4">ذخیره نتایج</button>
+                <div id="save-message" class="text-sm font-medium text-green-700"></div>
+                <div class="text-center mt-8 border-t border-slate-200 pt-6">
+                    <button class="back-to-menu-btn text-sm text-blue-600 hover:underline font-semibold">بازگشت به منوی اصلی</button>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+    
+    <footer class="text-center p-4 mt-auto text-slate-500 text-sm">
+        <p>طراحی و توسعه حبیب کمایی</p>
+        <p>Habibkamaie@gmail.com</p>
+    </footer>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        document.addEventListener('DOMContentLoaded', async function () {
+            // --- Firebase Setup ---
+            const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+            const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+            const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : '';
+            
+            let db, auth, userId;
+            let firebaseInitialized = false;
+
+            try {
+                const app = initializeApp(firebaseConfig);
+                auth = getAuth(app);
+                db = getFirestore(app);
+                firebaseInitialized = true;
+                console.log("Firebase initialized successfully.");
+
+                if (initialAuthToken) {
+                    await signInWithCustomToken(auth, initialAuthToken);
+                } else {
+                    await signInAnonymously(auth);
+                }
+
+                onAuthStateChanged(auth, (user) => {
+                    if (user) {
+                        userId = user.uid;
+                        console.log("User authenticated with UID:", userId);
+                    } else {
+                        console.log("User signed out.");
+                    }
+                });
+
+            } catch (error) {
+                console.error("Firebase initialization or authentication failed:", error);
+            }
+
+            // --- UI Elements ---
+            const mainMenuView = document.getElementById('main-menu-view');
+            const practiceView = document.getElementById('practice-view');
+            const lessonView = document.getElementById('lesson-view');
+            const storyView = document.getElementById('story-view');
+            const resultsView = document.getElementById('results-view');
+            
+            const startLesson36Btn = document.getElementById('start-lesson36-btn');
+            const startStoryBtn = document.getElementById('start-story-btn');
+            const startVocabBtn = document.getElementById('start-vocab-btn');
+            const startGrammarBtn = document.getElementById('start-grammar-btn');
+
+            const backToMenuBtns = document.querySelectorAll('.back-to-menu-btn');
+            const headerSubtitle = document.getElementById('header-subtitle');
+            const cardCounter = document.getElementById('card-counter');
+            const prevCardBtn = document.getElementById('prev-card-btn');
+            const nextCardBtn = document.getElementById('next-card-btn');
+            const lessonContentContainer = document.getElementById('lesson-content-container');
+            const storyContentContainer = document.getElementById('story-content-container');
+            
+            const interactiveButtons = document.getElementById('interactive-buttons');
+            const knewItBtn = document.getElementById('knew-it-btn');
+            const didNotKnowBtn = document.getElementById('did-not-know-btn');
+            const flashcardDisplay = document.getElementById('flashcard-display');
+            const resultsStats = document.getElementById('results-stats');
+            const saveResultsBtn = document.getElementById('save-results-btn');
+            const saveMessage = document.getElementById('save-message');
+
+            // --- DATA ---
+            const lesson36Content = [
+                {
+                    type: 'raw_html',
+                    html: `
+                        <div class="container mx-auto p-0">
+                             <header class="text-center mb-12">
+                                <h1 class="text-4xl md:text-5xl font-black text-[#073B4C] mb-2">📚 راهنمای جامع زمان حال کامل</h1>
+                                <p class="text-lg text-[#118AB2] font-bold">(تمام نکاتی که برای مسلط شدن نیاز داری!)</p>
+                            </header>
+                            
+                            <main class="space-y-16">
+                                <!-- بخش حال کامل -->
+                                <section>
+                                    <div class="text-center p-8 mb-8 bg-gradient-to-r from-[#FF6B6B] to-[#FFD166] text-white rounded-xl shadow-lg">
+                                        <h2 class="text-3xl font-bold">بخش اول: زمان حال کامل (Present Perfect)</h2>
+                                    </div>
+                                    <div class="space-y-8">
+                                        <!-- کاربرد و ساختار -->
+                                        <div class="card p-6">
+                                            <h3 class="text-2xl font-bold text-[#FF6B6B] mb-4 text-center">🎯 کاربرد اصلی و ساختار</h3>
+                                            <div class="grid md:grid-cols-2 gap-8 items-center">
+                                                <p class="text-gray-600 leading-loose">برای کارهایی که در گذشته شروع شده و اثرشان تا الان ادامه دارد، یا به تازگی تمام شده‌اند و نتیجه‌شان مهم است. این «تا الان» کلید ماجراست.</p>
+                                                <div class="mt-4 pt-4 border-t-2 md:border-t-0 md:border-r-2 border-dashed pr-0 md:pr-8">
+                                                    <p class="font-bold text-[#118AB2] text-center">ساختار:</p>
+                                                    <p class="bg-gray-100 p-3 mt-2 rounded-lg font-mono text-left dir-ltr text-sm">Subject + <span class="text-[#FF6B6B] font-bold">have/has</span> + <span class="text-[#FF6B6B] font-bold">Past Participle</span></p>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- For vs Since -->
+                                        <div class="card p-6">
+                                            <h3 class="text-2xl font-bold text-[#FF6B6B] mb-4 text-center">بیان مدت زمان: For و Since</h3>
+                                            <div class="grid md:grid-cols-2 gap-8">
+                                                <div class="bg-blue-50 p-4 rounded-lg">
+                                                    <h4 class="text-xl font-bold text-center text-[#118AB2] mb-2">For 🗓️ (برای بازه زمانی)</h4>
+                                                    <ul class="space-y-2 text-sm text-gray-700 list-disc list-inside text-left dir-ltr">
+                                                        <li>I have had a headache <strong class="text-[#118AB2]">for two days</strong>.</li>
+                                                        <li>We have been friends <strong class="text-[#118AB2]">for more than 20 years</strong>.</li>
+                                                    </ul>
+                                                </div>
+                                                <div class="bg-green-50 p-4 rounded-lg">
+                                                    <h4 class="text-xl font-bold text-center text-[#06D6A0] mb-2">Since 📍 (برای نقطه شروع)</h4>
+                                                    <ul class="space-y-2 text-sm text-gray-700 list-disc list-inside text-left dir-ltr">
+                                                        <li>I have lived here <strong class="text-[#06D6A0]">since 2000</strong>.</li>
+                                                        <li>He hasn't called me <strong class="text-[#06D6A0]">since last night</strong>.</li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                            <div class="mt-6 text-center bg-red-100 p-3 rounded-lg">
+                                                <p class="font-bold text-red-700">❌ اشتباه رایج: هرگز نگویید: <del class="font-mono">since 5 years ago</del></p>
+                                            </div>
+                                        </div>
+
+                                        <!-- مقایسه با گذشته ساده -->
+                                        <div class="card p-6 text-center">
+                                            <h3 class="text-2xl font-bold text-[#FF6B6B] mb-4">⚔️ حال کامل در مقابل گذشته ساده</h3>
+                                            <div class="grid md:grid-cols-2 gap-8 items-center">
+                                                <div>
+                                                    <h4 class="text-xl font-bold text-[#06D6A0] mb-2">حال کامل (ادامه دارد)</h4>
+                                                    <div class="chart-container"><canvas id="presentPerfectChart"></canvas></div>
+                                                    <p class="font-mono bg-gray-100 p-2 mt-3 rounded-lg text-sm">How long <strong class="correct">have you lived</strong> here?</p>
+                                                    <p class="text-xs text-gray-500 mt-1">(هنوز هم اینجا زندگی می‌کنی)</p>
+                                                </div>
+                                                <div>
+                                                    <h4 class="text-xl font-bold text-[#FF6B6B] mb-2">گذشته ساده (تمام شده)</h4>
+                                                    <div class="chart-container"><canvas id="simplePastChart"></canvas></div>
+                                                    <p class="font-mono bg-gray-100 p-2 mt-3 rounded-lg text-sm">How long <strong class="incorrect">did you live</strong> in Tabriz?</p>
+                                                    <p class="text-xs text-gray-500 mt-1">(دیگر در تبریز زندگی نمی‌کنی)</p>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- افعال لحظه‌ای و بازه‌ای -->
+                                        <div class="card p-6">
+                                            <h3 class="text-2xl font-bold text-[#FF6B6B] mb-4 text-center">⚡️ قلب درس: افعال لحظه‌ای در مقابل بازه‌ای 🏃‍♂️</h3>
+                                            <div class="grid md:grid-cols-2 gap-8">
+                                                <div class="p-4 bg-red-50 rounded-lg">
+                                                    <h4 class="text-xl font-bold text-[#EF4444] mb-3">افعال لحظه‌ای (Momentary)</h4>
+                                                    <p class="text-sm text-gray-600 mb-2">در یک آن اتفاق می‌افتند (buy, arrive, get married, graduate).</p>
+                                                    <p class="font-mono incorrect bg-white p-2 rounded">❌ I <del>have arrived</del> for 2 hours.</p>
+                                                    <p class="font-mono correct bg-white p-2 rounded mt-2">✅ I <strong>have been here</strong> for 2 hours.</p>
+                                                </div>
+                                                <div class="p-4 bg-green-50 rounded-lg">
+                                                    <h4 class="text-xl font-bold text-[#06D6A0] mb-3">افعال بازه‌ای (Durative)</h4>
+                                                    <p class="text-sm text-gray-600 mb-2">در طول زمان ادامه دارند (live, work, know, be, have).</p>
+                                                    <p class="font-mono correct bg-white p-2 rounded">✅ I <strong>have worked here</strong> for a year.</p>
+                                                    <p class="font-mono correct bg-white p-2 rounded mt-2">✅ She <strong>has been sick</strong> for a week.</p>
+                                                </div>
+                                            </div>
+                                            <div class="mt-6 p-4 bg-yellow-100 rounded-lg text-center">
+                                                <p class="font-bold text-[#073B4C]">💡 استثنای مهم: در جملات <strong class="text-red-600">منفی</strong>، هر دو نوع فعل قابل استفاده‌اند!</p>
+                                                 <p class="font-mono text-sm mt-2 text-gray-700">I <strong class="text-[#073B4C]">haven't bought</strong> anything for 2 years. (کاملاً صحیح است)</p>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- کاربرد دوم: تجربه -->
+                                         <div class="card p-6">
+                                            <h3 class="text-2xl font-bold text-[#FF6B6B] mb-4 text-center">🌍 کاربرد دوم: بیان تجربه و تعداد دفعات</h3>
+                                            <p class="text-center text-gray-600 mb-6">برای صحبت در مورد تجربیات گذشته (بدون ذکر زمان دقیق) و تعداد دفعات انجام یک کار.</p>
+                                            <div class="bg-gray-100 p-4 rounded-lg text-left dir-ltr">
+                                                <p class="font-mono text-lg text-[#118AB2] font-bold">Have you <strong class="text-[#FF6B6B]">ever</strong> eaten Moroccan food?</p>
+                                                <div class="mt-4 space-y-2">
+                                                    <p class="font-mono text-gray-700">No, I have <strong class="text-[#FF6B6B]">never</strong> eaten it.</p>
+                                                    <p class="font-mono text-gray-700">Yes, I've had it <strong class="text-[#FF6B6B]">several times</strong>.</p>
+                                                    <p class="font-mono text-gray-700 mt-4 border-t pt-2">This is the first time I <strong class="text-[#FF6B6B]">have driven</strong> a car.</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </section>
+                            </main>
+                        </div>
+                        <div class="proverb-banner">
+                            <h4 class="text-sm font-semibold opacity-80 mb-2">🏠 ضرب المثل جلسه ۳۶</h4>
+                            <p class="text-3xl font-bold">There is no place like home</p>
+                            <p class="text-lg mt-3 opacity-90">"هیچ جا خونه آدم نمیشه"</p>
+                        </div>
+                    `,
+                    script: `
+                        // This script will be executed when the lesson is shown
+                        const chartOptions = {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            cutout: '70%',
+                            plugins: {
+                                legend: { display: false },
+                                tooltip: { enabled: false }
+                            }
+                        };
+
+                        const presentPerfectCtx = document.getElementById('presentPerfectChart')?.getContext('2d');
+                        if (presentPerfectCtx) {
+                            new Chart(presentPerfectCtx, {
+                                type: 'doughnut',
+                                data: {
+                                    labels: ['در حال انجام', 'باقیمانده'],
+                                    datasets: [{
+                                        data: [75, 25],
+                                        backgroundColor: ['#06D6A0', '#e5e7eb'],
+                                        borderColor: ['#ffffff'],
+                                        borderWidth: 4
+                                    }]
+                                },
+                                options: chartOptions
+                            });
+                        }
+
+                        const simplePastCtx = document.getElementById('simplePastChart')?.getContext('2d');
+                        if (simplePastCtx) {
+                            new Chart(simplePastCtx, {
+                                type: 'doughnut',
+                                data: {
+                                    labels: ['تمام شده'],
+                                    datasets: [{
+                                        data: [100],
+                                        backgroundColor: ['#FF6B6B'],
+                                        borderColor: ['#ffffff'],
+                                        borderWidth: 4
+                                    }]
+                                },
+                                options: chartOptions
+                            });
+                        }
+                    `
+                }
+            ];
+
+            const storyContent = [
+                { type: 'h2', text: 'A Fresh Start' },
+                { type: 'p', text: 'Alex <span class="highlight" data-fa-translation="برای پنج سال زندگی کرده است">has lived</span> in London <span class="highlight" data-fa-translation="برای پنج سال">for five years</span>. He <span class="highlight" data-fa-translation="به عنوان طراح گرافیک کار کرده است">has worked</span> as a graphic designer <span class="highlight" data-fa-translation="از وقتی که فارغ‌التحصیل شد">since he graduated</span> from university. Recently, he <span class="highlight" data-fa-translation="احساس خستگی کرده است">has felt</span> bored. "I <span class="highlight" data-fa-translation="برای مدت طولانی امتحان نکرده‌ام">haven\'t tried</span> anything new for a long time," he thought.' },
+                { type: 'p', text: 'One day, his friend asked, "<span class="highlight" data-fa-translation="آیا تا به حال فکر کرده‌ای">Have you ever thought</span> about moving to another country?" Alex was surprised. "<span class="highlight" data-fa-translation="دو دل هستم">I\'m in two minds</span>," he said. "I love London, but maybe I need a change. <span class="highlight" data-fa-translation="هیچ جا خونه آدم نمیشه">There is no place like home</span>, but maybe it\'s time for a new home."' },
+                { type: 'p', text: '"<span class="highlight" data-fa-translation="اگر اشتباه نکنم">If I\'m not mistaken</span>, you <span class="highlight" data-fa-translation="همیشه خواسته‌ای">have always wanted</span> to visit Japan," his friend said. "That\'s true! I <span class="highlight" data-fa-translation="از بچگی می‌خواستم">have wanted</span> to go there <span class="highlight" data-fa-translation="از وقتی بچه بودم">since I was a child</span>. But <span class="highlight" data-fa-translation="نمی‌دانم چه کنم">I don\'t know what to do</span>."' },
+                { type: 'p', text: 'For the first time, Alex felt excited about the future. He decided to research jobs in Tokyo. "I <span class="highlight" data-fa-translation="هنوز بلیط هواپیما نخریده‌ام">haven\'t bought</span> a plane ticket yet, but I <span class="highlight" data-fa-translation="یادگیری ژاپنی را شروع کرده‌ام">have already started</span> learning Japanese!" he told his friend a week later.' }
+            ];
+
+            const vocabCards = [
+                { front: "I'm in two minds.", back_fa: 'دو دل هستم.', back_en: "I can't decide if I should take the job or not. I'm in two minds.", text_to_speak_main: "I'm in two minds.", text_to_speak_example: "I can't decide if I should take the job or not. I'm in two minds." },
+                { front: "If I'm not mistaken.", back_fa: 'اگر اشتباه نکنم.', back_en: "If I'm not mistaken, we have met before.", text_to_speak_main: "If I'm not mistaken.", text_to_speak_example: "If I'm not mistaken, we have met before." },
+                { front: "It's delicious.", back_fa: 'خوشمزه است.', back_en: "The cake you made is delicious.", text_to_speak_main: "It's delicious.", text_to_speak_example: "The cake you made is delicious." },
+                { front: "It's disgusting.", back_fa: 'حال بهم زن است.', back_en: "I find the smell of that cheese absolutely disgusting.", text_to_speak_main: "It's disgusting.", text_to_speak_example: "I find the smell of that cheese absolutely disgusting." },
+                { front: "I didn't know that.", back_fa: 'این را نمی‌دانستم.', back_en: "A: 'Did you know that penguins can't fly?' B: 'No, I didn't know that.'", text_to_speak_main: "I didn't know that.", text_to_speak_example: "No, I didn't know that." },
+                { front: "There is no place like home.", back_fa: 'هیچ جا خانه آدم نمی‌شود.', back_en: "After a long trip, it's always good to be back. There is no place like home.", text_to_speak_main: "There is no place like home.", text_to_speak_example: "After a long trip, it's always good to be back. There is no place like home." },
+                { front: "I don't know what to do.", back_fa: 'نمی‌دانم چه کنم.', back_en: "I've lost my keys and I don't know what to do.", text_to_speak_main: "I don't know what to do.", text_to_speak_example: "I've lost my keys and I don't know what to do." },
+                { front: "I don't know where to go.", back_fa: 'نمی‌دانم کجا بروم.', back_en: "I'm new in this city and I don't know where to go for a good coffee.", text_to_speak_main: "I don't know where to go.", text_to_speak_example: "I'm new in this city and I don't know where to go for a good coffee." },
+                { front: "For", back_fa: 'برای (یک بازه زمانی)', back_en: "I have studied English for three years.", text_to_speak_main: "For", text_to_speak_example: "I have studied English for three years." },
+                { front: "Since", back_fa: 'از (یک نقطه شروع)', back_en: "She has lived here since 2020.", text_to_speak_main: "Since", text_to_speak_example: "She has lived here since 2020." },
+                { front: "Ever", back_fa: 'تا به حال (در سوال)', back_en: "Have you ever been to Italy?", text_to_speak_main: "Ever", text_to_speak_example: "Have you ever been to Italy?" },
+                { front: "Never", back_fa: 'هرگز', back_en: "I have never seen a ghost.", text_to_speak_main: "Never", text_to_speak_example: "I have never seen a ghost." },
+                { front: "Several times", back_fa: 'چندین بار', back_en: "I have visited that museum several times.", text_to_speak_main: "Several times", text_to_speak_example: "I have visited that museum several times." }
+            ];
+
+            const grammarCards = [
+                { front: 'ده ساله در تهران زندگی می‌کنم', back_main: 'I have lived in Tehran for 10 years.', back_example: 'I have lived in Tehran for 10 years.', text_to_speak_main: 'I have lived in Tehran for 10 years.', text_to_speak_example: 'I have lived in Tehran for 10 years.' },
+                { front: 'دو ساله عینک می‌زنم', back_main: 'I have worn glasses for 2 years.', back_example: 'I have worn glasses for 2 years.', text_to_speak_main: 'I have worn glasses for 2 years.', text_to_speak_example: 'I have worn glasses for 2 years.' },
+                { front: 'شش ماهه این خانم را می‌شناسم', back_main: 'I have known this lady for 6 months.', back_example: 'I have known this lady for 6 months.', text_to_speak_main: 'I have known this lady for 6 months.', text_to_speak_example: 'I have known this lady for 6 months.' },
+                { front: 'دو روزه سردرد دارم', back_main: 'I have had a headache for 2 days.', back_example: 'I have had a headache for 2 days.', text_to_speak_main: 'I have had a headache for 2 days.', text_to_speak_example: 'I have had a headache for 2 days.' },
+                { front: 'یک ساعته اینجا هستم', back_main: 'I have been here for an hour.', back_example: 'I have been here for an hour.', text_to_speak_main: 'I have been here for an hour.', text_to_speak_example: 'I have been here for an hour.' },
+                { front: 'حدود پنج ساله عینک می‌زنم', back_main: 'I have worn glasses for about 5 years.', back_example: 'I have worn glasses for about 5 years.', text_to_speak_main: 'I have worn glasses for about 5 years.', text_to_speak_example: 'I have worn glasses for about 5 years.' },
+                { front: 'هشت ماهه ریش داری', back_main: 'You have had a beard for 8 months.', back_example: 'You have had a beard for 8 months.', text_to_speak_main: 'You have had a beard for 8 months.', text_to_speak_example: 'You have had a beard for 8 months.' },
+                { front: 'دو ماهه ورزش نکرده‌ایم', back_main: 'We haven’t exercised for 2 months.', back_example: 'We haven’t exercised for 2 months.', text_to_speak_main: 'We haven’t exercised for 2 months.', text_to_speak_example: 'We haven’t exercised for 2 months.' },
+                { front: 'دو ماهه قهوه نخورده‌ای', back_main: 'You haven’t drunk coffee for 2 months.', back_example: 'You haven’t drunk coffee for 2 months.', text_to_speak_main: 'You haven’t drunk coffee for 2 months.', text_to_speak_example: 'You haven’t drunk coffee for 2 months.' },
+                { front: 'یک ماهه فیلم ندیده‌ای', back_main: 'You haven’t watched a movie for a month.', back_example: 'You haven’t watched a movie for a month.', text_to_speak_main: 'You haven’t watched a movie for a month.', text_to_speak_example: 'You haven’t watched a movie for a month.' },
+                { front: 'شش ماهه مو کوتاه نکرده‌ای', back_main: 'You haven’t cut your hair for 6 months.', back_example: 'You haven’t cut your hair for 6 months.', text_to_speak_main: 'You haven’t cut your hair for 6 months.', text_to_speak_example: 'You haven’t cut your hair for 6 months.' },
+                { front: 'دو هفته است اینجا نبوده‌ای', back_main: 'You haven’t been here for 2 weeks.', back_example: 'You haven’t been here for 2 weeks.', text_to_speak_main: 'You haven’t been here for 2 weeks.', text_to_speak_example: 'You haven’t been here for 2 weeks.' },
+                { front: 'دو هفته است ماشین نرانده‌ای', back_main: 'You haven’t driven a car for 2 weeks.', back_example: 'You haven’t driven a car for 2 weeks.', text_to_speak_main: 'You haven’t driven a car for 2 weeks.', text_to_speak_example: 'You haven’t driven a car for 2 weeks.' },
+                { front: 'دو ساله تنیس بازی نکرده‌ای', back_main: 'You haven’t played tennis for 2 years.', back_example: 'You haven’t played tennis for 2 years.', text_to_speak_main: 'You haven’t played tennis for 2 years.', text_to_speak_example: 'You haven’t played tennis for 2 years.' },
+                { front: 'این آقا یک هفته است به من زنگ نزده', back_main: 'This man hasn’t called me for a week.', back_example: 'This man hasn’t called me for a week.', text_to_speak_main: 'This man hasn’t called me for a week.', text_to_speak_example: 'This man hasn’t called me for a week.' },
+                { front: 'خواهرم یک ماه است به من زنگ نزده', back_main: 'My sister hasn’t called me for a month.', back_example: 'My sister hasn’t called me for a month.', text_to_speak_main: 'My sister hasn’t called me for a month.', text_to_speak_example: 'My sister hasn’t called me for a month.' },
+                { front: 'خیلی وقته به من سر نزده', back_main: 'He hasn’t visited me for a long time.', back_example: 'He hasn’t visited me for a long time.', text_to_speak_main: 'He hasn’t visited me for a long time.', text_to_speak_example: 'He hasn’t visited me for a long time.' },
+                { front: 'یک هفته است دوش نگرفته', back_main: 'He hasn’t taken a bath for a week.', back_example: 'He hasn’t taken a bath for a week.', text_to_speak_main: 'He hasn’t taken a bath for a week.', text_to_speak_example: 'He hasn’t taken a bath for a week.' },
+                { front: 'شش ماهه کباب نخورده‌ایم', back_main: 'We haven’t eaten kebab for 6 months.', back_example: 'We haven’t eaten kebab for 6 months.', text_to_speak_main: 'We haven’t eaten kebab for 6 months.', text_to_speak_example: 'We haven’t eaten kebab for 6 months.' },
+                { front: 'دو ماهه برنج نخورده‌ای', back_main: 'You haven’t eaten rice for 2 months.', back_example: 'You haven’t eaten rice for 2 months.', text_to_speak_main: 'You haven’t eaten rice for 2 months.', text_to_speak_example: 'You haven’t eaten rice for 2 months.' },
+                { front: 'دو ماهه به ما سر نزده', back_main: 'He hasn’t visited us for 2 months.', back_example: 'He hasn’t visited us for 2 months.', text_to_speak_main: 'He hasn’t visited us for 2 months.', text_to_speak_example: 'He hasn’t visited us for 2 months.' },
+                { front: 'یک ماه است به باشگاه نرفته‌اید', back_main: 'You haven’t gone to the gym for a month.', back_example: 'You haven’t gone to the gym for a month.', text_to_speak_main: 'You haven’t gone to the gym for a month.', text_to_speak_example: 'You haven’t gone to the gym for a month.' },
+                { front: 'یک سال است دعوا نکرده‌ای', back_main: 'You haven’t fought for a year.', back_example: 'You haven’t fought for a year.', text_to_speak_main: 'You haven’t fought for a year.', text_to_speak_example: 'You haven’t fought for a year.' },
+                { front: 'سه شب است خوب نخوابیده‌ام', back_main: 'I haven’t slept well for three nights.', back_example: 'I haven’t slept well for three nights.', text_to_speak_main: 'I haven’t slept well for three nights.', text_to_speak_example: 'I haven’t slept well for three nights.' },
+                { front: 'از جمعه سردرد دارم', back_main: 'I have had a headache since Friday.', back_example: 'I have had a headache since Friday.', text_to_speak_main: 'I have had a headache since Friday.', text_to_speak_example: 'I have had a headache since Friday.' },
+                { front: 'از سال ۲۰۰۲ اینجا زندگی می‌کنم', back_main: 'I have lived here since 2002.', back_example: 'I have lived here since 2002.', text_to_speak_main: 'I have lived here since 2002.', text_to_speak_example: 'I have lived here since 2002.' },
+                { front: 'از هفته پیش اینجا هستم', back_main: 'I have been here since last week.', back_example: 'I have been here since last week.', text_to_speak_main: 'I have been here since last week.', text_to_speak_example: 'I have been here since last week.' },
+                { front: 'از وقتی استعفا دادم، همکارانم را ندیده‌ام', back_main: 'I haven’t seen my colleagues since I resigned.', back_example: 'I haven’t seen my colleagues since I resigned.', text_to_speak_main: 'I haven’t seen my colleagues since I resigned.', text_to_speak_example: 'I haven’t seen my colleagues since I resigned.' },
+                { front: 'از وقتی به دنیا آمده‌ام در تهران زندگی می‌کنم', back_main: 'I have lived in Tehran since I was born.', back_example: 'I have lived in Tehran since I was born.', text_to_speak_main: 'I have lived in Tehran since I was born.', text_to_speak_example: 'I have lived in Tehran since I was born.' },
+                { front: 'از آوریل سیگار نکشیده‌ام', back_main: 'I haven’t smoked since April.', back_example: 'I haven’t smoked since April.', text_to_speak_main: 'I haven’t smoked since April.', text_to_speak_example: 'I haven’t smoked since April.' },
+                { front: 'از سال ۱۹۹۰ فوتبال بازی کرده است', back_main: 'He has played football since 1990.', back_example: 'He has played football since 1990.', text_to_speak_main: 'He has played football since 1990.', text_to_speak_example: 'He has played football since 1990.' },
+                { front: 'از سال ۱۹۷۵ در این خانه زندگی کرده‌ام', back_main: 'I have lived in this house since 1975.', back_example: 'I have lived in this house since 1975.', text_to_speak_main: 'I have lived in this house since 1975.', text_to_speak_example: 'I have lived in this house since 1975.' },
+                { front: 'از وقتی به تهران آمده‌ام برای سامسونگ کار کرده‌ام', back_main: 'I have worked for Samsung since I came to Tehran.', back_example: 'I have worked for Samsung since I came to Tehran.', text_to_speak_main: 'I have worked for Samsung since I came to Tehran.', text_to_speak_example: 'I have worked for Samsung since I came to Tehran.' },
+                { front: 'از بدو تولد در فقر زندگی کرده است', back_main: 'She has lived in poverty since birth.', back_example: 'She has lived in poverty since birth.', text_to_speak_main: 'She has lived in poverty since birth.', text_to_speak_example: 'She has lived in poverty since birth.' },
+                { front: 'از وقتی کات کردیم به من زنگ نزده', back_main: 'She hasn’t called me since we broke up.', back_example: 'She hasn’t called me since we broke up.', text_to_speak_main: 'She hasn’t called me since we broke up.', text_to_speak_example: 'She hasn’t called me since we broke up.' },
+                { front: 'از وقتی رژیم گرفته‌ام فست‌فود نخورده‌ام', back_main: 'I haven’t eaten fast food since I went on a diet.', back_example: 'I haven’t eaten fast food since I went on a diet.', text_to_speak_main: 'I haven’t eaten fast food since I went on a diet.', text_to_speak_example: 'I haven’t eaten fast food since I went on a diet.' },
+                { front: 'از وقتی از ترکیه برگشته به من سر نزده', back_main: 'She hasn’t visited me since she came back from Turkey.', back_example: 'She hasn’t visited me since she came back from Turkey.', text_to_speak_main: 'She hasn’t visited me since she came back from Turkey.', text_to_speak_example: 'She hasn’t visited me since she came back from Turkey.' },
+                { front: 'یک ساله این گوشی را دارم (صحیح)', back_main: 'I have had this phone for a year.', back_example: 'فعل have یک فعل بازه‌ای (durative) است.', text_to_speak_main: 'I have had this phone for a year.', text_to_speak_example: 'The verb have is a durative verb.' },
+                { front: 'این گوشی را یک ساله خریده‌ام (اشتباه)', back_main: 'I have bought this phone for a year.', back_example: 'این جمله اشتباه است چون buy یک فعل لحظه‌ای (momentary) است.', text_to_speak_main: 'I have bought this phone for a year.', text_to_speak_example: 'This sentence is incorrect because buy is a momentary verb.' },
+                { front: 'چند وقته اینجایی؟ (ادامه دارد)', back_main: 'How long have you been here?', back_example: 'This question implies you are still here.', text_to_speak_main: 'How long have you been here?', text_to_speak_example: 'This question implies you are still here.' },
+                { front: 'چند وقت در تایلند زندگی کردی؟ (تمام شده)', back_main: 'How long did you live in Thailand?', back_example: 'This question implies you do not live there anymore.', text_to_speak_main: 'How long did you live in Thailand?', text_to_speak_example: 'This question implies you do not live there anymore.' }
+            ];
+            
+            // --- App State & Functions ---
+            let currentSession = { cards: [], currentIndex: 0, type: '', knownCount: 0, unknownCount: 0 };
+            let preferredVoice = null;
+            let voices = [];
+
+            function loadAndSetVoice() {
+                voices = window.speechSynthesis.getVoices();
+                preferredVoice = voices.find(v => v.name.includes('Google') && v.lang.startsWith('en')) || voices.find(v => v.lang.startsWith('en') && !v.localService) || voices.find(v => v.lang.startsWith('en')) || voices[0];
+            }
+            if (speechSynthesis.onvoiceschanged !== undefined) {
+                speechSynthesis.onvoiceschanged = loadAndSetVoice;
+            }
+            loadAndSetVoice();
+
+            function speakText(text) {
+                if (window.speechSynthesis.speaking) {
+                    window.speechSynthesis.cancel();
+                }
+                if (voices.length === 0) loadAndSetVoice();
+                const utter = new SpeechSynthesisUtterance(text);
+                utter.voice = preferredVoice;
+                utter.lang = preferredVoice?.lang || 'en-US';
+                utter.rate = 0.9;
+                utter.pitch = 1;
+                window.speechSynthesis.speak(utter);
+            }
+
+            function showCard(index) {
+                if (index >= currentSession.cards.length) {
+                    showResults();
+                    return;
+                }
+                const cardData = currentSession.cards[index];
+                const cardFront = document.getElementById('card-front');
+                const cardBack = document.getElementById('card-back');
+                const flashcard = document.querySelector('#practice-view .flashcard');
+                flashcard.classList.remove('is-flipped');
+                
+                interactiveButtons.classList.add('hidden');
+                
+                prevCardBtn.style.visibility = (index > 0) ? 'visible' : 'hidden';
+                nextCardBtn.style.visibility = 'hidden';
+                
+                setTimeout(() => {
+                    if (currentSession.type === 'vocab') {
+                        cardFront.innerHTML = `<h3 class="text-2xl font-bold p-4">${cardData.front}</h3>`;
+                        cardBack.innerHTML = `<div class="p-4 flex-grow flex flex-col justify-center items-center">
+                                                <p class="text-xl font-semibold">${cardData.back_fa}</p>
+                                                <p class="text-base italic mt-2 text-slate-600">"${cardData.back_en}"</p>
+                                                <div class="flex gap-4">
+                                                    <button class="pronunciation-button" data-text="${cardData.text_to_speak_main}"><i class="fa-solid fa-volume-high"></i><span>کلمه</span></button>
+                                                    <button class="pronunciation-button" data-text="${cardData.text_to_speak_example}"><i class="fa-solid fa-volume-high"></i><span>مثال</span></button>
+                                                </div>
+                                              </div>`;
+                    } else { // Grammar
+                        cardFront.innerHTML = `<h3 class="text-xl font-semibold p-4">${cardData.front}</h3>`;
+                        cardBack.innerHTML = `<div class="p-4 flex-grow flex flex-col justify-center items-center text-left dir-ltr">
+                                                <p class="font-bold text-lg">${cardData.back_main}</p>
+                                                <p class="text-base italic mt-2 text-slate-600">"${cardData.back_example}"</p>
+                                                <div class="flex gap-4">
+                                                    <button class="pronunciation-button" data-text="${cardData.text_to_speak_main}">
+                                                        <i class="fa-solid fa-volume-high"></i><span>جمله</span>
+                                                    </button>
+                                                     <button class="pronunciation-button" data-text="${cardData.text_to_speak_example}">
+                                                        <i class="fa-solid fa-volume-high"></i><span>مثال</span>
+                                                    </button>
+                                                </div>
+                                              </div>`;
+                    }
+                }, 150);
+                cardCounter.textContent = `${index + 1} / ${currentSession.cards.length}`;
+            }
+
+            function renderLesson() {
+                const backButton = lessonContentContainer.querySelector('.back-to-menu-btn').parentElement;
+                lessonContentContainer.innerHTML = '';
+                const item = lesson36Content[0];
+                if (item && item.type === 'raw_html') {
+                    lessonContentContainer.innerHTML = item.html;
+                    if (item.script) {
+                        // A safer way to execute script
+                        try {
+                           new Function(item.script)();
+                        } catch(e) {
+                            console.error("Error executing lesson script:", e);
+                        }
+                    }
+                } else {
+                    lessonContentContainer.innerHTML = '<p class="text-center text-slate-500">محتوای درس هنوز اضافه نشده است.</p>';
+                }
+                lessonContentContainer.appendChild(backButton);
+            }
+
+            function renderStory() {
+                const backButton = storyContentContainer.querySelector('.back-to-menu-btn').parentElement;
+                storyContentContainer.innerHTML = '';
+                if (storyContent.length === 0) {
+                    storyContentContainer.innerHTML = '<p class="text-center text-slate-500">محتوای داستان هنوز اضافه نشده است.</p>';
+                } else {
+                    storyContent.forEach(item => {
+                        let el;
+                        switch (item.type) {
+                            case 'h2':
+                                el = document.createElement('h2');
+                                el.className = 'text-3xl font-bold text-center mb-10 text-slate-800';
+                                el.textContent = item.text;
+                                break;
+                            case 'p':
+                                el = document.createElement('p');
+                                el.innerHTML = item.text;
+                                break;
+                        }
+                        if (el) storyContentContainer.appendChild(el);
+                    });
+                }
+                storyContentContainer.appendChild(backButton);
+                storyContentContainer.querySelectorAll('.highlight').forEach(highlightEl => {
+                    const translation = highlightEl.dataset.faTranslation;
+                    if (translation) {
+                        const tooltip = document.createElement('span');
+                        tooltip.className = 'tooltip-text';
+                        tooltip.textContent = translation;
+                        highlightEl.appendChild(tooltip);
+                    }
+                });
+            }
+
+            function startPractice(type) {
+                mainMenuView.classList.add('hidden');
+                resultsView.classList.add('hidden');
+                storyView.classList.add('hidden');
+                lessonView.classList.add('hidden');
+                practiceView.classList.remove('hidden');
+                practiceView.classList.add('fade-in');
+                let cardsToPractice = [];
+                if (type === 'vocab') {
+                    cardsToPractice = vocabCards;
+                    headerSubtitle.textContent = 'تمرین کلمات و اصطلاحات';
+                } else if (type === 'grammar') {
+                    cardsToPractice = grammarCards;
+                    headerSubtitle.textContent = 'تمرین گرامر';
+                }
+                if (cardsToPractice.length === 0) {
+                    document.getElementById('review-area').innerHTML = '<p class="text-center text-slate-500 py-10">هیچ کارتی برای تمرین در این بخش وجود ندارد.</p>';
+                    return;
+                }
+                currentSession.cards = shuffleArray([...cardsToPractice]);
+                currentSession.type = type;
+                currentSession.currentIndex = 0;
+                currentSession.knownCount = 0;
+                currentSession.unknownCount = 0;
+                saveResultsBtn.disabled = false;
+                saveResultsBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                saveMessage.textContent = '';
+                showCard(0);
+            }
+
+            function showLesson() {
+                mainMenuView.classList.add('hidden');
+                practiceView.classList.add('hidden');
+                resultsView.classList.add('hidden');
+                storyView.classList.add('hidden');
+                lessonView.classList.remove('hidden');
+                lessonView.classList.add('fade-in');
+                headerSubtitle.textContent = 'درس جلسه ۳۶';
+                renderLesson();
+            }
+
+            function showStory() {
+                mainMenuView.classList.add('hidden');
+                practiceView.classList.add('hidden');
+                resultsView.classList.add('hidden');
+                lessonView.classList.add('hidden');
+                storyView.classList.remove('hidden');
+                storyView.classList.add('fade-in');
+                headerSubtitle.textContent = 'داستان جلسه ۳۶';
+                renderStory();
+            }
+
+            function goBackToMenu() {
+                practiceView.classList.add('hidden');
+                lessonView.classList.add('hidden');
+                storyView.classList.add('hidden');
+                resultsView.classList.add('hidden');
+                mainMenuView.classList.remove('hidden');
+                mainMenuView.classList.add('fade-in');
+                headerSubtitle.textContent = 'یک بخش را برای شروع تمرین انتخاب کنید.';
+                window.speechSynthesis.cancel();
+            }
+
+            function showResults() {
+                practiceView.classList.add('hidden');
+                resultsView.classList.remove('hidden');
+                resultsView.classList.add('fade-in');
+                headerSubtitle.textContent = 'نتایج تمرین شما';
+                const totalCards = currentSession.cards.length;
+                const knownPercentage = totalCards > 0 ? ((currentSession.knownCount / totalCards) * 100).toFixed(0) : 0;
+                const unknownPercentage = totalCards > 0 ? ((currentSession.unknownCount / totalCards) * 100).toFixed(0) : 0;
+                resultsStats.innerHTML = `<p class="mb-2">تعداد کل کارت‌ها: ${totalCards}</p><p class="text-green-600 font-bold mb-1">کارت‌های بلد بودم: ${currentSession.knownCount} (${knownPercentage}%)</p><p class="text-red-600 font-bold">کارت‌های بلد نبودم: ${currentSession.unknownCount} (${unknownPercentage}%)</p>`;
+            }
+
+            async function saveStats() {
+                if (!firebaseInitialized || !userId) {
+                    saveMessage.textContent = 'خطا: امکان ذخیره نتایج وجود ندارد. لطفاً دوباره تلاش کنید.';
+                    saveMessage.classList.remove('text-green-700');
+                    saveMessage.classList.add('text-red-700');
+                    return;
+                }
+                saveResultsBtn.disabled = true;
+                saveResultsBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                saveMessage.textContent = 'در حال ذخیره...';
+                try {
+                    const statsCollection = collection(db, `artifacts/${appId}/users/${userId}/flashcard_stats`);
+                    await addDoc(statsCollection, {
+                        known: currentSession.knownCount,
+                        unknown: currentSession.unknownCount,
+                        total: currentSession.cards.length,
+                        type: currentSession.type,
+                        timestamp: new Date()
+                    });
+                    saveMessage.textContent = 'نتایج با موفقیت ذخیره شد!  ';
+                    saveMessage.classList.remove('text-red-700');
+                    saveMessage.classList.add('text-green-700');
+                } catch (e) {
+                    console.error("Error adding document: ", e);
+                    saveMessage.textContent = 'خطا در ذخیره نتایج.';
+                    saveMessage.classList.remove('text-green-700');
+                    saveMessage.classList.add('text-red-700');
+                    saveResultsBtn.disabled = false;
+                    saveResultsBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                }
+            }
+
+            function navigateCards(direction) {
+                const newIndex = currentSession.currentIndex + direction;
+                if (newIndex >= 0 && newIndex < currentSession.cards.length) {
+                    currentSession.currentIndex = newIndex;
+                    showCard(newIndex);
+                } else if (newIndex >= currentSession.cards.length) {
+                    showResults();
+                }
+            }
+
+            function handleFeedback(isKnewIt) {
+                if (isKnewIt) {
+                    currentSession.knownCount++;
+                } else {
+                    currentSession.unknownCount++;
+                }
+                navigateCards(1);
+            }
+            
+            function shuffleArray(array) {
+                for (let i = array.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [array[i], array[j]] = [array[j], array[i]];
+                }
+                return array;
+            }
+
+            // --- EVENT LISTENERS ---
+            startLesson36Btn.addEventListener('click', showLesson);
+            startStoryBtn.addEventListener('click', showStory);
+            startVocabBtn.addEventListener('click', () => startPractice('vocab'));
+            startGrammarBtn.addEventListener('click', () => startPractice('grammar'));
+            backToMenuBtns.forEach(btn => btn.addEventListener('click', goBackToMenu));
+            knewItBtn.addEventListener('click', () => handleFeedback(true));
+            didNotKnowBtn.addEventListener('click', () => handleFeedback(false));
+            nextCardBtn.addEventListener('click', () => navigateCards(1));
+            prevCardBtn.addEventListener('click', () => navigateCards(-1));
+            
+            flashcardDisplay.addEventListener('click', function(event) {
+                const flashcard = this.querySelector('.flashcard');
+                if (event.target.closest('button')) {
+                    return;
+                }
+                flashcard.classList.toggle('is-flipped');
+                
+                if (flashcard.classList.contains('is-flipped')) {
+                    interactiveButtons.classList.remove('hidden');
+                } else {
+                    interactiveButtons.classList.add('hidden');
+                }
+            });
+
+            document.body.addEventListener('click', function(event) {
+                const pronunciationButton = event.target.closest('.pronunciation-button');
+                if (pronunciationButton) {
+                    event.stopPropagation();
+                    const textToSpeak = pronunciationButton.dataset.text;
+                    if (textToSpeak) {
+                        speakText(textToSpeak);
+                    }
+                }
+            });
+            saveResultsBtn.addEventListener('click', saveStats);
+        });
+    </script>
+</body>
+</html>
+ 

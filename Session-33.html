@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تمرین زبان دوره ICC - جلسه ۳۳</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <style>
+        body {
+            font-family: 'Vazirmatn', sans-serif;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            background-color: #f1f5f9; /* slate-100 */
+        }
+        .main-container {
+            flex-grow: 1;
+        }
+        .flashcard-container { perspective: 1000px; height: 320px; width: 100%; max-width: 600px; }
+        .flashcard { position: relative; width: 100%; height: 100%; transition: transform 0.7s; transform-style: preserve-3d; }
+        .flashcard.is-flipped { transform: rotateY(180deg); }
+        .card-face { position: absolute; width: 100%; height: 100%; -webkit-backface-visibility: hidden; backface-visibility: hidden; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 1.5rem; border-radius: 1rem; box-shadow: 0 8px 24px rgba(0,0,0,0.1); text-align: center; border: 1px solid #e2e8f0; }
+        .card-front { background-color: #ffffff; }
+        .card-back { background-color: #f8fafc; transform: rotateY(180deg); }
+        .pronunciation-button { display: inline-flex; align-items: center; gap: 0.5rem; margin-top: 1rem; padding: 0.5rem 1rem; background-color: #e0f2fe; color: #0c4a6e; border-radius: 9999px; font-weight: 500; transition: all 0.2s; border: none; cursor: pointer; }
+        .pronunciation-button:hover { background-color: #bae6fd; transform: scale(1.05); }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .fade-in {
+            animation: fadeIn 0.6s ease-out forwards;
+        }
+        .menu-card {
+            transition: all 0.3s ease-in-out;
+        }
+        .menu-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        .lesson-content .proverb-banner {
+            background-image: linear-gradient(to left, #dc2626, #ef4444);
+            color: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            margin-top: 3rem;
+            text-align: center;
+            box-shadow: 0 10px 20px -5px rgba(239, 68, 68, 0.4);
+        }
+        .lesson-content .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 350px;
+        }
+        @media (min-width: 768px) {
+            .lesson-content .chart-container {
+                height: 350px;
+            }
+        }
+        .lesson-content .tip-box {
+            background-color: #e0f2fe; /* Sky 100 */
+            border-right: 4px solid #0ea5e9; /* Sky 500 */
+            color: #0c4a6e; /* Sky 900 */
+        }
+        .lesson-content .warning-box {
+            background-color: #fffbeb; /* Amber 50 */
+            border-right: 4px solid #f59e0b; /* Amber 500 */
+            color: #92400e; /* Amber 900 */
+        }
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        .action-buttons .btn {
+            padding: 0.75rem 2rem;
+            font-weight: bold;
+            border-radius: 0.75rem;
+            transition: all 0.2s;
+            cursor: pointer;
+            border: none;
+        }
+        .action-buttons .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .btn-correct {
+            background-color: #10b981; /* green-500 */
+            color: white;
+        }
+        .btn-incorrect {
+            background-color: #ef4444; /* red-500 */
+            color: white;
+        }
+        .highlight {
+            color: #10b981; /* green-500 */
+            font-weight: bold;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .highlight .tooltip-text {
+            visibility: hidden;
+            width: 150px;
+            background-color: #4b5563; /* slate-700 */
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px 0;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%; /* Position the tooltip above the text */
+            left: 50%;
+            margin-left: -75px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-family: 'Vazirmatn', sans-serif;
+        }
+
+        .highlight:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800">
+
+    <div class="main-container container mx-auto max-w-6xl p-4 sm:p-8">
+        <header class="text-center mb-8 sm:mb-12 fade-in">
+            <h1 class="text-3xl sm:text-4xl font-bold text-slate-800">تمرین زبان دوره ICC - جلسه ۳۳</h1>
+            <p id="header-subtitle" class="text-slate-500 mt-2">یک بخش را برای شروع تمرین انتخاب کنید.</p>
+        </header>
+
+        <!-- Main Menu View -->
+        <div id="main-menu-view" class="fade-in" style="animation-delay: 0.2s;">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <!-- Lesson 33 Card -->
+                <div id="start-lesson33-btn" class="menu-card bg-white rounded-2xl shadow-lg p-8 text-center cursor-pointer">
+                    <div class="text-5xl text-purple-500 mb-4">✨</div>
+                    <h2 class="text-2xl font-bold text-slate-800">درس جلسه ۳۳</h2>
+                    <p class="text-slate-500 mt-2">گرامر سوالات تو در تو (Embedded Questions).</p>
+                </div>
+                <!-- Story Card -->
+                <div id="start-story-btn" class="menu-card bg-white rounded-2xl shadow-lg p-8 text-center cursor-pointer">
+                    <div class="text-5xl text-fuchsia-500 mb-4">📖</div>
+                    <h2 class="text-2xl font-bold text-slate-800">داستان</h2>
+                    <p class="text-slate-500 mt-2">مرور گرامر و کلمات در قالب یک داستان جذاب.</p>
+                </div>
+                <!-- Vocab Card -->
+                <div id="start-vocab-btn" class="menu-card bg-white rounded-2xl shadow-lg p-8 text-center cursor-pointer">
+                    <div class="text-5xl text-blue-500 mb-4">🔤</div>
+                    <h2 class="text-2xl font-bold text-slate-800">تمرین کلمات و اصطلاحات</h2>
+                    <p class="text-slate-500 mt-2">واژگان، اصطلاحات و عبارات کاربردی را مرور کنید.</p>
+                </div>
+                <!-- Grammar Card -->
+                <div id="start-grammar-btn" class="menu-card bg-white rounded-2xl shadow-lg p-8 text-center cursor-pointer">
+                    <div class="text-5xl text-teal-500 mb-4">📝</div>
+                    <h2 class="text-2xl font-bold text-slate-800">تمرین گرامر</h2>
+                    <p class="text-slate-500 mt-2">ساختارهای گرامری جدید را تمرین کنید.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Practice View (For Flashcards) -->
+        <div id="practice-view" class="hidden">
+            <div class="bg-white rounded-2xl shadow-xl p-6 sm:p-10">
+                <div id="review-area" class="w-full mx-auto text-center">
+                    <div id="flashcard-display" class="flashcard-container mx-auto mb-8">
+                        <div class="flashcard">
+                            <div id="card-front" class="card-face card-front"></div>
+                            <div id="card-back" class="card-face card-back p-0"></div>
+                        </div>
+                    </div>
+                    <div id="interactive-buttons" class="action-buttons">
+                        <button id="did-not-know-btn" class="btn btn-incorrect">بلد نبودم</button>
+                        <button id="knew-it-btn" class="btn btn-correct">بلد بودم</button>
+                    </div>
+                    <div class="flex justify-center items-center gap-4 mt-8 border-t border-slate-200 pt-6">
+                        <button id="prev-card-btn" class="px-6 py-3 text-sm font-bold bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-lg transition">قبلی</button>
+                        <p id="card-counter" class="text-slate-500 font-medium text-sm w-20 text-center"></p>
+                        <button id="next-card-btn" class="px-6 py-3 text-sm font-bold bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-lg transition">بعدی</button>
+                    </div>
+                </div>
+                <div class="text-center mt-8 border-t border-slate-200 pt-6">
+                    <button class="back-to-menu-btn text-sm text-blue-600 hover:underline font-semibold">بازگشت به منوی اصلی</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lesson View -->
+        <div id="lesson-view" class="hidden">
+            <div id="lesson-content-container" class="bg-white rounded-2xl shadow-xl p-8 sm:p-12 lesson-content">
+                <!-- Lesson content will be injected here by JS -->
+                <div class="text-center mt-10 border-t border-slate-200 pt-6">
+                    <button class="back-to-menu-btn text-sm text-blue-600 hover:underline font-semibold">بازگشت به منوی اصلی</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Story View -->
+        <div id="story-view" class="hidden">
+            <div id="story-content-container" class="bg-white rounded-2xl shadow-xl p-8 sm:p-12 lesson-content" dir="ltr">
+                <!-- Story content will be injected here by JS -->
+                <div class="text-center mt-10 border-t border-slate-200 pt-6">
+                    <button class="back-to-menu-btn text-sm text-blue-600 hover:underline font-semibold">بازگشت به منوی اصلی</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results View -->
+        <div id="results-view" class="hidden">
+             <div class="bg-white rounded-2xl shadow-xl p-6 sm:p-10 text-center">
+                <h2 class="text-2xl sm:text-3xl font-bold text-slate-800 mb-4">نتایج تمرین</h2>
+                <div id="results-stats" class="text-lg text-slate-700 mb-6"></div>
+                <button id="save-results-btn" class="px-6 py-3 text-sm font-bold bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition mb-4">ذخیره نتایج</button>
+                <div id="save-message" class="text-sm font-medium text-green-700"></div>
+                <div class="text-center mt-8 border-t border-slate-200 pt-6">
+                    <button class="back-to-menu-btn text-sm text-blue-600 hover:underline font-semibold">بازگشت به منوی اصلی</button>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+    
+    <footer class="text-center p-4 mt-auto text-slate-500 text-sm">
+        <p>طراحی و توسعه حبیب کمایی</p>
+        <p>Habibkamaie@gmail.com</p>
+    </footer>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        document.addEventListener('DOMContentLoaded', async function () {
+            // --- Firebase Setup ---
+            const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+            const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+            const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : '';
+            
+            let db, auth, userId;
+            let firebaseInitialized = false;
+
+            try {
+                const app = initializeApp(firebaseConfig);
+                auth = getAuth(app);
+                db = getFirestore(app);
+                firebaseInitialized = true;
+                console.log("Firebase initialized successfully.");
+
+                if (initialAuthToken) {
+                    await signInWithCustomToken(auth, initialAuthToken);
+                } else {
+                    await signInAnonymously(auth);
+                }
+
+                onAuthStateChanged(auth, (user) => {
+                    if (user) {
+                        userId = user.uid;
+                        console.log("User authenticated with UID:", userId);
+                    } else {
+                        console.log("User signed out.");
+                    }
+                });
+
+            } catch (error) {
+                console.error("Firebase initialization or authentication failed:", error);
+            }
+
+            // --- UI Elements ---
+            const mainMenuView = document.getElementById('main-menu-view');
+            const practiceView = document.getElementById('practice-view');
+            const lessonView = document.getElementById('lesson-view');
+            const storyView = document.getElementById('story-view');
+            const resultsView = document.getElementById('results-view');
+            
+            const startLesson33Btn = document.getElementById('start-lesson33-btn');
+            const startStoryBtn = document.getElementById('start-story-btn');
+            const startVocabBtn = document.getElementById('start-vocab-btn');
+            const startGrammarBtn = document.getElementById('start-grammar-btn');
+
+            const backToMenuBtns = document.querySelectorAll('.back-to-menu-btn');
+            const headerSubtitle = document.getElementById('header-subtitle');
+            const cardCounter = document.getElementById('card-counter');
+            const prevCardBtn = document.getElementById('prev-card-btn');
+            const nextCardBtn = document.getElementById('next-card-btn');
+            const lessonContentContainer = document.getElementById('lesson-content-container');
+            const storyContentContainer = document.getElementById('story-content-container');
+            
+            const interactiveButtons = document.getElementById('interactive-buttons');
+            const knewItBtn = document.getElementById('knew-it-btn');
+            const didNotKnowBtn = document.getElementById('did-not-know-btn');
+            const flashcardDisplay = document.getElementById('flashcard-display');
+            const resultsStats = document.getElementById('results-stats');
+            const saveResultsBtn = document.getElementById('save-results-btn');
+            const saveMessage = document.getElementById('save-message');
+
+            // --- DATA ---
+            const lesson33Content = [
+                {
+                    type: 'raw_html',
+                    html: `
+                        <div class="container mx-auto p-0">
+                            <main class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+
+                                <section class="md:col-span-2 lg:col-span-3 bg-white rounded-2xl shadow-lg p-6">
+                                    <h2 class="text-3xl font-bold text-center mb-4 text-sky-600">قضیه چیه؟ (تفاوت فارسی و انگلیسی)</h2>
+                                    <p class="text-center text-gray-600 mb-8 max-w-3xl mx-auto">بچه‌ها نکته اصلی اینه: تو فارسی وقتی می‌گیم «میشه بگی اسمت چیه؟»، فقط آهنگ صدامون عوض میشه. ولی تو انگلیسی اگه ساختار جمله رو عوض نکنین، گوش طرف مقابل ارور میده! انگار غلط حرف زدین.</p>
+                                    <div class="flex flex-col md:flex-row items-center justify-around gap-8">
+                                        <div class="text-center w-full md:w-1/2">
+                                            <h3 class="text-xl font-bold mb-4 text-sky-700">فارسی: فقط تغییر آهنگ 🔊</h3>
+                                            <div class="bg-gray-50 p-4 rounded-lg border-r-4 border-sky-500">
+                                                <p class="font-mono">"اسمت چیه؟" (آهنگ سؤالی)</p>
+                                                <p class="font-bold text-2xl my-2 text-sky-500">↓</p>
+                                                <p class="font-mono">"میشه بگی <span class="font-bold text-sky-600">اسمت چیه</span>؟" (آهنگ خبری)</p>
+                                            </div>
+                                        </div>
+                                        <div class="w-full md:w-1/2 text-center">
+                                            <h3 class="text-xl font-bold mb-4 text-sky-700">انگلیسی: تغییر ساختار ⚙️</h3>
+                                             <div class="bg-gray-50 p-4 rounded-lg border-r-4 border-sky-500">
+                                                <p class="font-mono">"What <span class="text-red-500">is your name</span>?" (ساختار سؤالی)</p>
+                                                <p class="font-bold text-2xl my-2 text-sky-500">↓</p>
+                                                <p class="font-mono">"Can you tell me what <span class="font-bold text-green-600">your name is</span>?" (ساختار خبری)</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </section>
+
+                                <section class="md:col-span-2 lg:col-span-3 bg-white rounded-2xl shadow-lg p-6">
+                                    <h2 class="text-3xl font-bold text-center mb-8 text-sky-600">دو قانون طلایی برای تغییر ساختار</h2>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                        
+                                        <div class="bg-gray-50 p-6 rounded-lg border-t-4 border-violet-500">
+                                            <h3 class="text-xl font-bold text-center mb-4 text-violet-700">۱. قانون جابجایی (سویچ کن!) <span class="inline-block ml-2 text-2xl align-middle">🤞</span></h3>
+                                            <p class="text-center text-sm mb-6 text-gray-500">برای فعل‌هایی که تو سؤال اصلی فقط جابجا شدن، کافیه برعکس عمل کنی و برش گردونی سر جاش (بعد از فاعل).</p>
+                                            <div class="space-y-4 text-sm mb-6">
+                                                <p class="font-bold text-violet-600">▪️ افعال to be (am/is/are/was/were):</p>
+                                                <p class="pl-4">• What time <strong class="text-red-500">is it</strong>? → I wonder what time <strong class="text-green-600">it is</strong>.</p>
+                                                <p class="font-bold text-violet-600">▪️ حال کامل (have/has):</p>
+                                                <p class="pl-4">• Where <strong class="text-red-500">has he gone</strong>? → Do you know where <strong class="text-green-600">he has gone</strong>?</p>
+                                                <p class="font-bold text-violet-600">▪️ افعال مُدال (can/will/should):</p>
+                                                <p class="pl-4">• Where <strong class="text-red-500">can I sit</strong>? → Tell me where <strong class="text-green-600">I can sit</strong>.</p>
+                                            </div>
+                                            <div class="tip-box p-3 rounded-lg text-sm">
+                                               <p class="font-bold">نکته: یادت باشه انگشتت رو سویچ کنی! جای فاعل و فعل رو عوض کن.</p>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="bg-gray-50 p-6 rounded-lg border-t-4 border-rose-500">
+                                            <h3 class="text-xl font-bold text-center mb-4 text-rose-700">۲. قانون حذف (ضربدر بزن!) <span class="inline-block ml-2 text-2xl align-middle">❌</span></h3>
+                                            <p class="text-center text-sm mb-6 text-gray-500">برای فعل‌هایی که یه کمکی (do, does, did) بهشون اضافه شده، فقط کافیه اون کمکی رو حذف کنی و فعل اصلی رو درست صرف کنی.</p>
+                                            <div class="space-y-4 text-sm mb-6">
+                                                <p class="font-bold text-rose-600">▪️ حال ساده (do/does):</p>
+                                                <p class="pl-4">• Where <strong class="text-red-500">does he live</strong>? → I'd like to know where he <strong class="text-green-600">lives</strong>.</p>
+                                                <p class="font-bold text-rose-600">▪️ گذشته ساده (did):</p>
+                                                <p class="pl-4">• Why <strong class="text-red-500">did she leave</strong>? → I don't know why she <strong class="text-green-600">left</strong>.</p>
+                                                <p class="font-bold text-rose-600">▪️ ساختار used to:</p>
+                                                <p class="pl-4">• Where <strong class="text-red-500">did you use to</strong> play? → Tell me where you <strong class="text-green-600">used to</strong> play.</p>
+                                            </div>
+                                            <div class="tip-box p-3 rounded-lg text-sm" style="background-color: #fee2e2; border-color: #ef4444; color: #991b1b;">
+                                               <p class="font-bold">نکته مهم: برای این قسمت، روی فعل کمکی (do/does/did) ضربدر بزن، یعنی حذفش کن و فعل اصلی رو صرف کن.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </section>
+
+                                <section class="md:col-span-2 lg:col-span-3 bg-white rounded-2xl shadow-lg p-6">
+                                    <h2 class="text-3xl font-bold text-center mb-6 text-sky-600">نکات تکمیلی و خفن!</h2>
+                                    <div class="space-y-6">
+                                        <div class="warning-box p-4 rounded-lg">
+                                            <h3 class="font-bold text-lg mb-2">خیلی مهم: این قوانین فقط برای سؤالات WH-دار هست!</h3>
+                                            <p class="text-sm">بچه‌ها حواستون باشه، این داستان سویچ کردن و حذف کردن، فقط برای سؤال‌هایی هست که با <strong class="font-mono">What, Where, When, Why, Who, How</strong> شروع میشن. برای سؤال‌های بله/خیر (مثل Do you speak English?) یه ماجرای دیگه داریم که بعداً بهش می‌رسیم.</p>
+                                        </div>
+                                        <div class="tip-box p-4 rounded-lg">
+                                            <h3 class="font-bold text-lg mb-2">آخرش نقطه بذارم یا علامت سؤال؟</h3>
+                                            <p class="text-sm">قانونش ساده‌ست: به جمله اول نگاه کن. اگه اون سؤالی بود (مثل Do you know...?)، آخرش علامت سؤال (?) بذار. اگه خبری یا امری بود (مثل I wonder... یا Tell me...)، آخرش نقطه (.) بذار.</p>
+                                        </div>
+                                    </div>
+                                </section>
+
+                                <section class="md:col-span-2 lg:col-span-3 bg-white rounded-2xl shadow-lg p-6">
+                                    <h2 class="text-2xl font-bold text-center mb-4 text-sky-600">مقایسه: \`need to\` در برابر \`have to\`</h2>
+                                    <div class="overflow-x-auto">
+                                        <table class="w-full text-sm text-center">
+                                            <thead class="bg-gray-100 text-sky-800">
+                                                <tr>
+                                                    <th class="p-3 rounded-r-lg">ویژگی</th>
+                                                    <th class="p-3">have to</th>
+                                                    <th class="p-3 rounded-l-lg">need to</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr class="border-b">
+                                                    <td class="p-3 font-bold">معنی اصلی</td>
+                                                    <td class="p-3">الزام / اجبار (Obligation)</td>
+                                                    <td class="p-3">نیاز / ضرورت (Necessity)</td>
+                                                </tr>
+                                                 <tr class="bg-gray-50 border-b">
+                                                    <td class="p-3 font-bold">منشأ</td>
+                                                    <td class="p-3">معمولاً بیرونی (قانون، دستور)</td>
+                                                    <td class="p-3">معمولاً درونی (نیاز شخصی، هدف)</td>
+                                                </tr>
+                                                 <tr class="border-b">
+                                                    <td class="p-3 font-bold">مثال</td>
+                                                    <td class="p-3 italic">"I <strong class="font-normal text-violet-600">have to</strong> wear a uniform at work."</td>
+                                                    <td class="p-3 italic">"I <strong class="font-normal text-violet-600">need to</strong> sleep more."</td>
+                                                </tr>
+                                                 <tr class="bg-gray-50">
+                                                    <td class="p-3 font-bold">منفی</td>
+                                                    <td class="p-3">Don't have to (مجبور نیستی)</td>
+                                                    <td class="p-3">Don't need to (نیازی نیست)</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </section>
+
+                                 <section class="md:col-span-2 lg:col-span-3 bg-white rounded-2xl shadow-lg p-6">
+                                    <h2 class="text-2xl font-bold text-center mb-6 text-sky-600">واژگان و اصطلاحات کلیدی</h2>
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                                        <div class="bg-gray-50 p-4 rounded-lg">
+                                            <p class="text-4xl mb-2">🧀</p>
+                                            <h3 class="font-bold text-sky-800">Big Cheese</h3>
+                                            <p class="text-sm text-gray-600">آدم کله‌گنده، فرد مهم</p>
+                                            <p class="text-xs italic text-gray-500 mt-1">"He thinks he's the big cheese around here."</p>
+                                        </div>
+                                        <div class="bg-gray-50 p-4 rounded-lg">
+                                            <p class="text-4xl mb-2">🛍️</p>
+                                            <h3 class="font-bold text-sky-800">Duty-free Shop</h3>
+                                            <p class="text-sm text-gray-600">فروشگاه بدون عوارض گمرکی</p>
+                                            <p class="text-xs italic text-gray-500 mt-1">"I bought this perfume at the duty-free shop."</p>
+                                        </div>
+                                        <div class="bg-gray-50 p-4 rounded-lg">
+                                            <p class="text-4xl mb-2">🚻</p>
+                                            <h3 class="font-bold text-sky-800">Restroom</h3>
+                                            <p class="text-sm text-gray-600">سرویس بهداشتی (محل استراحت)</p>
+                                            <p class="text-xs italic text-gray-500 mt-1">"Excuse me, where is the restroom?"</p>
+                                        </div>
+                                        <div class="bg-gray-50 p-4 rounded-lg">
+                                            <p class="text-4xl mb-2">🏛️</p>
+                                            <h3 class="font-bold text-sky-800">Rome wasn't built in a day</h3>
+                                            <p class="text-sm text-gray-600">کارهای بزرگ زمان‌بر هستند</p>
+                                            <p class="text-xs italic text-gray-500 mt-1">"Be patient with your progress. Rome wasn't built in a day."</p>
+                                        </div>
+                                    </div>
+                                </section>
+                            </main>
+                        </div>
+                        <div class="proverb-banner">
+                            <h4 class="text-sm font-semibold opacity-80 mb-2">🍎 ضرب المثل جلسه ۳۳</h4>
+                            <p class="text-3xl font-bold">Eleven grooms and one horse</p>
+                            <p class="text-lg mt-3 opacity-90">"آفتاب لگن هفت است شام و ناهار هیچی"</p>
+                        </div>
+                    `,
+                    script: ``
+                }
+            ];
+
+            const storyContent = [
+                { type: 'h2', text: 'A Tourist\'s Questions' },
+                { type: 'p', text: 'A tourist arrived at the airport and looked confused. He went to the information desk. "Excuse me," he said, "I have a few questions. First, <span class="highlight" data-fa-translation="میشه بگید سرویس بهداشتی کجاست؟">could you tell me where the restroom is</span>?" The agent smiled and pointed, "It\'s just down that <span class="highlight" data-fa-translation="راهرو">hall</span>."'},
+                { type: 'p', text: '"Thank you," the tourist continued. "I also <span class="highlight" data-fa-translation="میخوام بدونم">want to know</span> <span class="highlight" data-fa-translation="فروشگاه دیوتی فری ساعت چند باز میشه">what time the duty-free shop opens</span>. I <span class="highlight" data-fa-translation="لازمه که">need to</span> buy some gifts." The agent replied, "I\'m not sure, but <span class="highlight" data-fa-translation="می‌دونید اون آقا کیه؟">do you know who that man is</span>? He\'s the manager, the <span class="highlight" data-fa-translation="کله‌گنده">big cheese</span> around here. You can ask him."' },
+                { type: 'p', text: 'The tourist nodded. "One last thing. <span class="highlight" data-fa-translation="می‌دونید چطور لاغر کردم؟">Do you know how I lost weight</span> for this trip? By walking everywhere! So, <span class="highlight" data-fa-translation="میشه بگید دیشب کجا رفتید؟">could you tell me where you went last night</span>? I need a good restaurant recommendation." The agent laughed. "That\'s a funny question! But I can tell you where the <span class="highlight" data-fa-translation="پیشخوان حمل و نقل">transportation counter</span> is to get to the best food in the city."' }
+            ];
+
+            const vocabCards = [
+                { id: 1, front: 'Big Cheese', back_fa: 'آدم کله گنده و با نفوذ', back_en: "He acts like he's the big cheese in this office.", text_to_speak: 'Big Cheese' },
+                { id: 2, front: 'Eleven grooms for one horse', back_fa: 'آفتاب لگن هفت است شام و ناهار هیچی', back_en: "All this equipment for a simple task is like eleven grooms for one horse.", text_to_speak: 'Eleven grooms for one horse' },
+                { id: 3, front: 'Groom', back_fa: 'مهتر اسب / داماد', back_en: "The groom looked nervous before the wedding.", text_to_speak: 'Groom' },
+                { id: 4, front: 'Haste makes waste', back_fa: 'عجله کار شیطونه', back_en: "You should have checked your work; haste makes waste.", text_to_speak: 'Haste makes waste' },
+                { id: 5, front: 'Duty-Free Shop', back_fa: 'فروشگاه بدون عوارض گمرکی', back_en: "I bought some chocolate at the duty-free shop.", text_to_speak: 'Duty-Free Shop' },
+                { id: 6, front: 'Transportation Counter', back_fa: 'پیشخوان اطلاعات حمل و نقل', back_en: "Could you tell me where the transportation counter is?", text_to_speak: 'Transportation Counter' },
+                { id: 7, front: 'You need to...', back_fa: 'لازمه/نیازه که... (ملایم‌تر از have to)', back_en: "You need to be more careful.", text_to_speak: 'You need to' },
+                { id: 8, front: 'Our word is our bond', back_fa: 'حرفمون حرفه، قول ما قول است', back_en: "We will finish the project on time. Our word is our bond.", text_to_speak: 'Our word is our bond' },
+                { id: 9, front: 'Restroom', back_fa: 'سرویس بهداشتی (در اماکن عمومی)', back_en: "I need to use the restroom.", text_to_speak: 'Restroom' },
+                { id: 10, front: 'Hall', back_fa: 'راهرو، سالن', back_en: "The office is at the end of the hall.", text_to_speak: 'Hall' },
+                { id: 11, front: 'He eats like a horse', back_fa: 'او خیلی زیاد غذا می‌خورد', back_en: "My teenage son eats like a horse.", text_to_speak: 'He eats like a horse' }
+            ];
+            const grammarCards = [
+                { id: 12, front: 'میشه به من بگی اسمت چیه؟', back_fa: 'Could you tell me what your name is?', text_to_speak: 'Could you tell me what your name is?' },
+                { id: 13, front: 'میشه به من بگی چند سالته؟', back_fa: 'Could you tell me how old you are?', text_to_speak: 'Could you tell me how old you are?' },
+                { id: 14, front: 'تو می‌دونی این خانم کیه؟', back_fa: 'Do you know who this lady is?', text_to_speak: 'Do you know who this lady is?' },
+                { id: 15, front: 'کسی می‌دونه این چیه؟', back_fa: 'Does anyone know what this is?', text_to_speak: 'Does anyone know what this is?' },
+                { id: 16, front: 'میشه به من بگی بانک کجاست؟', back_fa: 'Could you tell me where the bank is?', text_to_speak: 'Could you tell me where the bank is?' },
+                { id: 17, front: 'می‌دونی ساعت چنده؟', back_fa: 'Do you know what time it is?', text_to_speak: 'Do you know what time it is?' },
+                { id: 18, front: 'تو می‌دونی اون کیه؟', back_fa: 'Do you know who he is?', text_to_speak: 'Do you know who he is?' },
+                { id: 19, front: 'تو می‌دونی این خودکار مال کیه؟', back_fa: 'Do you know whose pen this is?', text_to_speak: 'Do you know whose pen this is?' },
+                { id: 20, front: 'تو می‌دونی مایکل کجاست؟', back_fa: 'Do you know where Michael is?', text_to_speak: 'Do you know where Michael is?' },
+                { id: 21, front: 'باید بدونم کجا بودی.', back_fa: 'I should know where you were.', text_to_speak: 'I should know where you were.' },
+                { id: 22, front: 'تو می‌دونی مری کجا بود؟', back_fa: 'Do you know where Mary was?', text_to_speak: 'Do you know where Mary was?' },
+                { id: 23, front: 'یادت هست امتحان کی بود؟', back_fa: 'Do you remember when the exam was?', text_to_speak: 'Do you remember when the exam was?' },
+                { id: 24, front: 'میشه بگی چرا غایب بودی؟', back_fa: 'Could you tell me why you were absent?', text_to_speak: 'Could you tell me why you were absent?' },
+                { id: 25, front: 'یادم نمیاد کجا بودم.', back_fa: "I don't remember where I was.", text_to_speak: "I don't remember where I was." },
+                { id: 26, front: 'می‌تونی بگی چرا داشتی گریه می‌کردی؟', back_fa: 'Can you tell me why you were crying?', text_to_speak: 'Can you tell me why you were crying?' },
+                { id: 27, front: 'می‌دونی چی می‌خواد؟', back_fa: 'Do you know what he wants?', text_to_speak: 'Do you know what he wants?' },
+                { id: 28, front: 'میشه بپرسی ایشون چی می‌خواد؟', back_fa: 'Could you ask what he wants?', text_to_speak: 'Could you ask what he wants?' },
+                { id: 29, front: 'میشه بگی چی می‌خواید؟', back_fa: 'Could you tell me what you want?', text_to_speak: 'Could you tell me what you want?' },
+                { id: 30, front: 'می‌دونی کجا کار می‌کنه؟', back_fa: 'Do you know where he works?', text_to_speak: 'Do you know where he works?' },
+                { id: 31, front: 'من می‌خوام بدونم روزی چند ساعت کار می‌کنی.', back_fa: 'I want to know how many hours a day you work.', text_to_speak: 'I want to know how many hours a day you work.' },
+                { id: 32, front: 'تو می‌دونی اون آخر هفته‌ها چیکار می‌کنه؟', back_fa: 'Do you know what he does on weekends?', text_to_speak: 'Do you know what he does on weekends?' },
+                { id: 33, front: 'برام مهم نیست کجا زندگی می‌کنن.', back_fa: "I don't care where they live.", text_to_speak: "I don't care where they live." },
+                { id: 34, front: 'باید بدونی شوهرت کجا کار می‌کنه.', back_fa: 'You should know where your husband works.', text_to_speak: 'You should know where your husband works.' },
+                { id: 35, front: 'نمی‌دونم وزنش چقدره.', back_fa: "I don't know how much he weighs.", text_to_speak: "I don't know how much he weighs." },
+                { id: 36, front: 'میشه بگی چند وقت یکبار اینجا میای؟', back_fa: 'Could you tell me how often you come here?', text_to_speak: 'Could you tell me how often you come here?' },
+                { id: 37, front: 'باید بدونم اون چند وقت یکبار ماموریت میره.', back_fa: 'I should know how often he goes on a mission.', text_to_speak: 'I should know how often he goes on a mission.' },
+                { id: 38, front: 'می‌دونی ساعت چند باز میشه؟', back_fa: 'Do you know what time it opens?', text_to_speak: 'Do you know what time it opens?' },
+                { id: 39, front: 'تو می‌دونی چرا داره می‌خنده؟', back_fa: 'Do you know why he is laughing?', text_to_speak: 'Do you know why he is laughing?' },
+                { id: 40, front: 'میشه بگی داری چیکار می‌کنی؟', back_fa: 'Could you tell me what you are doing?', text_to_speak: 'Could you tell me what you are doing?' },
+                { id: 41, front: 'به من بگو چرا داری میری بیرون.', back_fa: 'Tell me why you are going out.', text_to_speak: 'Tell me why you are going out.' },
+                { id: 42, front: 'می‌خوام بدونم اون کجا میره.', back_fa: 'I want to know where she is going.', text_to_speak: 'I want to know where she is going.' },
+                { id: 43, front: 'میشه بگی چیکار کردی؟', back_fa: 'Could you tell me what you have done?', text_to_speak: 'Could you tell me what you have done?' },
+                { id: 44, front: 'می‌دونی کجا رفته؟', back_fa: 'Do you know where he has gone?', text_to_speak: 'Do you know where he has gone?' },
+                { id: 45, front: 'میشه ببینم چی زده؟', back_fa: 'Could I see what he has injected?', text_to_speak: 'Could I see what he has injected?' },
+                { id: 46, front: 'تو می‌دونی پدرت کجا رفته؟', back_fa: 'Do you know where your father has gone?', text_to_speak: 'Do you know where your father has gone?' },
+                { id: 47, front: 'بگو چی خوردی.', back_fa: 'Tell me what you have eaten.', text_to_speak: 'Tell me what you have eaten.' },
+                { id: 48, front: 'می‌خوام بدونم چی خریدی.', back_fa: 'I want to know what you have bought.', text_to_speak: 'I want to know what you have bought.' },
+                { id: 49, front: 'می‌دونی چرا طلاق گرفتن؟', back_fa: 'Do you know why they have gotten divorced?', text_to_speak: 'Do you know why they have gotten divorced?' },
+                { id: 50, front: 'می‌تونی بگی ماشینو کجا پارک کردی؟', back_fa: 'Can you tell me where you have parked the car?', text_to_speak: 'Can you tell me where you have parked the car?' },
+                { id: 51, front: 'میشه بگی کجا می‌تونم بشینم؟', back_fa: 'Could you tell me where I can sit?', text_to_speak: 'Could you tell me where I can sit?' },
+                { id: 52, front: 'میشه بگی چیکار باید بکنم؟', back_fa: 'Could you tell me what I should do?', text_to_speak: 'Could you tell me what I should do?' },
+                { id: 53, front: 'بهم میگی قراره چیکار کنی؟', back_fa: 'Will you tell me what you are going to do?', text_to_speak: 'Will you tell me what you are going to do?' },
+                { id: 54, front: 'می‌خوام بدونم چه ساعتی قراره بهم زنگ بزنی.', back_fa: 'I would like to know what time you are going to call me.', text_to_speak: 'I would like to know what time you are going to call me.' },
+                { id: 55, front: 'میشه بگی کجا قراره بری؟', back_fa: 'Could you tell me where you are going to go?', text_to_speak: 'Could you tell me where you are going to go?' },
+                { id: 56, front: 'می‌دونی من باید چیکار کنم؟', back_fa: 'Do you know what I should do?', text_to_speak: 'Do you know what I should do?' },
+                { id: 57, front: 'باید به من بگی کجا میری.', back_fa: 'You should tell me where you are going.', text_to_speak: 'You should tell me where you are going.' },
+                { id: 58, front: 'میشه بگی دیشب کجا رفتی؟', back_fa: 'Could you tell me where you went last night?', text_to_speak: 'Could you tell me where you went last night?' },
+                { id: 59, front: 'می‌خوام بدونم چی خریدی برای مادرت.', back_fa: 'I want to know what you bought for your mother.', text_to_speak: 'I want to know what you bought for your mother.' },
+                { id: 60, front: 'می‌دونی اونا کی رسیدن؟', back_fa: 'Do you know when they arrived?', text_to_speak: 'Do you know when they arrived?' },
+                { id: 61, front: 'می‌تونی بگی چطور لاغر کردی؟', back_fa: 'Can you tell me how you lost weight?', text_to_speak: 'Can you tell me how you lost weight?' },
+                { id: 62, front: 'می‌خوام بدونم کدوم رو انتخاب کردی.', back_fa: 'I want to know which one you chose.', text_to_speak: 'I want to know which one you chose.' },
+                { id: 63, front: 'میشه بگی چه ساعتی بیدار شدی؟', back_fa: 'Could you tell me what time you woke up?', text_to_speak: 'Could you tell me what time you woke up?' },
+                { id: 64, front: 'کی تو رو دوست داره؟', back_fa: 'Do you know who likes you?', text_to_speak: 'Do you know who likes you?' },
+                { id: 65, front: 'کی برای شرکت سونی کار می‌کنه؟', back_fa: 'Do you know who works for Sony company?', text_to_speak: 'Do you know who works for Sony company?' },
+                { id: 66, front: 'میشه بگی تو کی هستی؟', back_fa: 'Could you tell me who you are?', text_to_speak: 'Could you tell me who you are?' },
+                { id: 67, front: 'می‌دونی من کی هستم؟', back_fa: 'Do you know who I am?', text_to_speak: 'Do you know who I am?' }
+            ];
+            
+            // --- App State & Functions ---
+            let currentSession = { cards: [], currentIndex: 0, type: '', knownCount: 0, unknownCount: 0 };
+            let preferredVoice = null;
+            let voices = [];
+
+            function loadAndSetVoice() {
+                voices = window.speechSynthesis.getVoices();
+                preferredVoice = voices.find(v => v.name.includes('Google') && v.lang.startsWith('en')) || voices.find(v => v.lang.startsWith('en') && !v.localService) || voices.find(v => v.lang.startsWith('en')) || voices[0];
+            }
+            if (speechSynthesis.onvoiceschanged !== undefined) {
+                speechSynthesis.onvoiceschanged = loadAndSetVoice;
+            }
+            loadAndSetVoice();
+
+            function speakText(text) {
+                if (voices.length === 0) loadAndSetVoice();
+                const utter = new SpeechSynthesisUtterance(text);
+                utter.voice = preferredVoice;
+                utter.lang = preferredVoice?.lang || 'en-US';
+                utter.rate = 0.9;
+                utter.pitch = 1;
+                window.speechSynthesis.speak(utter);
+            }
+
+            function showCard(index) {
+                if (index >= currentSession.cards.length) {
+                    showResults();
+                    return;
+                }
+                const cardData = currentSession.cards[index];
+                const cardFront = document.getElementById('card-front');
+                const cardBack = document.getElementById('card-back');
+                const flashcard = document.querySelector('#practice-view .flashcard');
+                flashcard.classList.remove('is-flipped');
+                interactiveButtons.classList.remove('hidden');
+                prevCardBtn.style.visibility = (index > 0) ? 'visible' : 'hidden';
+                nextCardBtn.style.visibility = 'hidden';
+                setTimeout(() => {
+                    if (currentSession.type === 'vocab') {
+                        cardFront.innerHTML = `<h3 class="text-xl font-semibold p-4">${cardData.back_fa}</h3>`;
+                        cardBack.innerHTML = `<div class="p-4 flex-grow flex flex-col justify-center items-center"><p class="text-2xl font-bold">${cardData.front}</p><p class="text-base italic mt-2 text-slate-600">"${cardData.back_en}"</p><div class="flex gap-4"><button class="pronunciation-button" data-text="${cardData.text_to_speak}"><i class="fa-solid fa-volume-high"></i><span>کلمه</span></button><button class="pronunciation-button" data-text="${cardData.back_en}"><i class="fa-solid fa-volume-high"></i><span>مثال</span></button></div></div>`;
+                    } else {
+                        cardFront.innerHTML = `<h3 class="text-xl font-bold p-4">${cardData.front}</h3>`;
+                        cardBack.innerHTML = `<div class="p-4 flex-grow flex flex-col justify-center items-center"><p class="font-bold text-lg">${cardData.back_fa}</p><button class="pronunciation-button" data-text="${cardData.text_to_speak}"><i class="fa-solid fa-volume-high"></i><span>تلفظ</span></button></div>`;
+                    }
+                }, 150);
+                cardCounter.textContent = `${index + 1} / ${currentSession.cards.length}`;
+            }
+
+            function renderLesson() {
+                const backButton = lessonContentContainer.querySelector('.back-to-menu-btn').parentElement;
+                lessonContentContainer.innerHTML = '';
+                if (lesson33Content.length > 0 && lesson33Content[0].type === 'raw_html') {
+                    const item = lesson33Content[0];
+                    lessonContentContainer.innerHTML = item.html;
+                    lessonContentContainer.appendChild(backButton);
+                    const oldScript = document.getElementById('lesson-script');
+                    if (oldScript) oldScript.remove();
+                    if (item.script) {
+                        const newScript = document.createElement('script');
+                        newScript.id = 'lesson-script';
+                        newScript.innerHTML = item.script;
+                        document.body.appendChild(newScript);
+                    }
+                } else {
+                    lessonContentContainer.innerHTML = '<p class="text-center text-slate-500">محتوای درس هنوز اضافه نشده است.</p>';
+                    lessonContentContainer.appendChild(backButton);
+                }
+            }
+
+            function renderStory() {
+                const backButton = storyContentContainer.querySelector('.back-to-menu-btn').parentElement;
+                storyContentContainer.innerHTML = '';
+                if (storyContent.length === 0) {
+                    storyContentContainer.innerHTML = '<p class="text-center text-slate-500">محتوای داستان هنوز اضافه نشده است.</p>';
+                    storyContentContainer.appendChild(backButton);
+                    return;
+                }
+                storyContent.forEach(item => {
+                    let el;
+                    switch (item.type) {
+                        case 'h2':
+                            el = document.createElement('h2');
+                            el.className = 'text-3xl font-bold text-center mb-10';
+                            el.textContent = item.text;
+                            break;
+                        case 'p':
+                            el = document.createElement('p');
+                            el.innerHTML = item.text;
+                            break;
+                    }
+                    if (el) storyContentContainer.appendChild(el);
+                });
+                storyContentContainer.appendChild(backButton);
+                storyContentContainer.querySelectorAll('.highlight').forEach(highlightEl => {
+                    const translation = highlightEl.dataset.faTranslation;
+                    if (translation) {
+                        const tooltip = document.createElement('span');
+                        tooltip.className = 'tooltip-text';
+                        tooltip.textContent = translation;
+                        highlightEl.appendChild(tooltip);
+                    }
+                });
+            }
+
+            function startPractice(type) {
+                mainMenuView.classList.add('hidden');
+                resultsView.classList.add('hidden');
+                storyView.classList.add('hidden');
+                lessonView.classList.add('hidden');
+                practiceView.classList.remove('hidden');
+                practiceView.classList.add('fade-in');
+                let cardsToPractice = [];
+                if (type === 'vocab') {
+                    cardsToPractice = vocabCards;
+                    headerSubtitle.textContent = 'تمرین کلمات و اصطلاحات';
+                } else if (type === 'grammar') {
+                    cardsToPractice = grammarCards;
+                    headerSubtitle.textContent = 'تمرین گرامر';
+                }
+                if (cardsToPractice.length === 0) {
+                    document.getElementById('review-area').innerHTML = '<p class="text-center text-slate-500 py-10">هیچ کارتی برای تمرین در این بخش وجود ندارد.</p>';
+                    return;
+                }
+                currentSession.cards = shuffleArray([...cardsToPractice]);
+                currentSession.type = type;
+                currentSession.currentIndex = 0;
+                currentSession.knownCount = 0;
+                currentSession.unknownCount = 0;
+                showCard(0);
+            }
+
+            function showLesson() {
+                mainMenuView.classList.add('hidden');
+                practiceView.classList.add('hidden');
+                resultsView.classList.add('hidden');
+                storyView.classList.add('hidden');
+                lessonView.classList.remove('hidden');
+                lessonView.classList.add('fade-in');
+                headerSubtitle.textContent = 'درس جلسه ۳۳';
+                renderLesson();
+            }
+
+            function showStory() {
+                mainMenuView.classList.add('hidden');
+                practiceView.classList.add('hidden');
+                resultsView.classList.add('hidden');
+                lessonView.classList.add('hidden');
+                storyView.classList.remove('hidden');
+                storyView.classList.add('fade-in');
+                headerSubtitle.textContent = 'داستان جلسه ۳۳';
+                renderStory();
+            }
+
+            function goBackToMenu() {
+                practiceView.classList.add('hidden');
+                lessonView.classList.add('hidden');
+                storyView.classList.add('hidden');
+                resultsView.classList.add('hidden');
+                mainMenuView.classList.remove('hidden');
+                mainMenuView.classList.add('fade-in');
+                headerSubtitle.textContent = 'یک بخش را برای شروع تمرین انتخاب کنید.';
+            }
+
+            function showResults() {
+                practiceView.classList.add('hidden');
+                resultsView.classList.remove('hidden');
+                resultsView.classList.add('fade-in');
+                headerSubtitle.textContent = 'نتایج تمرین شما';
+                const totalCards = currentSession.cards.length;
+                const knownPercentage = totalCards > 0 ? ((currentSession.knownCount / totalCards) * 100).toFixed(0) : 0;
+                const unknownPercentage = totalCards > 0 ? ((currentSession.unknownCount / totalCards) * 100).toFixed(0) : 0;
+                resultsStats.innerHTML = `<p class="mb-2">تعداد کل کارت‌ها: ${totalCards}</p><p class="text-green-600 font-bold mb-1">کارت‌های بلد بودم: ${currentSession.knownCount} (${knownPercentage}%)</p><p class="text-red-600 font-bold">کارت‌های بلد نبودم: ${currentSession.unknownCount} (${unknownPercentage}%)</p>`;
+            }
+
+            async function saveStats() {
+                if (!firebaseInitialized || !userId) {
+                    saveMessage.textContent = 'خطا: امکان ذخیره نتایج وجود ندارد. لطفاً دوباره تلاش کنید.';
+                    return;
+                }
+                try {
+                    const statsCollection = collection(db, `artifacts/${appId}/users/${userId}/flashcard_stats`);
+                    await addDoc(statsCollection, {
+                        known: currentSession.knownCount,
+                        unknown: currentSession.unknownCount,
+                        total: currentSession.cards.length,
+                        type: currentSession.type,
+                        timestamp: new Date()
+                    });
+                    saveMessage.textContent = 'نتایج با موفقیت ذخیره شد! 🎉';
+                    saveResultsBtn.disabled = true;
+                    saveResultsBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                } catch (e) {
+                    console.error("Error adding document: ", e);
+                    saveMessage.textContent = 'خطا در ذخیره نتایج.';
+                }
+            }
+
+            function navigateCards(direction) {
+                const newIndex = currentSession.currentIndex + direction;
+                if (newIndex >= 0 && newIndex < currentSession.cards.length) {
+                    currentSession.currentIndex = newIndex;
+                    showCard(newIndex);
+                } else if (newIndex >= currentSession.cards.length) {
+                    showResults();
+                }
+            }
+
+            function handleFeedback(isKnewIt) {
+                document.querySelector('#practice-view .flashcard').classList.add('is-flipped');
+                interactiveButtons.classList.add('hidden');
+                nextCardBtn.style.visibility = 'visible';
+                if (isKnewIt) {
+                    currentSession.knownCount++;
+                } else {
+                    currentSession.unknownCount++;
+                }
+            }
+            
+            function shuffleArray(array) {
+                for (let i = array.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [array[i], array[j]] = [array[j], array[i]];
+                }
+                return array;
+            }
+
+            // --- EVENT LISTENERS ---
+            startLesson33Btn.addEventListener('click', showLesson);
+            startStoryBtn.addEventListener('click', showStory);
+            startVocabBtn.addEventListener('click', () => startPractice('vocab'));
+            startGrammarBtn.addEventListener('click', () => startPractice('grammar'));
+            backToMenuBtns.forEach(btn => btn.addEventListener('click', goBackToMenu));
+            knewItBtn.addEventListener('click', () => handleFeedback(true));
+            didNotKnowBtn.addEventListener('click', () => handleFeedback(false));
+            nextCardBtn.addEventListener('click', () => navigateCards(1));
+            prevCardBtn.addEventListener('click', () => navigateCards(-1));
+            flashcardDisplay.addEventListener('click', function(event) {
+                const flashcard = this.querySelector('.flashcard');
+                if (!event.target.closest('.pronunciation-button') && !flashcard.classList.contains('is-flipped')) {
+                    flashcard.classList.add('is-flipped');
+                }
+            });
+            document.body.addEventListener('click', function(event) {
+                const pronunciationButton = event.target.closest('.pronunciation-button, .play-translation');
+                if (pronunciationButton) {
+                    event.stopPropagation();
+                    const textToSpeak = pronunciationButton.dataset.text;
+                    if (textToSpeak) {
+                        speakText(textToSpeak);
+                    }
+                }
+            });
+            saveResultsBtn.addEventListener('click', saveStats);
+        });
+    </script>
+</body>
+</html>

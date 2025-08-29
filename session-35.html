@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تمرین زبان دوره ICC - جلسه ۳۵</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <style>
+        body {
+            font-family: 'Vazirmatn', sans-serif;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            background-color: #f8f9fa; 
+        }
+        .main-container {
+            flex-grow: 1;
+        }
+        .flashcard-container { perspective: 1000px; height: 320px; width: 100%; max-width: 600px; }
+        .flashcard { position: relative; width: 100%; height: 100%; transition: transform 0.7s; transform-style: preserve-3d; cursor: pointer; }
+        .flashcard.is-flipped { transform: rotateY(180deg); }
+        .card-face { position: absolute; width: 100%; height: 100%; -webkit-backface-visibility: hidden; backface-visibility: hidden; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 1.5rem; border-radius: 1rem; box-shadow: 0 8px 24px rgba(0,0,0,0.1); text-align: center; border: 1px solid #e2e8f0; }
+        .card-front { background-color: #ffffff; }
+        .card-back { background-color: #f8fafc; transform: rotateY(180deg); }
+        .pronunciation-button { display: inline-flex; align-items: center; gap: 0.5rem; margin-top: 1rem; padding: 0.5rem 1rem; background-color: #e0f2fe; color: #0c4a6e; border-radius: 9999px; font-weight: 500; transition: all 0.2s; border: none; cursor: pointer; }
+        .pronunciation-button:hover { background-color: #bae6fd; transform: scale(1.05); }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .fade-in {
+            animation: fadeIn 0.6s ease-out forwards;
+        }
+        .menu-card {
+            transition: all 0.3s ease-in-out;
+        }
+        .menu-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+       
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        .action-buttons .btn {
+            padding: 0.75rem 2rem;
+            font-weight: bold;
+            border-radius: 0.75rem;
+            transition: all 0.2s;
+            cursor: pointer;
+            border: none;
+        }
+        .action-buttons .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .btn-correct {
+            background-color: #10b981; /* green-500 */
+            color: white;
+        }
+        .btn-incorrect {
+            background-color: #ef4444; /* red-500 */
+            color: white;
+        }
+        
+        /* New Infographic Styles */
+        .lesson-content .infographic-card {
+            background-color: white;
+            border-radius: 1.5rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.07), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 1px solid #e5e7eb;
+            overflow: hidden;
+        }
+        .lesson-content .infographic-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.05);
+        }
+        .lesson-content .card-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .lesson-content .card-body {
+            padding: 1.5rem;
+        }
+        .lesson-content .card-footer {
+            background-color: #f9fafb;
+            padding: 1rem 1.5rem;
+            border-top: 1px solid #e5e7eb;
+        }
+        .lesson-content .probability-bar {
+            width: 100%;
+            background-color: #e5e7eb;
+            border-radius: 9999px;
+            height: 1.25rem;
+            overflow: hidden;
+        }
+        .lesson-content .probability-fill {
+            height: 100%;
+            border-radius: 9999px;
+            color: white;
+            font-weight: bold;
+            font-size: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: width 1s ease-in-out;
+        }
+        .lesson-content .proverb-banner {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 1.5rem;
+            margin-top: 3rem;
+            text-align: center;
+            box-shadow: 0 10px 20px -5px rgba(118, 75, 162, 0.4);
+        }
+        .highlight {
+            color: #667eea;
+            font-weight: bold;
+            position: relative;
+            cursor: pointer;
+        }
+        .highlight .tooltip-text {
+            visibility: hidden;
+            width: 150px;
+            background-color: #2c3e50;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px 0;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -75px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .highlight:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+        #story-content-container p {
+            line-height: 2;
+            margin-bottom: 1.5rem;
+            font-size: 1.1rem;
+            color: #334155;
+        }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800">
+
+    <div class="main-container container mx-auto max-w-6xl p-4 sm:p-8">
+        <header class="text-center mb-8 sm:mb-12 fade-in">
+            <h1 class="text-3xl sm:text-4xl font-bold text-slate-800">تمرین زبان دوره ICC - جلسه ۳۵</h1>
+            <p id="header-subtitle" class="text-slate-500 mt-2">یک بخش را برای شروع تمرین انتخاب کنید.</p>
+        </header>
+
+        <!-- Main Menu View -->
+        <div id="main-menu-view" class="fade-in" style="animation-delay: 0.2s;">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <!-- Lesson 35 Card -->
+                <div id="start-lesson35-btn" class="menu-card bg-white rounded-2xl shadow-lg p-8 text-center cursor-pointer">
+                    <div class="text-5xl text-purple-500 mb-4">✨</div>
+                    <h2 class="text-2xl font-bold text-slate-800">درس جلسه ۳۵</h2>
+                    <p class="text-slate-500 mt-2">گرامر جملات شرطی و نکات دیگر.</p>
+                </div>
+                <!-- Story Card -->
+                <div id="start-story-btn" class="menu-card bg-white rounded-2xl shadow-lg p-8 text-center cursor-pointer">
+                    <div class="text-5xl text-fuchsia-500 mb-4">📖</div>
+                    <h2 class="text-2xl font-bold text-slate-800">داستان</h2>
+                    <p class="text-slate-500 mt-2">مرور گرامر و کلمات در قالب یک داستان جذاب.</p>
+                </div>
+                <!-- Vocab Card -->
+                <div id="start-vocab-btn" class="menu-card bg-white rounded-2xl shadow-lg p-8 text-center cursor-pointer">
+                    <div class="text-5xl text-blue-500 mb-4">🔤</div>
+                    <h2 class="text-2xl font-bold text-slate-800">تمرین کلمات و اصطلاحات</h2>
+                    <p class="text-slate-500 mt-2">واژگان، اصطلاحات و عبارات کاربردی را مرور کنید.</p>
+                </div>
+                <!-- Grammar Card -->
+                <div id="start-grammar-btn" class="menu-card bg-white rounded-2xl shadow-lg p-8 text-center cursor-pointer">
+                    <div class="text-5xl text-teal-500 mb-4">📝</div>
+                    <h2 class="text-2xl font-bold text-slate-800">تمرین گرامر</h2>
+                    <p class="text-slate-500 mt-2">ساختارهای گرامری جدید را تمرین کنید.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Practice View (For Flashcards) -->
+        <div id="practice-view" class="hidden">
+            <div class="bg-white rounded-2xl shadow-xl p-6 sm:p-10">
+                <div id="review-area" class="w-full mx-auto text-center">
+                    <div id="flashcard-display" class="flashcard-container mx-auto mb-8">
+                        <div class="flashcard">
+                            <div id="card-front" class="card-face card-front"></div>
+                            <div id="card-back" class="card-face card-back p-0"></div>
+                        </div>
+                    </div>
+                    <div id="interactive-buttons" class="action-buttons hidden">
+                        <button id="did-not-know-btn" class="btn btn-incorrect">بلد نبودم</button>
+                        <button id="knew-it-btn" class="btn btn-correct">بلد بودم</button>
+                    </div>
+                    <div class="flex justify-center items-center gap-4 mt-8 border-t border-slate-200 pt-6">
+                        <button id="prev-card-btn" class="px-6 py-3 text-sm font-bold bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-lg transition">قبلی</button>
+                        <p id="card-counter" class="text-slate-500 font-medium text-sm w-20 text-center"></p>
+                        <button id="next-card-btn" class="px-6 py-3 text-sm font-bold bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-lg transition">بعدی</button>
+                    </div>
+                </div>
+                <div class="text-center mt-8 border-t border-slate-200 pt-6">
+                    <button class="back-to-menu-btn text-sm text-blue-600 hover:underline font-semibold">بازگشت به منوی اصلی</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lesson View -->
+        <div id="lesson-view" class="hidden">
+            <div id="lesson-content-container" class="bg-white rounded-2xl shadow-xl p-8 sm:p-12 lesson-content">
+                <!-- Lesson content will be injected here by JS -->
+                <div class="text-center mt-10 border-t border-slate-200 pt-6">
+                    <button class="back-to-menu-btn text-sm text-blue-600 hover:underline font-semibold">بازگشت به منوی اصلی</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Story View -->
+        <div id="story-view" class="hidden">
+            <div id="story-content-container" class="bg-white rounded-2xl shadow-xl p-8 sm:p-12 lesson-content" dir="ltr">
+                <!-- Story content will be injected here by JS -->
+                <div class="text-center mt-10 border-t border-slate-200 pt-6" dir="rtl">
+                    <button class="back-to-menu-btn text-sm text-blue-600 hover:underline font-semibold">بازگشت به منوی اصلی</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results View -->
+        <div id="results-view" class="hidden">
+             <div class="bg-white rounded-2xl shadow-xl p-6 sm:p-10 text-center">
+                <h2 class="text-2xl sm:text-3xl font-bold text-slate-800 mb-4">نتایج تمرین</h2>
+                <div id="results-stats" class="text-lg text-slate-700 mb-6"></div>
+                <button id="save-results-btn" class="px-6 py-3 text-sm font-bold bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition mb-4">ذخیره نتایج</button>
+                <div id="save-message" class="text-sm font-medium text-green-700"></div>
+                <div class="text-center mt-8 border-t border-slate-200 pt-6">
+                    <button class="back-to-menu-btn text-sm text-blue-600 hover:underline font-semibold">بازگشت به منوی اصلی</button>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+    
+    <footer class="text-center p-4 mt-auto text-slate-500 text-sm">
+        <p>طراحی و توسعه حبیب کمایی</p>
+        <p>Habibkamaie@gmail.com</p>
+    </footer>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        document.addEventListener('DOMContentLoaded', async function () {
+            // --- Firebase Setup ---
+            const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+            const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+            const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : '';
+            
+            let db, auth, userId;
+            let firebaseInitialized = false;
+
+            try {
+                const app = initializeApp(firebaseConfig);
+                auth = getAuth(app);
+                db = getFirestore(app);
+                firebaseInitialized = true;
+                console.log("Firebase initialized successfully.");
+
+                if (initialAuthToken) {
+                    await signInWithCustomToken(auth, initialAuthToken);
+                } else {
+                    await signInAnonymously(auth);
+                }
+
+                onAuthStateChanged(auth, (user) => {
+                    if (user) {
+                        userId = user.uid;
+                        console.log("User authenticated with UID:", userId);
+                    } else {
+                        console.log("User signed out.");
+                    }
+                });
+
+            } catch (error) {
+                console.error("Firebase initialization or authentication failed:", error);
+            }
+
+            // --- UI Elements ---
+            const mainMenuView = document.getElementById('main-menu-view');
+            const practiceView = document.getElementById('practice-view');
+            const lessonView = document.getElementById('lesson-view');
+            const storyView = document.getElementById('story-view');
+            const resultsView = document.getElementById('results-view');
+            
+            const startLesson35Btn = document.getElementById('start-lesson35-btn');
+            const startStoryBtn = document.getElementById('start-story-btn');
+            const startVocabBtn = document.getElementById('start-vocab-btn');
+            const startGrammarBtn = document.getElementById('start-grammar-btn');
+
+            const backToMenuBtns = document.querySelectorAll('.back-to-menu-btn');
+            const headerSubtitle = document.getElementById('header-subtitle');
+            const cardCounter = document.getElementById('card-counter');
+            const prevCardBtn = document.getElementById('prev-card-btn');
+            const nextCardBtn = document.getElementById('next-card-btn');
+            const lessonContentContainer = document.getElementById('lesson-content-container');
+            const storyContentContainer = document.getElementById('story-content-container');
+            
+            const interactiveButtons = document.getElementById('interactive-buttons');
+            const knewItBtn = document.getElementById('knew-it-btn');
+            const didNotKnowBtn = document.getElementById('did-not-know-btn');
+            const flashcardDisplay = document.getElementById('flashcard-display');
+            const resultsStats = document.getElementById('results-stats');
+            const saveResultsBtn = document.getElementById('save-results-btn');
+            const saveMessage = document.getElementById('save-message');
+
+            // --- DATA ---
+            const lesson35Content = [
+                {
+                    type: 'raw_html',
+                    html: `
+                        <div class="container mx-auto p-0">
+                             <header class="text-center mb-12">
+                                <h1 class="text-4xl md:text-5xl font-black text-[#2c3e50] mb-2">📚 افعال شرطی و نکات کلیدی</h1>
+                                <p class="text-lg text-[#3498db] font-bold">(تمام نکاتی که استاد تو کلاس گفت!)</p>
+                            </header>
+                            
+                            <main>
+                                <section id="conditional-sentences" class="mb-16">
+                                    <div class="text-center p-8 mb-8 bg-gradient-to-r from-[#8e44ad] to-[#9b59b6] text-white rounded-2xl shadow-lg">
+                                        <h2 class="text-3xl font-bold mb-2">🤔 گرامر افعال شرطی (Conditional Sentences)</h2>
+                                        <p class="mt-4 max-w-2xl mx-auto">جملات شرطی از دو بخش <strong class="text-yellow-300">شرط</strong> (if clause) و <strong class="text-yellow-300">نتیجه</strong> (result clause) تشکیل شدن. بیاین انواعش رو بررسی کنیم:</p>
+                                    </div>
+
+                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                                        
+                                        <div class="infographic-card">
+                                            <div class="card-header bg-green-500 text-white text-center">
+                                                <h3 class="text-2xl font-bold">شرطی نوع صفر (Type Zero)</h3>
+                                                <p class="font-semibold">واقعیت محض! 🌍</p>
+                                            </div>
+                                            <div class="card-body text-center">
+                                                <p class="mb-4 text-gray-600">برای بیان <strong class="text-green-600">حقایق علمی و بدیهیات</strong> که همیشه درست هستند.</p>
+                                                <div class="probability-bar mb-4"><div class="probability-fill bg-green-500" style="width: 100%;">۱۰۰٪ قطعی</div></div>
+                                                <p class="font-bold text-gray-700">ساختار:</p>
+                                                <p class="bg-gray-100 p-3 rounded-lg font-mono text-left dir-ltr text-sm">If + <span class="text-green-600">Simple Present</span>, <span class="text-green-600">Simple Present</span></p>
+                                            </div>
+                                            <div class="card-footer">
+                                                <p class="font-bold text-sm mb-2">مثال‌های بیشتر:</p>
+                                                <ul class="text-sm space-y-2 text-left dir-ltr font-mono">
+                                                    <li>If you <span class="text-green-600">heat</span> water to 100°C, it <span class="text-green-600">boils</span>.</li>
+                                                    <li>Plants <span class="text-green-600">die</span> if they <span class="text-green-600">don't get</span> enough water.</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+
+                                        <div class="infographic-card">
+                                            <div class="card-header bg-blue-500 text-white text-center">
+                                                <h3 class="text-2xl font-bold">شرطی نوع اول (Type One)</h3>
+                                                <p class="font-semibold">آینده محتمل 🔮</p>
+                                            </div>
+                                            <div class="card-body text-center">
+                                                <p class="mb-4 text-gray-600">برای بیان <strong class="text-blue-600">شرایط واقعی و محتمل در آینده</strong>.</p>
+                                                <div class="probability-bar mb-4"><div class="probability-fill bg-blue-500" style="width: 75%;">احتمال بالا</div></div>
+                                                <p class="font-bold text-gray-700">ساختار:</p>
+                                                <p class="bg-gray-100 p-3 rounded-lg font-mono text-left dir-ltr text-sm">If + <span class="text-blue-600">Simple Present</span>, <span class="text-blue-600">will + Verb</span></p>
+                                            </div>
+                                            <div class="card-footer">
+                                                 <p class="font-bold text-sm mb-2">مثال‌های بیشتر:</p>
+                                                <ul class="text-sm space-y-2 text-left dir-ltr font-mono">
+                                                    <li>If I <span class="text-blue-600">study</span> hard, I <span class="text-blue-600">will pass</span> the exam.</li>
+                                                    <li>You <span class="text-blue-600">will miss</span> the bus if you <span class="text-blue-600">don't leave</span> now.</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+
+                                        <div class="infographic-card">
+                                            <div class="card-header bg-orange-500 text-white text-center">
+                                                <h3 class="text-2xl font-bold">شرطی نوع دوم (Type Two)</h3>
+                                                <p class="font-semibold">خیال و رویا 💭</p>
+                                            </div>
+                                            <div class="card-body text-center">
+                                                <p class="mb-4 text-gray-600">برای بیان <strong class="text-orange-600">شرایط غیرواقعی و فرضی در حال یا آینده</strong>.</p>
+                                                <div class="probability-bar mb-4"><div class="probability-fill bg-orange-500" style="width: 1%;">تقریباً محال</div></div>
+                                                <p class="font-bold text-gray-700">ساختار:</p>
+                                                <p class="bg-gray-100 p-3 rounded-lg font-mono text-left dir-ltr text-sm">If + <span class="text-orange-600">Simple Past</span>, <span class="text-orange-600">would + Verb</span></p>
+                                            </div>
+                                            <div class="card-footer">
+                                                 <p class="font-bold text-sm mb-2">مثال‌های بیشتر:</p>
+                                                <ul class="text-sm space-y-2 text-left dir-ltr font-mono">
+                                                    <li>If I <span class="text-orange-600">won</span> the lottery, I <span class="text-orange-600">would buy</span> a big house.</li>
+                                                    <li>If I <span class="text-orange-600">were</span> you, I <span class="text-orange-600">wouldn't do</span> that. (نکته were)</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </section>
+                            </main>
+                            
+                            <hr class="border-2 border-dashed border-gray-300 my-16">
+                            
+                            <main>
+                                <div class="text-center p-8 mb-8 bg-gradient-to-r from-[#2c3e50] to-[#34495e] text-white rounded-2xl shadow-lg">
+                                    <h2 class="text-3xl font-bold mb-2">اصطلاحات و نکات تکمیلی 📌</h2>
+                                    <p class="mt-4 max-w-2xl mx-auto">این‌ها رو هم استاد گفت حتماً بلد باشید!</p>
+                                </div>
+                                
+                                <section id="other-points" class="mb-16">
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                        <div class="infographic-card p-6">
+                                            <h3 class="text-xl font-bold text-[#2c3e50] mb-3">🤝 Got / Have got</h3>
+                                            <p class="text-gray-600 mb-4">برای بیان <strong class="text-purple-600">مالکیت</strong> و معادل <strong class="text-purple-600">Have</strong> است.</p>
+                                            <p class="bg-gray-100 p-2 rounded font-mono text-sm text-left dir-ltr">I've got a new idea.</p>
+                                            <p class="mt-2 text-purple-600 font-semibold text-sm">اصطلاح: You've got a point there (حرفت منطقیه).</p>
+                                        </div>
+                                        <div class="infographic-card p-6">
+                                            <h3 class="text-xl font-bold text-[#2c3e50] mb-3">🚌 On / Off / Drop off</h3>
+                                            <p class="text-gray-600 mb-4">برای وسایل نقلیه عمومی (اتوبوس، قطار، هواپیما) از <strong class="text-teal-600">get on/off</strong> استفاده می‌کنیم.</p>
+                                            <p class="bg-gray-100 p-2 rounded font-mono text-sm text-left dir-ltr">Please, drop me off here. (لطفاً من را اینجا پیاده کن).</p>
+                                        </div>
+                                        <div class="infographic-card p-6">
+                                            <h3 class="text-xl font-bold text-[#2c3e50] mb-3">👩‍👦 Momma's boy</h3>
+                                            <p class="text-gray-600 mb-4">یک اصطلاح (معمولاً تحقیرآمیز) برای پسری که خیلی به مادرش وابسته است: <strong class="text-pink-600">بچه ننه</strong>.</p>
+                                            <p class="text-sm text-gray-500">برای دختران معمولاً از <strong class="text-pink-600">spoiled</strong> (لوس) استفاده می‌شود.</p>
+                                        </div>
+                                        <div class="infographic-card p-6">
+                                            <h3 class="text-xl font-bold text-[#2c3e50] mb-3">🕚 At the eleventh hour</h3>
+                                            <p class="text-gray-600 mb-4">به معنی <strong class="text-red-600">"لحظه آخر"</strong> یا دقیقه نود.</p>
+                                            <p class="bg-gray-100 p-2 rounded font-mono text-sm text-left dir-ltr">He submitted his project at the eleventh hour.</p>
+                                        </div>
+                                    </div>
+                                </section>
+                            </main>
+                        </div>
+                        <div class="proverb-banner">
+                            <h4 class="text-sm font-semibold opacity-80 mb-2">🍎 ضرب المثل جلسه ۳۵</h4>
+                            <p class="text-3xl font-bold">A bird in the hand is worth two in the bush</p>
+                            <p class="text-lg mt-3 opacity-90">"نقد را بچسب، نسیه را رها کن"</p>
+                        </div>
+                    `,
+                    script: `
+                        // Scripts for charts or other dynamic elements in the lesson can go here if needed.
+                    `
+                }
+            ];
+
+            const storyContent = [
+                { type: 'h2', text: 'The Eleventh Bus' },
+                { type: 'p', text: 'For the <span class="highlight" data-fa-translation="یازدهمین">eleventh</span> time, Leo missed his bus. "Oh no!" he groaned. "<span class="highlight" data-fa-translation="اگه پولدار بودم">If I were rich</span>, <span class="highlight" data-fa-translation="یک ماشین میخریدم">I would buy a car</span>." He sat on the bench, feeling sorry for himself.' },
+                { type: 'p', text: 'An old woman sat next to him. "What\'s wrong, young man?" she asked. "You look sad."' },
+                { type: 'p', text: 'Leo sighed. "I missed my bus again. I have an important meeting. <span class="highlight" data-fa-translation="اگه جای شما بودم">If I were in your shoes</span>, what would you do?"' },
+                { type: 'p', text: 'The woman smiled kindly. "Well, for the <span class="highlight" data-fa-translation="سومین">third</span> time today, I\'ll give some advice. Don\'t just sit there. <span class="highlight" data-fa-translation="سوار شو">Get on</span> the next bus, even if it\'s late. It\'s better than nothing."' },
+                { type: 'p', text: 'Leo felt a bit embarrassed. He didn\'t want to seem like a <span class="highlight" data-fa-translation="بچه ننه">mama\'s boy</span>, unable to solve his own problems. "My mom always says I\'m too impatient. <span class="highlight" data-fa-translation="چند بار بهم گفته؟">How many times have I told you</span> to be patient, she says."' },
+                { type: 'p', text: '"She\'s right," the woman said. "Don\'t be <span class="highlight" data-fa-translation="لوس">spoiled</span> by wanting everything to be perfect. Look, here comes the <span class="highlight" data-fa-translation="دوازدهمین">twelfth</span> bus of the day. Now, go! And when you arrive, you can <span class="highlight" data-fa-translation="پیاده شو">get off</span> right at your destination."' },
+                { type: 'p', text: 'Leo jumped up. "Thank you! You\'re right. <span class="highlight" data-fa-translation="اگه وکیل داشتم">If I had a lawyer</span>, <span class="highlight" data-fa-translation="مشاوره بهتری نمیگرفتم">I wouldn\'t get better advice</span>!" He ran and got on the bus, finally on his way.' }
+            ];
+
+            const vocabCards = [
+                { front: 'Get on', back_fa: 'سوار شدن', back_en: 'I get on the bus every morning.', text_to_speak_main: 'Get on', text_to_speak_example: 'I get on the bus every morning.' },
+                { front: 'Get off', back_fa: 'پیاده شدن', back_en: 'I get off the train at the next station.', text_to_speak_main: 'Get off', text_to_speak_example: 'I get off the train at the next station.' },
+                { front: 'How many times have I told you?', back_fa: 'چند بار بهت گفته‌ام؟', back_en: 'How many times have I told you not to touch my phone?', text_to_speak_main: 'How many times have I told you?', text_to_speak_example: 'How many times have I told you not to touch my phone?' },
+                { front: "Mama's boy", back_fa: 'بچه ننه', back_en: "He's such a mama's boy, he can't make decisions without his mom.", text_to_speak_main: "Mama's boy", text_to_speak_example: "He's such a mama's boy, he can't make decisions without his mom." },
+                { front: 'Spoiled', back_fa: 'لوس', back_en: 'She’s spoiled because her parents buy her everything she wants.', text_to_speak_main: 'Spoiled', text_to_speak_example: 'She’s spoiled because her parents buy her everything she wants.' },
+                { front: 'First', back_fa: 'اول [فِرست]', back_en: 'This is the first time.', text_to_speak_main: 'First', text_to_speak_example: 'This is the first time.' },
+                { front: 'Second', back_fa: 'دوم [سِکِند]', back_en: 'He finished second in the race.', text_to_speak_main: 'Second', text_to_speak_example: 'He finished second in the race.' },
+                { front: 'Third', back_fa: 'سوم [ثِرد]', back_en: 'This is my third attempt.', text_to_speak_main: 'Third', text_to_speak_example: 'This is my third attempt.' },
+                { front: 'Fourth', back_fa: 'چهارم [فورث]', back_en: 'She lives on the fourth floor.', text_to_speak_main: 'Fourth', text_to_speak_example: 'She lives on the fourth floor.' },
+                { front: 'Fifth', back_fa: 'پنجم [فیفث]', back_en: 'It is his fifth birthday.', text_to_speak_main: 'Fifth', text_to_speak_example: 'It is his fifth birthday.' },
+                { front: 'Sixth', back_fa: 'ششم [سیکسث]', back_en: 'This is the sixth chapter.', text_to_speak_main: 'Sixth', text_to_speak_example: 'This is the sixth chapter.' },
+                { front: 'Seventh', back_fa: 'هفتم [سِوِنتث]', back_en: 'The seventh month is July.', text_to_speak_main: 'Seventh', text_to_speak_example: 'The seventh month is July.' },
+                { front: 'Eighth', back_fa: 'هشتم [اِیتث]', back_en: 'He was the eighth person in line.', text_to_speak_main: 'Eighth', text_to_speak_example: 'He was the eighth person in line.' },
+                { front: 'Ninth', back_fa: 'نهم [ناینث]', back_en: 'The ninth inning was exciting.', text_to_speak_main: 'Ninth', text_to_speak_example: 'The ninth inning was exciting.' },
+                { front: 'Tenth', back_fa: 'دهم [تِنث]', back_en: 'This is their tenth anniversary.', text_to_speak_main: 'Tenth', text_to_speak_example: 'This is their tenth anniversary.' },
+                { front: 'Eleventh', back_fa: 'یازدهم [اِلِوِنتث]', back_en: 'The decision came at the eleventh hour.', text_to_speak_main: 'Eleventh', text_to_speak_example: 'The decision came at the eleventh hour.' },
+                { front: 'Twelfth', back_fa: 'دوازدهم [توالفث]', back_en: 'It was the twelfth stroke of midnight.', text_to_speak_main: 'Twelfth', text_to_speak_example: 'It was the twelfth stroke of midnight.' },
+                { front: 'Thirteenth', back_fa: 'سیزدهم [ثِرتینث]', back_en: 'Friday the thirteenth is considered unlucky.', text_to_speak_main: 'Thirteenth', text_to_speak_example: 'Friday the thirteenth is considered unlucky.' },
+                { front: 'Twentieth', back_fa: 'بیستم [تِوِنتیِث]', back_en: 'She celebrated her twentieth birthday.', text_to_speak_main: 'Twentieth', text_to_speak_example: 'She celebrated her twentieth birthday.' }
+            ];
+
+            const grammarCards = [
+                { front: 'اگر یک تفنگ داشتم، از خودم محافظت می‌کردم', back_main: 'If I had a gun, I would protect myself.', back_example: 'He felt that if he had a gun, he could defend his home.', text_to_speak_main: 'If I had a gun, I would protect myself.', text_to_speak_example: 'He felt that if he had a gun, he could defend his home.' },
+                { front: 'اگر یک ماشین داشتم، به سفر می‌رفتم', back_main: 'If I had a car, I would go on a trip.', back_example: 'She dreams that if she had a car, she would explore the country.', text_to_speak_main: 'If I had a car, I would go on a trip.', text_to_speak_example: 'She dreams that if she had a car, she would explore the country.' },
+                { front: 'اگر یک ماشین داشتم، می‌توانستم به سفر بروم', back_main: 'If I had a car, I could go on a trip.', back_example: 'With a car, you could visit your family more often.', text_to_speak_main: 'If I had a car, I could go on a trip.', text_to_speak_example: 'With a car, you could visit your family more often.' },
+                { front: 'اگر یک ماشین داشتم، ممکن بود به سفر بروم', back_main: 'If I had a car, I might go on a trip.', back_example: 'She said if she had a car, she might drive to the beach this weekend.', text_to_speak_main: 'If I had a car, I might go on a trip.', text_to_speak_example: 'She said if she had a car, she might drive to the beach this weekend.' },
+                { front: 'اگر یک برادر داشتم، او به من کمک می‌کرد', back_main: 'If I had a brother, he would help me.', back_example: 'Sometimes I think if I had a brother, I would have someone to talk to.', text_to_speak_main: 'If I had a brother, he would help me.', text_to_speak_example: 'Sometimes I think if I had a brother, I would have someone to talk to.' },
+                { front: 'اگر یک خواستگار داشتم، شاید به ازدواج فکر می‌کردم', back_main: 'If I had a suitor, I might consider marriage.', back_example: 'She joked that if she had a suitor, she might actually say yes.', text_to_speak_main: 'If I had a suitor, I might consider marriage.', text_to_speak_example: 'She joked that if she had a suitor, she might actually say yes.' },
+                { front: 'اگر یک شغل خوب داشتم، پول بیشتری پس‌انداز می‌کردم', back_main: 'If I had a good job, I would save more money.', back_example: 'If he had a good job, he wouldn\'t be in debt.', text_to_speak_main: 'If I had a good job, I would save more money.', text_to_speak_example: 'If he had a good job, he wouldn\'t be in debt.' },
+                { front: 'اگر مدرک دانشگاهی داشتم، می‌توانستم شغل بهتری پیدا کنم', back_main: 'If I had a university degree, I could find a better job.', back_example: 'He believes that if he had a degree, more doors would open for him.', text_to_speak_main: 'If I had a university degree, I could find a better job.', text_to_speak_example: 'He believes that if he had a degree, more doors would open for him.' },
+                { front: 'اگر وکیل داشتم، مشاوره حقوقی می‌گرفتم', back_main: 'If I had a lawyer, I would ask for legal advice.', back_example: 'If you had a lawyer, this process would be much easier.', text_to_speak_main: 'If I had a lawyer, I would ask for legal advice.', text_to_speak_example: 'If you had a lawyer, this process would be much easier.' },
+                { front: 'اگر تهران را بلد بودم، می‌توانستم تو را در شهر بگردانم', back_main: 'If I knew Tehran, I could show you around the city.', back_example: 'If they knew the area, they wouldn\'t get lost.', text_to_speak_main: 'If I knew Tehran, I could show you around the city.', text_to_speak_example: 'If they knew the area, they wouldn\'t get lost.' },
+                { front: 'اگر انگلیسی بلد بودم، تو را استخدام می‌کردم', back_main: 'If I knew English, I would hire you.', back_example: 'The manager thought, "If this candidate knew English, I would offer him the job immediately."', text_to_speak_main: 'If I knew English, I would hire you.', text_to_speak_example: 'The manager thought, "If this candidate knew English, I would offer him the job immediately."' },
+                { front: 'اگر انگلیسی بلد بودم، برای آن شغل درخواست می‌دادم', back_main: 'If I knew English, I would apply for that job.', back_example: 'She regrets not learning English. "If I knew English, my career would be different."', text_to_speak_main: 'If I knew English, I would apply for that job.', text_to_speak_example: 'She regrets not learning English. "If I knew English, my career would be different."' },
+                { front: 'اگر ماهی یک میلیون تومان درآمد داشتم، می‌توانستم یک آپارتمان کوچک اجاره کنم', back_main: 'If I earned 1 million Tomans a month, I could rent a small apartment.', back_example: 'Even if he earned more, he would still live simply.', text_to_speak_main: 'If I earned 1 million Tomans a month, I could rent a small apartment.', text_to_speak_example: 'Even if he earned more, he would still live simply.' },
+                { front: 'اگر جای تو بودم، مهاجرت می‌کردم', back_main: 'If I were in your shoes, I would immigrate.', back_example: 'My friend told me, "If I were in your shoes, I\'d take that opportunity abroad."', text_to_speak_main: 'If I were in your shoes, I would immigrate.', text_to_speak_example: 'My friend told me, "If I were in your shoes, I\'d take that opportunity abroad."' },
+                { front: 'اگر جای تو بودم، استعفا می‌دادم', back_main: 'If I were in your shoes, I would resign.', back_example: 'Honestly, if I were in your shoes, I would have resigned a long time ago.', text_to_speak_main: 'If I were in your shoes, I would resign.', text_to_speak_example: 'Honestly, if I were in your shoes, I would have resigned a long time ago.' },
+                { front: 'اگر جای تو بودم، به چین مهاجرت نمی‌کردم', back_main: "If I were in your shoes, I wouldn't emigrate to China.", back_example: 'He advised me, "If I were you, I wouldn\'t make such a hasty decision."', text_to_speak_main: "If I were in your shoes, I wouldn't emigrate to China.", text_to_speak_example: 'He advised me, "If I were you, I wouldn\'t make such a hasty decision."' },
+                { front: 'اگر جای تو بودم، این ماشین را می‌خریدم', back_main: 'If I were in your shoes, I would buy this car.', back_example: 'My dad said, "If I were you, I\'d buy the blue one."', text_to_speak_main: 'If I were in your shoes, I would buy this car.', text_to_speak_example: 'My dad said, "If I were you, I\'d buy the blue one."' },
+                { front: 'اگر جوان‌تر بودم، به سراسر دنیا سفر می‌کردم', back_main: 'If I were younger, I would travel the world.', back_example: 'My grandpa always says, "If I were younger, I would learn to fly a plane."', text_to_speak_main: 'If I were younger, I would travel the world.', text_to_speak_example: 'My grandpa always says, "If I were younger, I would learn to fly a plane."' },
+                { front: 'اگر قدم بلندتر بود، بسکتبال بازی می‌کردم', back_main: 'If I were taller, I would play basketball.', back_example: 'He often thinks, "If I were taller, I could have been a professional player."', text_to_speak_main: 'If I were taller, I would play basketball.', text_to_speak_example: 'He often thinks, "If I were taller, I could have been a professional player."' },
+                { front: 'اگر معلم بودم، به شاگردانم کمک می‌کردم موفق شوند', back_main: 'If I were a teacher, I would help my students succeed.', back_example: 'If she were the teacher, she would make the classes more interactive.', text_to_speak_main: 'If I were a teacher, I would help my students succeed.', text_to_speak_example: 'If she were the teacher, she would make the classes more interactive.' },
+                { front: 'اگر پولدار بودم، یک خانه بزرگ می‌خریدم', back_main: 'If I were rich, I would buy a big house.', back_example: 'If they were rich, they would donate a lot of money to charity.', text_to_speak_main: 'If I were rich, I would buy a big house.', text_to_speak_example: 'If they were rich, they would donate a lot of money to charity.' },
+                { front: 'اگر بزرگتر بودم، تجربه بیشتری داشتم', back_main: 'If I were older, I would have more experience.', back_example: 'She thinks, "If I were older, people would take me more seriously."', text_to_speak_main: 'If I were older, I would have more experience.', text_to_speak_example: 'She thinks, "If I were older, people would take me more seriously."' },
+                { front: 'اگر مجرد بودم، هرگز ازدواج نمی‌کردم', back_main: 'If I were single, I would never marry.', back_example: 'He told his friend, "If I were single again, I would travel for a year."', text_to_speak_main: 'If I were single, I would never marry.', text_to_speak_example: 'He told his friend, "If I were single again, I would travel for a year."' },
+                { front: 'اگر مجرد بودم، می‌توانستم به خارج بروم', back_main: 'If I were single, I could go abroad.', back_example: 'If she were single, she could accept the job offer in another country.', text_to_speak_main: 'If I were single, I could go abroad.', text_to_speak_example: 'If she were single, she could accept the job offer in another country.' },
+                { front: 'اگر پولدار بودی، چه کار می‌کردی؟', back_main: 'What would you do if you were rich?', back_example: 'I asked him, "What would you do if you had a superpower?"', text_to_speak_main: 'What would you do if you were rich?', text_to_speak_example: 'I asked him, "What would you do if you had a superpower?"' },
+                { front: 'اگر پولدار بودی، کجا زندگی می‌کردی؟', back_main: 'Where would you live if you were rich?', back_example: 'Let\'s imagine: where would you travel if you had a time machine?', text_to_speak_main: 'Where would you live if you were rich?', text_to_speak_example: 'Let\'s imagine: where would you travel if you had a time machine?' },
+                { front: 'اگر زمان و پول کافی داشتی، کجا به تعطیلات می‌رفتی؟', back_main: 'Where would you go on vacation if you had enough time and money?', back_example: 'If you could meet any historical figure, who would it be?', text_to_speak_main: 'Where would you go on vacation if you had enough time and money?', text_to_speak_example: 'If you could meet any historical figure, who would it be?' },
+                { front: 'اگر می‌خواستی فرانسه یاد بگیری، چه کار می‌کردی؟', back_main: 'What would you do if you wanted to learn French?', back_example: 'What would you change if you were the president?', text_to_speak_main: 'What would you do if you wanted to learn French?', text_to_speak_example: 'What would you change if you were the president?' }
+            ];
+            
+            // --- App State & Functions ---
+            let currentSession = { cards: [], currentIndex: 0, type: '', knownCount: 0, unknownCount: 0 };
+            let preferredVoice = null;
+            let voices = [];
+
+            function loadAndSetVoice() {
+                voices = window.speechSynthesis.getVoices();
+                preferredVoice = voices.find(v => v.name.includes('Google') && v.lang.startsWith('en')) || voices.find(v => v.lang.startsWith('en') && !v.localService) || voices.find(v => v.lang.startsWith('en')) || voices[0];
+            }
+            if (speechSynthesis.onvoiceschanged !== undefined) {
+                speechSynthesis.onvoiceschanged = loadAndSetVoice;
+            }
+            loadAndSetVoice();
+
+            function speakText(text) {
+                if (window.speechSynthesis.speaking) {
+                    window.speechSynthesis.cancel();
+                }
+                if (voices.length === 0) loadAndSetVoice();
+                const utter = new SpeechSynthesisUtterance(text);
+                utter.voice = preferredVoice;
+                utter.lang = preferredVoice?.lang || 'en-US';
+                utter.rate = 0.9;
+                utter.pitch = 1;
+                window.speechSynthesis.speak(utter);
+            }
+
+            function showCard(index) {
+                if (index >= currentSession.cards.length) {
+                    showResults();
+                    return;
+                }
+                const cardData = currentSession.cards[index];
+                const cardFront = document.getElementById('card-front');
+                const cardBack = document.getElementById('card-back');
+                const flashcard = document.querySelector('#practice-view .flashcard');
+                flashcard.classList.remove('is-flipped');
+                
+                // Hide feedback buttons until card is flipped
+                interactiveButtons.classList.add('hidden');
+                
+                prevCardBtn.style.visibility = (index > 0) ? 'visible' : 'hidden';
+                nextCardBtn.style.visibility = 'hidden';
+                
+                setTimeout(() => {
+                    if (currentSession.type === 'vocab') {
+                        cardFront.innerHTML = `<h3 class="text-2xl font-bold p-4">${cardData.front}</h3>`;
+                        cardBack.innerHTML = `<div class="p-4 flex-grow flex flex-col justify-center items-center">
+                                                <p class="text-xl font-semibold">${cardData.back_fa}</p>
+                                                <p class="text-base italic mt-2 text-slate-600">"${cardData.back_en}"</p>
+                                                <div class="flex gap-4">
+                                                    <button class="pronunciation-button" data-text="${cardData.text_to_speak_main}"><i class="fa-solid fa-volume-high"></i><span>کلمه</span></button>
+                                                    <button class="pronunciation-button" data-text="${cardData.text_to_speak_example}"><i class="fa-solid fa-volume-high"></i><span>مثال</span></button>
+                                                </div>
+                                              </div>`;
+                    } else { // Grammar
+                        cardFront.innerHTML = `<h3 class="text-xl font-semibold p-4">${cardData.front}</h3>`;
+                        cardBack.innerHTML = `<div class="p-4 flex-grow flex flex-col justify-center items-center text-left dir-ltr">
+                                                <p class="font-bold text-lg">${cardData.back_main}</p>
+                                                <p class="text-base italic mt-2 text-slate-600">"${cardData.back_example}"</p>
+                                                <div class="flex gap-4">
+                                                    <button class="pronunciation-button" data-text="${cardData.text_to_speak_main}">
+                                                        <i class="fa-solid fa-volume-high"></i><span>جمله</span>
+                                                    </button>
+                                                     <button class="pronunciation-button" data-text="${cardData.text_to_speak_example}">
+                                                        <i class="fa-solid fa-volume-high"></i><span>مثال</span>
+                                                    </button>
+                                                </div>
+                                              </div>`;
+                    }
+                }, 150);
+                cardCounter.textContent = `${index + 1} / ${currentSession.cards.length}`;
+            }
+
+            function renderLesson() {
+                const backButton = lessonContentContainer.querySelector('.back-to-menu-btn').parentElement;
+                lessonContentContainer.innerHTML = '';
+                if (lesson35Content.length > 0 && lesson35Content[0].type === 'raw_html') {
+                    const item = lesson35Content[0];
+                    lessonContentContainer.innerHTML = item.html;
+                } else {
+                    lessonContentContainer.innerHTML = '<p class="text-center text-slate-500">محتوای درس هنوز اضافه نشده است.</p>';
+                }
+                lessonContentContainer.appendChild(backButton);
+            }
+
+            function renderStory() {
+                const backButton = storyContentContainer.querySelector('.back-to-menu-btn').parentElement;
+                storyContentContainer.innerHTML = '';
+                if (storyContent.length === 0) {
+                    storyContentContainer.innerHTML = '<p class="text-center text-slate-500">محتوای داستان هنوز اضافه نشده است.</p>';
+                } else {
+                    storyContent.forEach(item => {
+                        let el;
+                        switch (item.type) {
+                            case 'h2':
+                                el = document.createElement('h2');
+                                el.className = 'text-3xl font-bold text-center mb-10 text-slate-800';
+                                el.textContent = item.text;
+                                break;
+                            case 'p':
+                                el = document.createElement('p');
+                                el.innerHTML = item.text;
+                                break;
+                        }
+                        if (el) storyContentContainer.appendChild(el);
+                    });
+                }
+                storyContentContainer.appendChild(backButton);
+                storyContentContainer.querySelectorAll('.highlight').forEach(highlightEl => {
+                    const translation = highlightEl.dataset.faTranslation;
+                    if (translation) {
+                        const tooltip = document.createElement('span');
+                        tooltip.className = 'tooltip-text';
+                        tooltip.textContent = translation;
+                        highlightEl.appendChild(tooltip);
+                    }
+                });
+            }
+
+            function startPractice(type) {
+                mainMenuView.classList.add('hidden');
+                resultsView.classList.add('hidden');
+                storyView.classList.add('hidden');
+                lessonView.classList.add('hidden');
+                practiceView.classList.remove('hidden');
+                practiceView.classList.add('fade-in');
+                let cardsToPractice = [];
+                if (type === 'vocab') {
+                    cardsToPractice = vocabCards;
+                    headerSubtitle.textContent = 'تمرین کلمات و اصطلاحات';
+                } else if (type === 'grammar') {
+                    cardsToPractice = grammarCards;
+                    headerSubtitle.textContent = 'تمرین گرامر';
+                }
+                if (cardsToPractice.length === 0) {
+                    document.getElementById('review-area').innerHTML = '<p class="text-center text-slate-500 py-10">هیچ کارتی برای تمرین در این بخش وجود ندارد.</p>';
+                    return;
+                }
+                currentSession.cards = shuffleArray([...cardsToPractice]);
+                currentSession.type = type;
+                currentSession.currentIndex = 0;
+                currentSession.knownCount = 0;
+                currentSession.unknownCount = 0;
+                saveResultsBtn.disabled = false;
+                saveResultsBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                saveMessage.textContent = '';
+                showCard(0);
+            }
+
+            function showLesson() {
+                mainMenuView.classList.add('hidden');
+                practiceView.classList.add('hidden');
+                resultsView.classList.add('hidden');
+                storyView.classList.add('hidden');
+                lessonView.classList.remove('hidden');
+                lessonView.classList.add('fade-in');
+                headerSubtitle.textContent = 'درس جلسه ۳۵';
+                renderLesson();
+            }
+
+            function showStory() {
+                mainMenuView.classList.add('hidden');
+                practiceView.classList.add('hidden');
+                resultsView.classList.add('hidden');
+                lessonView.classList.add('hidden');
+                storyView.classList.remove('hidden');
+                storyView.classList.add('fade-in');
+                headerSubtitle.textContent = 'داستان جلسه ۳۵';
+                renderStory();
+            }
+
+            function goBackToMenu() {
+                practiceView.classList.add('hidden');
+                lessonView.classList.add('hidden');
+                storyView.classList.add('hidden');
+                resultsView.classList.add('hidden');
+                mainMenuView.classList.remove('hidden');
+                mainMenuView.classList.add('fade-in');
+                headerSubtitle.textContent = 'یک بخش را برای شروع تمرین انتخاب کنید.';
+                window.speechSynthesis.cancel();
+            }
+
+            function showResults() {
+                practiceView.classList.add('hidden');
+                resultsView.classList.remove('hidden');
+                resultsView.classList.add('fade-in');
+                headerSubtitle.textContent = 'نتایج تمرین شما';
+                const totalCards = currentSession.cards.length;
+                const knownPercentage = totalCards > 0 ? ((currentSession.knownCount / totalCards) * 100).toFixed(0) : 0;
+                const unknownPercentage = totalCards > 0 ? ((currentSession.unknownCount / totalCards) * 100).toFixed(0) : 0;
+                resultsStats.innerHTML = `<p class="mb-2">تعداد کل کارت‌ها: ${totalCards}</p><p class="text-green-600 font-bold mb-1">کارت‌های بلد بودم: ${currentSession.knownCount} (${knownPercentage}%)</p><p class="text-red-600 font-bold">کارت‌های بلد نبودم: ${currentSession.unknownCount} (${unknownPercentage}%)</p>`;
+            }
+
+            async function saveStats() {
+                if (!firebaseInitialized || !userId) {
+                    saveMessage.textContent = 'خطا: امکان ذخیره نتایج وجود ندارد. لطفاً دوباره تلاش کنید.';
+                    saveMessage.classList.remove('text-green-700');
+                    saveMessage.classList.add('text-red-700');
+                    return;
+                }
+                saveResultsBtn.disabled = true;
+                saveResultsBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                saveMessage.textContent = 'در حال ذخیره...';
+                try {
+                    const statsCollection = collection(db, `artifacts/${appId}/users/${userId}/flashcard_stats`);
+                    await addDoc(statsCollection, {
+                        known: currentSession.knownCount,
+                        unknown: currentSession.unknownCount,
+                        total: currentSession.cards.length,
+                        type: currentSession.type,
+                        timestamp: new Date()
+                    });
+                    saveMessage.textContent = 'نتایج با موفقیت ذخیره شد! 🎉';
+                    saveMessage.classList.remove('text-red-700');
+                    saveMessage.classList.add('text-green-700');
+                } catch (e) {
+                    console.error("Error adding document: ", e);
+                    saveMessage.textContent = 'خطا در ذخیره نتایج.';
+                    saveMessage.classList.remove('text-green-700');
+                    saveMessage.classList.add('text-red-700');
+                    saveResultsBtn.disabled = false;
+                    saveResultsBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                }
+            }
+
+            function navigateCards(direction) {
+                const newIndex = currentSession.currentIndex + direction;
+                if (newIndex >= 0 && newIndex < currentSession.cards.length) {
+                    currentSession.currentIndex = newIndex;
+                    showCard(newIndex);
+                } else if (newIndex >= currentSession.cards.length) {
+                    showResults();
+                }
+            }
+
+            function handleFeedback(isKnewIt) {
+                if (isKnewIt) {
+                    currentSession.knownCount++;
+                } else {
+                    currentSession.unknownCount++;
+                }
+                navigateCards(1);
+            }
+            
+            function shuffleArray(array) {
+                for (let i = array.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [array[i], array[j]] = [array[j], array[i]];
+                }
+                return array;
+            }
+
+            // --- EVENT LISTENERS ---
+            startLesson35Btn.addEventListener('click', showLesson);
+            startStoryBtn.addEventListener('click', showStory);
+            startVocabBtn.addEventListener('click', () => startPractice('vocab'));
+            startGrammarBtn.addEventListener('click', () => startPractice('grammar'));
+            backToMenuBtns.forEach(btn => btn.addEventListener('click', goBackToMenu));
+            knewItBtn.addEventListener('click', () => handleFeedback(true));
+            didNotKnowBtn.addEventListener('click', () => handleFeedback(false));
+            nextCardBtn.addEventListener('click', () => navigateCards(1));
+            prevCardBtn.addEventListener('click', () => navigateCards(-1));
+            
+            flashcardDisplay.addEventListener('click', function(event) {
+                const flashcard = this.querySelector('.flashcard');
+                // Prevent flipping if a button inside the card is clicked
+                if (event.target.closest('button')) {
+                    return;
+                }
+                flashcard.classList.toggle('is-flipped');
+                
+                // Show feedback buttons only when card is flipped to the back
+                if (flashcard.classList.contains('is-flipped')) {
+                    interactiveButtons.classList.remove('hidden');
+                } else {
+                    interactiveButtons.classList.add('hidden');
+                }
+            });
+
+            document.body.addEventListener('click', function(event) {
+                const pronunciationButton = event.target.closest('.pronunciation-button');
+                if (pronunciationButton) {
+                    event.stopPropagation();
+                    const textToSpeak = pronunciationButton.dataset.text;
+                    if (textToSpeak) {
+                        speakText(textToSpeak);
+                    }
+                }
+            });
+            saveResultsBtn.addEventListener('click', saveStats);
+        });
+    </script>
+</body>
+</html>

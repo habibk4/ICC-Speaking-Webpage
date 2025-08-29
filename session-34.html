@@ -1,0 +1,1188 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تمرین زبان دوره ICC - جلسه ۳۴</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <style>
+        body {
+            font-family: 'Vazirmatn', sans-serif;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            background-color: #f1f5f9; /* slate-100 */
+        }
+        .main-container {
+            flex-grow: 1;
+        }
+        .flashcard-container { perspective: 1000px; height: 320px; width: 100%; max-width: 600px; }
+        .flashcard { position: relative; width: 100%; height: 100%; transition: transform 0.7s; transform-style: preserve-3d; }
+        .flashcard.is-flipped { transform: rotateY(180deg); }
+        .card-face { position: absolute; width: 100%; height: 100%; -webkit-backface-visibility: hidden; backface-visibility: hidden; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 1.5rem; border-radius: 1rem; box-shadow: 0 8px 24px rgba(0,0,0,0.1); text-align: center; border: 1px solid #e2e8f0; }
+        .card-front { background-color: #ffffff; }
+        .card-back { background-color: #f8fafc; transform: rotateY(180deg); }
+        .pronunciation-button { display: inline-flex; align-items: center; gap: 0.5rem; margin-top: 1rem; padding: 0.5rem 1rem; background-color: #e0f2fe; color: #0c4a6e; border-radius: 9999px; font-weight: 500; transition: all 0.2s; border: none; cursor: pointer; }
+        .pronunciation-button:hover { background-color: #bae6fd; transform: scale(1.05); }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .fade-in {
+            animation: fadeIn 0.6s ease-out forwards;
+        }
+        .menu-card {
+            transition: all 0.3s ease-in-out;
+        }
+        .menu-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        .lesson-content .proverb-banner {
+            background-image: linear-gradient(to left, #dc2626, #ef4444);
+            color: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            margin-top: 3rem;
+            text-align: center;
+            box-shadow: 0 10px 20px -5px rgba(239, 68, 68, 0.4);
+        }
+        .lesson-content .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 300px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+        }
+        .lesson-content .tip-box {
+            background-color: #e0f2fe; /* Sky 100 */
+            border-right: 4px solid #0ea5e9; /* Sky 500 */
+            color: #0c4a6e; /* Sky 900 */
+        }
+        .lesson-content .warning-box {
+            background-color: #fffbeb; /* Amber 50 */
+            border-right: 4px solid #f59e0b; /* Amber 500 */
+            color: #92400e; /* Amber 900 */
+        }
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        .action-buttons .btn {
+            padding: 0.75rem 2rem;
+            font-weight: bold;
+            border-radius: 0.75rem;
+            transition: all 0.2s;
+            cursor: pointer;
+            border: none;
+        }
+        .action-buttons .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .btn-correct {
+            background-color: #10b981; /* green-500 */
+            color: white;
+        }
+        .btn-incorrect {
+            background-color: #ef4444; /* red-500 */
+            color: white;
+        }
+        .highlight {
+            color: #10b981; /* green-500 */
+            font-weight: bold;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .highlight .tooltip-text {
+            visibility: hidden;
+            width: 150px;
+            background-color: #4b5563; /* slate-700 */
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px 0;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%; /* Position the tooltip above the text */
+            left: 50%;
+            margin-left: -75px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-family: 'Vazirmatn', sans-serif;
+        }
+
+        .highlight:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+        /* Styles from the infographic file */
+        .lesson-content .card {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .lesson-content .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        .lesson-content .dialog-box-left {
+            position: relative;
+            background: #118AB2;
+            color: white;
+            border-radius: .4em;
+        }
+        .lesson-content .dialog-box-left:after {
+            content: '';
+            position: absolute;
+            right: 100%;
+            top: 50%;
+            width: 0;
+            height: 0;
+            border-top: 10px solid transparent;
+            border-right: 15px solid #118AB2;
+            border-bottom: 10px solid transparent;
+            margin-top: -10px;
+        }
+        .lesson-content .dialog-box-right {
+            position: relative;
+            background: #06D6A0;
+            color: #073B4C;
+            border-radius: .4em;
+        }
+        .lesson-content .dialog-box-right:after {
+            content: '';
+            position: absolute;
+            left: 100%;
+            top: 50%;
+            width: 0;
+            height: 0;
+            border-top: 10px solid transparent;
+            border-left: 15px solid #06D6A0;
+            border-bottom: 10px solid transparent;
+            margin-top: -10px;
+        }
+        .lesson-content .flashcard-container {
+            perspective: 1000px;
+        }
+        .lesson-content .flashcard {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+            cursor: pointer;
+        }
+        .lesson-content .flashcard.flipped {
+            transform: rotateY(180deg);
+        }
+        .lesson-content .flashcard-front, .lesson-content .flashcard-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            padding: 1rem;
+        }
+        .lesson-content .flashcard-front {
+            background-color: #073B4C;
+            color: white;
+            font-size: 1.25rem;
+            font-weight: bold;
+        }
+        .lesson-content .flashcard-back {
+            background-color: #FFD166;
+            color: #073B4C;
+            transform: rotateY(180deg);
+            font-size: 1rem;
+            font-weight: 500;
+        }
+        .lesson-content .flashcard-term {
+            font-size: 1.5rem;
+            font-weight: 800;
+        }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800">
+
+    <div class="main-container container mx-auto max-w-6xl p-4 sm:p-8">
+        <header class="text-center mb-8 sm:mb-12 fade-in">
+            <h1 class="text-3xl sm:text-4xl font-bold text-slate-800">تمرین زبان دوره ICC - جلسه ۳۴</h1>
+            <p id="header-subtitle" class="text-slate-500 mt-2">یک بخش را برای شروع تمرین انتخاب کنید.</p>
+        </header>
+
+        <!-- Main Menu View -->
+        <div id="main-menu-view" class="fade-in" style="animation-delay: 0.2s;">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <!-- Lesson 34 Card -->
+                <div id="start-lesson34-btn" class="menu-card bg-white rounded-2xl shadow-lg p-8 text-center cursor-pointer">
+                    <div class="text-5xl text-purple-500 mb-4">✨</div>
+                    <h2 class="text-2xl font-bold text-slate-800">درس جلسه ۳۴</h2>
+                    <p class="text-slate-500 mt-2">گرامر Wish و نکات تکمیلی.</p>
+                </div>
+                <!-- Story Card -->
+                <div id="start-story-btn" class="menu-card bg-white rounded-2xl shadow-lg p-8 text-center cursor-pointer">
+                    <div class="text-5xl text-fuchsia-500 mb-4">📖</div>
+                    <h2 class="text-2xl font-bold text-slate-800">داستان</h2>
+                    <p class="text-slate-500 mt-2">مرور گرامر و کلمات در قالب یک داستان جذاب.</p>
+                </div>
+                <!-- Vocab Card -->
+                <div id="start-vocab-btn" class="menu-card bg-white rounded-2xl shadow-lg p-8 text-center cursor-pointer">
+                    <div class="text-5xl text-blue-500 mb-4">🔤</div>
+                    <h2 class="text-2xl font-bold text-slate-800">تمرین کلمات و اصطلاحات</h2>
+                    <p class="text-slate-500 mt-2">واژگان، اصطلاحات و عبارات کاربردی را مرور کنید.</p>
+                </div>
+                <!-- Grammar Card -->
+                <div id="start-grammar-btn" class="menu-card bg-white rounded-2xl shadow-lg p-8 text-center cursor-pointer">
+                    <div class="text-5xl text-teal-500 mb-4">📝</div>
+                    <h2 class="text-2xl font-bold text-slate-800">تمرین گرامر</h2>
+                    <p class="text-slate-500 mt-2">ساختارهای گرامری جدید را تمرین کنید.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Practice View (For Flashcards) -->
+        <div id="practice-view" class="hidden">
+            <div class="bg-white rounded-2xl shadow-xl p-6 sm:p-10">
+                <div id="review-area" class="w-full mx-auto text-center">
+                    <div id="flashcard-display" class="flashcard-container mx-auto mb-8">
+                        <div class="flashcard">
+                            <div id="card-front" class="card-face card-front"></div>
+                            <div id="card-back" class="card-face card-back p-0"></div>
+                        </div>
+                    </div>
+                    <div id="interactive-buttons" class="action-buttons">
+                        <button id="did-not-know-btn" class="btn btn-incorrect">بلد نبودم</button>
+                        <button id="knew-it-btn" class="btn btn-correct">بلد بودم</button>
+                    </div>
+                    <div class="flex justify-center items-center gap-4 mt-8 border-t border-slate-200 pt-6">
+                        <button id="prev-card-btn" class="px-6 py-3 text-sm font-bold bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-lg transition">قبلی</button>
+                        <p id="card-counter" class="text-slate-500 font-medium text-sm w-20 text-center"></p>
+                        <button id="next-card-btn" class="px-6 py-3 text-sm font-bold bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-lg transition">بعدی</button>
+                    </div>
+                </div>
+                <div class="text-center mt-8 border-t border-slate-200 pt-6">
+                    <button class="back-to-menu-btn text-sm text-blue-600 hover:underline font-semibold">بازگشت به منوی اصلی</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lesson View -->
+        <div id="lesson-view" class="hidden">
+            <div id="lesson-content-container" class="bg-white rounded-2xl shadow-xl p-8 sm:p-12 lesson-content">
+                <!-- Lesson content will be injected here by JS -->
+                <div class="text-center mt-10 border-t border-slate-200 pt-6">
+                    <button class="back-to-menu-btn text-sm text-blue-600 hover:underline font-semibold">بازگشت به منوی اصلی</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Story View -->
+        <div id="story-view" class="hidden">
+            <div id="story-content-container" class="bg-white rounded-2xl shadow-xl p-8 sm:p-12 lesson-content" dir="ltr">
+                <!-- Story content will be injected here by JS -->
+                <div class="text-center mt-10 border-t border-slate-200 pt-6">
+                    <button class="back-to-menu-btn text-sm text-blue-600 hover:underline font-semibold">بازگشت به منوی اصلی</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results View -->
+        <div id="results-view" class="hidden">
+             <div class="bg-white rounded-2xl shadow-xl p-6 sm:p-10 text-center">
+                <h2 class="text-2xl sm:text-3xl font-bold text-slate-800 mb-4">نتایج تمرین</h2>
+                <div id="results-stats" class="text-lg text-slate-700 mb-6"></div>
+                <button id="save-results-btn" class="px-6 py-3 text-sm font-bold bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition mb-4">ذخیره نتایج</button>
+                <div id="save-message" class="text-sm font-medium text-green-700"></div>
+                <div class="text-center mt-8 border-t border-slate-200 pt-6">
+                    <button class="back-to-menu-btn text-sm text-blue-600 hover:underline font-semibold">بازگشت به منوی اصلی</button>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+    
+    <footer class="text-center p-4 mt-auto text-slate-500 text-sm">
+        <p>طراحی و توسعه حبیب کمایی</p>
+        <p>Habibkamaie@gmail.com</p>
+    </footer>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        document.addEventListener('DOMContentLoaded', async function () {
+            // --- Firebase Setup ---
+            const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+            const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+            const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : '';
+            
+            let db, auth, userId;
+            let firebaseInitialized = false;
+
+            try {
+                const app = initializeApp(firebaseConfig);
+                auth = getAuth(app);
+                db = getFirestore(app);
+                firebaseInitialized = true;
+                console.log("Firebase initialized successfully.");
+
+                if (initialAuthToken) {
+                    await signInWithCustomToken(auth, initialAuthToken);
+                } else {
+                    await signInAnonymously(auth);
+                }
+
+                onAuthStateChanged(auth, (user) => {
+                    if (user) {
+                        userId = user.uid;
+                        console.log("User authenticated with UID:", userId);
+                    } else {
+                        console.log("User signed out.");
+                    }
+                });
+
+            } catch (error) {
+                console.error("Firebase initialization or authentication failed:", error);
+            }
+
+            // --- UI Elements ---
+            const mainMenuView = document.getElementById('main-menu-view');
+            const practiceView = document.getElementById('practice-view');
+            const lessonView = document.getElementById('lesson-view');
+            const storyView = document.getElementById('story-view');
+            const resultsView = document.getElementById('results-view');
+            
+            const startLesson34Btn = document.getElementById('start-lesson34-btn');
+            const startStoryBtn = document.getElementById('start-story-btn');
+            const startVocabBtn = document.getElementById('start-vocab-btn');
+            const startGrammarBtn = document.getElementById('start-grammar-btn');
+
+            const backToMenuBtns = document.querySelectorAll('.back-to-menu-btn');
+            const headerSubtitle = document.getElementById('header-subtitle');
+            const cardCounter = document.getElementById('card-counter');
+            const prevCardBtn = document.getElementById('prev-card-btn');
+            const nextCardBtn = document.getElementById('next-card-btn');
+            const lessonContentContainer = document.getElementById('lesson-content-container');
+            const storyContentContainer = document.getElementById('story-content-container');
+            
+            const interactiveButtons = document.getElementById('interactive-buttons');
+            const knewItBtn = document.getElementById('knew-it-btn');
+            const didNotKnowBtn = document.getElementById('did-not-know-btn');
+            const flashcardDisplay = document.getElementById('flashcard-display');
+            const resultsStats = document.getElementById('results-stats');
+            const saveResultsBtn = document.getElementById('save-results-btn');
+            const saveMessage = document.getElementById('save-message');
+
+            // --- DATA ---
+            const lesson34Content = [
+                {
+                    type: 'raw_html',
+                    html: `
+                        <div class="container mx-auto p-0">
+                             <main>
+                                <section id="wish-grammar" class="mb-16">
+                                    <div class="text-center p-8 mb-8 bg-gradient-to-r from-[#118AB2] to-[#06D6A0] text-white rounded-xl shadow-lg">
+                                        <h2 class="text-3xl font-bold mb-2">💡 گرامر "Wish" (ای کاش)</h2>
+                                        <p class="text-xl font-bold bg-[#FF6B6B] inline-block px-4 py-2 rounded-lg">کلاً اینا محاله، بچه‌ها! خوب گوش کنید</p>
+                                        <p class="mt-4 max-w-2xl mx-auto">ما "Wish" رو برای چیزهایی به کار می‌بریم که **هیچ امیدی بهشون نیست** و صفر درصد احتمال وقوع دارن. این اولین و مهم‌ترین نکته‌ست.</p>
+                                    </div>
+
+                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                                        
+                                        <div class="card p-6 text-center">
+                                            <h3 class="text-2xl font-bold text-[#118AB2] mb-4">⏳ ای کاش‌های حال</h3>
+                                            <p class="mb-4">وقتی راجع به "ای کاش"‌های الان حرف می‌زنیم، فعلمون رو **گذشته ساده** می‌ذاریم.</p>
+                                            <p class="bg-gray-100 p-3 rounded-lg font-mono text-left dir-ltr">I wish I <span class="text-[#FF6B6B] font-bold">had</span> a million dollars.</p>
+                                            <div class="mt-4 pt-4 border-t-2 border-dashed">
+                                                <p class="font-bold text-[#06D6A0]">نکته استثنایی فعل "be":</p>
+                                                <p>برای همه فاعل‌ها از <span class="font-bold text-lg">were</span> استفاده می‌کنیم.</p>
+                                                 <p class="bg-gray-100 p-3 mt-2 rounded-lg font-mono text-left dir-ltr">I wish I <span class="text-[#FF6B6B] font-bold">were</span> younger.</p>
+                                            </div>
+                                        </div>
+
+                                        <div class="card p-6 text-center">
+                                            <h3 class="text-2xl font-bold text-[#118AB2] mb-4">🔮 ای کاش‌های آینده</h3>
+                                            <p class="mb-4">برای آرزوهای محال آینده، از **would** یا **wouldn't** استفاده می‌کنیم.</p>
+                                            <p class="bg-gray-100 p-3 rounded-lg font-mono text-left dir-ltr">I wish they <span class="text-[#FF6B6B] font-bold">would</span> stop worrying.</p>
+                                            <p class="bg-gray-100 p-3 mt-2 rounded-lg font-mono text-left dir-ltr">I wish you <span class="text-[#FF6B6B] font-bold">wouldn't</span> socialize with them.</p>
+                                        </div>
+
+                                        <div class="card p-6 text-center">
+                                            <h3 class="text-2xl font-bold text-[#118AB2] mb-4">💪 ای کاش‌های توانایی ناممکن</h3>
+                                            <p class="mb-4">برای کارهایی که دوست داریم ولی نمی‌تونیم انجام بدیم، از **could** استفاده می‌کنیم.</p>
+                                            <p class="bg-gray-100 p-3 rounded-lg font-mono text-left dir-ltr">I wish I <span class="text-[#FF6B6B] font-bold">could</span> help you.</p>
+                                             <p class="bg-gray-100 p-3 mt-2 rounded-lg font-mono text-left dir-ltr">I wish I <span class="text-[#FF6B6B] font-bold">could</span> afford a new car.</p>
+                                            </div>
+                                        </div>
+                                    </section>
+                                </main>
+                                
+                                <hr class="border-4 border-dashed border-[#118AB2] my-16">
+                                
+                                <main>
+                                    <section id="wish-vs-hope" class="mb-16">
+                                         <div class="text-center mb-8">
+                                            <h2 class="text-3xl font-bold text-[#073B4C]">  تفاوت "Wish" و "Hope"</h2>
+                                            <p class="text-lg text-gray-600 mt-2">استاد تأکید کرد که این دو تا با هم خیلی فرق دارن!</p>
+                                        </div>
+                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                                            <div class="card p-6">
+                                                <h3 class="text-2xl font-bold text-center text-[#FF6B6B] mb-4">Wish (آرزوی محال)</h3>
+                                                <div class="chart-container">
+                                                    <canvas id="wishChart"></canvas>
+                                                </div>
+                                                <p class="text-center mt-4">یعنی **صفر درصد** امید به وقوع. با **گذشته** میاد.</p>
+                                            </div>
+                                            <div class="card p-6">
+                                                <h3 class="text-2xl font-bold text-center text-[#06D6A0] mb-4">Hope (امیدواری)</h3>
+                                                <div class="chart-container">
+                                                    <canvas id="hopeChart"></canvas>
+                                                </div>
+                                                <p class="text-center mt-4">یعنی احتمال وقوع داره. با **حال ساده** میاد.</p>
+                                            </div>
+                                        </div>
+                                    </section>
+                                    
+                                    <section class="mb-16">
+                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                            <div class="card p-6">
+                                                <h2 class="text-2xl font-bold text-[#073B4C] mb-4 text-center">🗣️ حال استمراری برای شکایت</h2>
+                                                <p class="mb-4">وقتی حال استمراری با قید تکرار مثل <span class="font-black text-3xl text-[#FFD166] bg-[#073B4C] px-2 rounded">always</span> میاد، معنی گله و شکایت می‌ده.</p>
+                                                <p class="text-center text-lg mb-2">"این شورشو درآورده!"</p>
+                                                <div class="bg-gray-100 p-4 rounded-lg">
+                                                    <p class="font-mono text-left dir-ltr">My parents <span class="text-[#FF6B6B] font-bold">are always asking</span> me to be home early.</p>
+                                                    <p class="font-mono text-left dir-ltr mt-2">My boss <span class="text-[#FF6B6B] font-bold">is always bragging</span>.</p>
+                                                </div>
+                                            </div>
+                                            <div class="card p-6">
+                                                <h2 class="text-2xl font-bold text-[#073B4C] mb-4 text-center">🎯 سایر نکات مهم</h2>
+                                                <ul class="space-y-4">
+                                                    <li class="p-3 bg-blue-50 rounded-lg">
+                                                        <p><strong class="text-[#118AB2]">ساختار "Parents are like that":</strong> برای اینکه بگیم یه جماعتی همشون همینن.</p>
+                                                    </li>
+                                                    <li class="p-3 bg-green-50 rounded-lg">
+                                                        <p><strong class="text-[#06D6A0]">اصطلاح "I'm afraid so":</strong> یعنی «متأسفانه همینطوره».</p>
+                                                    </li>
+                                                    <li class="p-3 bg-yellow-50 rounded-lg">
+                                                        <p><strong class="text-[#FFD166]">کاربرد "Would":</strong> هم با "like" میاد و هم برای ای‌کاش‌های آینده.</p>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </section>
+                                    
+                                     <section class="mb-16">
+                                        <div class="text-center p-8 mb-8 bg-gradient-to-r from-[#FF6B6B] to-[#FFD166] text-white rounded-xl shadow-lg">
+                                            <h2 class="text-3xl font-bold mb-2">۴. کاربرد فعل مُدال "Would"</h2>
+                                            <p class="text-xl font-bold">وود ۸ تا کاربرد داره بچه‌ها!</p>
+                                        </div>
+                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                            <div class="card p-6 text-center bg-blue-50">
+                                                <div class="text-4xl mb-4">👍</div>
+                                                <h3 class="text-xl font-bold text-[#118AB2] mb-2">کاربرد اول (خواسته)</h3>
+                                                <p class="mb-4">با "<strong class="text-[#FF6B6B]">like</strong>" میاد و میشه "<strong class="text-[#FF6B6B]">would like</strong>" به معنی "**خواستن**".</p>
+                                                 <p class="bg-gray-100 p-3 rounded-lg font-mono text-left dir-ltr">I would like to have a coffee.</p>
+                                            </div>
+                                            <div class="card p-6 text-center bg-green-50">
+                                                <div class="text-4xl mb-4">🔮</div>
+                                                <h3 class="text-xl font-bold text-[#06D6A0] mb-2">کاربرد دوم (آرزوی آینده)</h3>
+                                                <p class="mb-4">برای گفتن **"ای کاش‌های آینده"** استفاده میشه.</p>
+                                                 <p class="bg-gray-100 p-3 rounded-lg font-mono text-left dir-ltr">I wish it would stop raining.</p>
+                                            </div>
+                                        </div>
+                                    </section>
+
+                                    <section class="mb-16">
+                                        <div class="text-center p-8 mb-8 bg-gradient-to-r from-[#06D6A0] to-[#118AB2] text-white rounded-xl shadow-lg">
+                                            <h2 class="text-3xl font-bold mb-2">۵. ساختار "Parents are like that"</h2>
+                                            <p class="text-xl font-bold">همه همینن!</p>
+                                        </div>
+                                        <p class="text-center text-lg max-w-2xl mx-auto mb-8">وقتی می‌خوایم بگیم یه جماعتی همشون همینن، اون اسم رو جمع می‌بندیم و می‌گیم "<strong class="text-[#FF6B6B]">are like that</strong>".</p>
+                                        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+                                            <div class="card p-4 text-center bg-[#FF6B6B] text-white"><p>Parents</p></div>
+                                            <div class="card p-4 text-center bg-[#118AB2] text-white"><p>Teachers</p></div>
+                                            <div class="card p-4 text-center bg-[#FFD166]"><p>Students</p></div>
+                                            <div class="card p-4 text-center bg-[#06D6A0] text-white"><p>Girls</p></div>
+                                            <div class="card p-4 text-center bg-[#073B4C] text-white"><p>Boys</p></div>
+                                        </div>
+                                    </section>
+                                    
+                                    <section class="mb-16">
+                                        <div class="text-center p-8 mb-8 bg-gradient-to-r from-[#FFD166] to-[#FF6B6B] text-white rounded-xl shadow-lg">
+                                            <h2 class="text-3xl font-bold mb-2">۶. اصطلاح "I'm afraid so"</h2>
+                                        </div>
+                                        <div class="grid grid-cols-1 gap-8 max-w-xl mx-auto">
+                                            <div class="p-6 dialog-box-left">
+                                                <p class="font-bold">So, are you still living with your parents, Terry?</p>
+                                            </div>
+                                            <div class="flex justify-end">
+                                                <div class="p-6 dialog-box-right">
+                                                    <p class="font-bold">I'm afraid so.</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                         <p class="text-center text-lg mt-8 max-w-2xl mx-auto">این عبارت یعنی "<strong class="text-[#FF6B6B]">متأسفانه همینطوره</strong>". زمانی استفاده میشه که شما مجبورید یک حقیقت ناخوشایند رو تأیید کنید.</p>
+                                    </section>
+                                    
+                                    <section class="mb-16">
+                                        <div class="text-center p-8 mb-8 bg-gradient-to-r from-[#06D6A0] to-[#FFD166] text-white rounded-xl shadow-lg">
+                                            <h2 class="text-3xl font-bold mb-2">۷. معنی "Matter" در گرامر</h2>
+                                        </div>
+                                         <p class="text-center text-lg max-w-2xl mx-auto mb-8">کلمه "<strong class="text-[#FF6B6B]">matter</strong>" (مسئله/موضوع) در گرامر یک معنی "**مفعول**" هم دارد.</p>
+                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                            <div class="card p-6 bg-yellow-50 text-center">
+                                                <div class="text-4xl mb-4">💰</div>
+                                                <h3 class="text-xl font-bold text-[#FFD166] mb-2">معنی "مهم بودن"</h3>
+                                                <p class="mt-4">در جمله "<strong class="text-[#FF6B6B]">Money doesn't matter</strong>" یعنی **پولش مهم نیست**.</p>
+                                            </div>
+                                            <div class="card p-6 bg-teal-50 text-center">
+                                                <div class="text-4xl mb-4">🗺️</div>
+                                                <h3 class="text-xl font-bold text-[#118AB2] mb-2">معنی "موضوع/مسئله"</h3>
+                                                <p class="mt-4">مثل آینه‌های ماشین که نوشته "objects in mirror are closer than they appear".</p>
+                                            </div>
+                                        </div>
+                                    </section>
+                                    
+                                    <section class="mb-16">
+                                        <div class="text-center p-8 mb-8 bg-gradient-to-r from-[#118AB2] to-[#FFD166] text-white rounded-xl shadow-lg">
+                                            <h2 class="text-3xl font-bold mb-2">۸. سایر اصطلاحات و نکات مهم</h2>
+                                        </div>
+                                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                                            <div class="flashcard-container h-40" onclick="this.querySelector('.flashcard').classList.toggle('flipped')">
+                                                <div class="flashcard">
+                                                    <div class="flashcard-front">
+                                                        <span class="flashcard-term">Trunk</span>
+                                                    </div>
+                                                    <div class="flashcard-back">
+                                                        <span class="flashcard-meaning">صندوق عقب ماشین، تنه درخت، خرطوم فیل</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="flashcard-container h-40" onclick="this.querySelector('.flashcard').classList.toggle('flipped')">
+                                                <div class="flashcard">
+                                                    <div class="flashcard-front">
+                                                        <span class="flashcard-term">Peeling</span>
+                                                    </div>
+                                                    <div class="flashcard-back">
+                                                        <span class="flashcard-meaning">پوست کندن، لایه‌برداری</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="flashcard-container h-40" onclick="this.querySelector('.flashcard').classList.toggle('flipped')">
+                                                <div class="flashcard">
+                                                    <div class="flashcard-front">
+                                                        <span class="flashcard-term">Ignore</span>
+                                                    </div>
+                                                    <div class="flashcard-back">
+                                                        <span class="flashcard-meaning">نادیده گرفتن</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="flashcard-container h-40" onclick="this.querySelector('.flashcard').classList.toggle('flipped')">
+                                                <div class="flashcard">
+                                                    <div class="flashcard-front">
+                                                        <span class="flashcard-term">Leap</span>
+                                                    </div>
+                                                    <div class="flashcard-back">
+                                                        <span class="flashcard-meaning">پریدن یا Jump</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="flashcard-container h-40" onclick="this.querySelector('.flashcard').classList.toggle('flipped')">
+                                                <div class="flashcard">
+                                                    <div class="flashcard-front">
+                                                        <span class="flashcard-term">Look before you leap</span>
+                                                    </div>
+                                                    <div class="flashcard-back">
+                                                        <span class="flashcard-meaning">بی‌گدار به آب نزن.</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="flashcard-container h-40" onclick="this.querySelector('.flashcard').classList.toggle('flipped')">
+                                                <div class="flashcard">
+                                                    <div class="flashcard-front">
+                                                        <span class="flashcard-term">Apple of one's eye</span>
+                                                    </div>
+                                                    <div class="flashcard-back">
+                                                        <span class="flashcard-meaning">نور چشم، عزیزترین فرد</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="flashcard-container h-40" onclick="this.querySelector('.flashcard').classList.toggle('flipped')">
+                                                <div class="flashcard">
+                                                    <div class="flashcard-front">
+                                                        <span class="flashcard-term">Room and Board</span>
+                                                    </div>
+                                                    <div class="flashcard-back">
+                                                        <span class="flashcard-meaning">جا (اتاق) و غذا</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="flashcard-container h-40" onclick="this.querySelector('.flashcard').classList.toggle('flipped')">
+                                                <div class="flashcard">
+                                                    <div class="flashcard-front">
+                                                        <span class="flashcard-term">Make hay while the sun shines</span>
+                                                    </div>
+                                                    <div class="flashcard-back">
+                                                        <span class="flashcard-meaning">تا تنور داغه نونو بچسبون.</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </section>
+                                </main>
+                        </div>
+                        <div class="proverb-banner">
+                            <h4 class="text-sm font-semibold opacity-80 mb-2">🍎 ضرب المثل جلسه ۳۴</h4>
+                            <p class="text-3xl font-bold">Make hay while the sun shines</p>
+                            <p class="text-lg mt-3 opacity-90">"تا تنور داغه نونو بچسبون"</p>
+                        </div>
+                    `,
+                    script: `
+                        const tooltipCallback = {
+                            plugins: {
+                                tooltip: {
+                                    callbacks: {
+                                        title: function(tooltipItems) {
+                                            const item = tooltipItems[0];
+                                            let label = item.chart.data.labels[item.dataIndex];
+                                            if (Array.isArray(label)) {
+                                              return label.join(' ');
+                                            } else {
+                                              return label;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        };
+
+                        const wishChartCtx = document.getElementById('wishChart')?.getContext('2d');
+                        if(wishChartCtx) {
+                            new Chart(wishChartCtx, {
+                                type: 'doughnut',
+                                data: {
+                                    labels: ['محال'],
+                                    datasets: [{
+                                        label: 'احتمال وقوع',
+                                        data: [100],
+                                        backgroundColor: ['#FF6B6B'],
+                                        borderColor: ['#ffffff'],
+                                        borderWidth: 4
+                                    }]
+                                },
+                                options: {
+                                    responsive: true,
+                                    maintainAspectRatio: false,
+                                    cutout: '70%',
+                                    plugins: {
+                                        legend: {
+                                            display: false
+                                        },
+                                        tooltip: tooltipCallback.plugins.tooltip
+                                    }
+                                }
+                            });
+                        }
+
+                        const hopeChartCtx = document.getElementById('hopeChart')?.getContext('2d');
+                        if(hopeChartCtx) {
+                            new Chart(hopeChartCtx, {
+                                type: 'doughnut',
+                                data: {
+                                    labels: ['ممکن', 'نامشخص'],
+                                    datasets: [{
+                                        label: 'احتمال وقوع',
+                                        data: [50, 50],
+                                        backgroundColor: ['#06D6A0', '#FFD166'],
+                                        borderColor: ['#ffffff'],
+                                        borderWidth: 4
+                                    }]
+                                },
+                                options: {
+                                    responsive: true,
+                                    maintainAspectRatio: false,
+                                    cutout: '70%',
+                                    plugins: {
+                                         legend: {
+                                            display: false
+                                        },
+                                        tooltip: tooltipCallback.plugins.tooltip
+                                    }
+                                }
+                            });
+                        }
+                    `
+                }
+            ];
+            
+            const storyContent = [
+                { type: 'h2', text: 'A Weekend with My Family' },
+                { type: 'p', text: 'My weekend started with an unexpected event. On Saturday morning, I was ready to go on a trip, but I had a <span class="highlight" data-fa-translation="لاستیک پنچر">flat tire</span> on my car. I was so upset because I <span class="highlight" data-fa-translation="ای کاش وقت آزاد بیشتری داشتم">I wish I had more free time</span> to fix it. My dad, who is always very practical, reminded me to <span class="highlight" data-fa-translation="اول فکر کن بعد عمل کن">look before you leap</span>, and not to rush into anything. Thankfully, I had a <span class="highlight" data-fa-translation="لاستیک یدک">spare tire</span> in the <span class="highlight" data-fa-translation="صندوق عقب ماشین">trunk</span>, so we managed to get it changed.' },
+                { type: 'p', text: 'Later, my mom started <span class="highlight" data-fa-translation="غر زدن">nagging</span> me about not helping with the <span class="highlight" data-fa-translation="کارهای خانه">housework</span>. "You are <span class="highlight" data-fa-translation="تو همیشه در حال شکایت کردن هستی">always complaining</span> about how you don\'t have a real friend," she said, "but you never put in the effort." I know <span class="highlight" data-fa-translation="والدین همین‌طورند">Parents are like that</span>, and <span class="highlight" data-fa-translation="ای کاش می‌توانستم ذهن تو را بخوانم">I wish I could read your mind</span>, but sometimes it\'s frustrating. My sister, who is the <span class="highlight" data-fa-translation="نور چشمی">apple of my eye</span>, tried to calm things down. I told my mom <span class="highlight" data-fa-translation="ای کاش اینجا کار نمی‌کردم">I wish I didn\'t work here</span>, because I am so busy.' },
+                { type: 'p', text: 'As we were sitting down for dinner, the <span class="highlight" data-fa-translation="برق رفت">power went out</span>. <span class="highlight" data-fa-translation="ای کاش یک میلیون دلار پول نقد داشتم">I wish I had $1 million (cash) right now</span> to buy a generator! But my brother said, "Don\'t worry, <span class="highlight" data-fa-translation="مسئله مهمی نیست">it\'s no big deal</span>, I <span class="highlight" data-fa-translation="امیدوارم اتوبوس زود بیاید">hope the bus comes soon</span>." My sister told him, <span class="highlight" data-fa-translation="تو دخالت نکن">You stay out of it</span>! Finally, my friend called and said he was going to come over to help. <span class="highlight" data-fa-translation="امیدوارم او امشب زنگ بزند">I hope he calls tonight</span>. <span class="highlight" data-fa-translation="ای کاش پدربزرگم زنده بود">I wish my grandfather were alive</span> to see this. We all had a laugh and I realized that even with all the minor annoyances, it was good to be with family.' }
+            ];
+            const vocabCards = [
+                { front: 'Flat tire', back_fa: 'لاستیک پنچر', back_en: 'I had a flat tire on the way.', text_to_speak: 'flat tire' },
+                { front: 'Spare tire', back_fa: 'لاستیک یدک، زاپاس', back_en: 'Fortunately, the spare tire was in the trunk.', text_to_speak: 'spare tire' },
+                { front: 'Trunk', back_fa: 'صندوق عقب ماشین، تنه درخت، خرطوم فیل', back_en: 'I put the groceries in the trunk of the car.', text_to_speak: 'trunk' },
+                { front: 'I swear (to God)', back_fa: 'قسم می‌خورم (به خدا)', back_en: 'I swear to God, I didn\'t do it.', text_to_speak: 'I swear to God' },
+                { front: "I'm peeling an onion", back_fa: 'دارم پیاز پوست می‌کنم.', back_en: 'She started crying while peeling an onion.', text_to_speak: "I'm peeling an onion" },
+                { front: 'I was miles away', back_fa: 'حواسم پرت بود، در فکر بودم (معادل فارسی "اینجا نبودم").', back_en: 'Sorry, I didn\'t hear you. I was miles away.', text_to_speak: 'I was miles away' },
+                { front: 'Ignore (him/it)', back_fa: 'نادیده گرفتن (به معنای کاملاً بی‌اعتنایی کردن)', back_en: 'Just ignore him, he is not worth your time.', text_to_speak: 'ignore him' },
+                { front: 'You stay out of it', back_fa: 'تو دخالت نکن.', back_en: 'This is between us, so you stay out of it.', text_to_speak: 'you stay out of it' },
+                { front: 'Did I ask for your opinion?', back_fa: 'آیا نظر تو را پرسیدم؟', back_en: 'Just do your job. Did I ask for your opinion?', text_to_speak: 'Did I ask for your opinion?' },
+                { front: 'Slept over / Sleep over', back_fa: 'شب را جایی غیر از خانه خود ماندن.', back_en: 'My cousin slept over last night.', text_to_speak: 'slept over' },
+                { front: "It's no big deal", back_fa: 'مسئله مهمی نیست، چیز خاصی نیست.', back_en: 'Don\'t worry about the broken glass, it\'s no big deal.', text_to_speak: 'it\'s no big deal' },
+                { front: 'Money is no object', back_fa: 'پول مطرح نیست، پولش مهم نیست (برای اشاره به عدم اهمیت هزینه).', back_en: 'They wanted the best car, so money was no object.', text_to_speak: 'money is no object' },
+                { front: 'Look before you leap', back_fa: 'اول فکر کن بعد عمل کن (معادل فارسی: بی‌گدار به آب نزن).', back_en: 'He decided to quit his job without a plan, but his wife told him to look before you leap.', text_to_speak: 'look before you leap' },
+                { front: 'Godaar', back_fa: 'بخش‌های برآمده کف رودخانه (که برای عبور از آن بدون غرق شدن باید از آنها استفاده کرد).', back_en: '', text_to_speak: 'godaar' },
+                { front: 'Apple of (someone\'s) eye', back_fa: 'نور چشمی (کسی که مورد علاقه خاص و توجه ویژه‌ای است).', back_en: 'She is the apple of her grandfather\'s eye.', text_to_speak: "apple of my eye" },
+                { front: 'Don\'t tickle me', back_fa: 'قلقلکم نده.', back_en: 'My brother loves to tickle me, but I hate it.', text_to_speak: 'don\'t tickle me' },
+                { front: 'I am ticklish', back_fa: 'قلقلکی هستم.', back_en: 'Be careful, I am very ticklish.', text_to_speak: 'I am ticklish' },
+                { front: 'Power went out', back_fa: 'برق رفت.', back_en: 'The power went out during the storm.', text_to_speak: 'power went out' },
+                { front: 'Pass out', back_fa: 'بیهوش شدن.', back_en: 'He was so tired that he passed out on the couch.', text_to_speak: 'pass out' },
+                { front: "I'm afraid so", back_fa: 'متاسفانه همینطور است (برای تایید یک خبر یا وضعیت ناخوشایند).', back_en: 'Is the train delayed? I\'m afraid so.', text_to_speak: "I'm afraid so" },
+                { front: 'Help around the house / Do housework', back_fa: 'کمک کردن در کارهای خانه / کارهای خانه را انجام دادن.', back_en: 'My kids help around the house every weekend.', text_to_speak: 'do housework' },
+                { front: 'Afford', back_fa: 'استطاعت مالی داشتن، از عهده خرید چیزی برآمدن.', back_en: 'I can\'t afford a new car right now.', text_to_speak: 'afford' },
+                { front: 'Free room and board', back_fa: 'جای خواب و غذا (رایگان).', back_en: 'He got a job at the hotel with free room and board.', text_to_speak: 'free room and board' },
+                { front: 'Wish', back_fa: 'آرزو کردن (برای چیزی که در حال یا آینده غیرممکن یا بعید است)', back_en: 'I wish I could fly.', text_to_speak: 'wish' },
+                { front: 'Hope', back_fa: 'امیدوار بودن (برای چیزی که امکان برآورده شدن آن وجود دارد)', back_en: 'I hope it doesn\'t rain tomorrow.', text_to_speak: 'hope' },
+                { front: 'Bragging', back_fa: 'لاف زدن، پز دادن', back_en: 'He is always bragging about his new car.', text_to_speak: 'bragging' },
+                { front: 'Nagging', back_fa: 'غر زدن، سرزنش کردن مداوم', back_en: 'She gets tired of her mother\'s nagging.', text_to_speak: 'nagging' },
+                { front: 'Complaining', back_fa: 'شکایت کردن', back_en: 'He is always complaining about the weather.', text_to_speak: 'complaining' },
+                { front: 'Make hay while the sun shines', back_fa: 'تا آفتاب می‌تابد یونجه خشک کن (ضرب‌المثل انگلیسی معادل "تا تنور داغه نونو بچسبون")', back_en: 'We need to finish this project now. You know, make hay while the sun shines.', text_to_speak: 'Make hay while the sun shines' }
+            ];
+            
+            const grammarCards = [
+                // Wish with Past Simple (present unreal)
+                { front: 'I wish I had my own apartment.', back_fa: 'ای کاش آپارتمان خودم را داشتم.', text_to_speak: 'I wish I had my own apartment.', example: 'He wishes he had his own apartment, so he could have more privacy.', example_to_speak: 'He wishes he had his own apartment, so he could have more privacy.' },
+                { front: 'I wish I had a car.', back_fa: 'ای کاش ماشین داشتم.', text_to_speak: 'I wish I had a car.', example: 'She wishes she had a car to avoid taking the bus every day.', example_to_speak: 'She wishes she had a car to avoid taking the bus every day.' },
+                { front: 'I wish I had a brother.', back_fa: 'ای کاش یک برادر داشتم.', text_to_speak: 'I wish I had a brother.', example: 'I\'m an only child, and sometimes I wish I had a brother.', example_to_speak: 'I am an only child, and sometimes I wish I had a brother.' },
+                { front: 'I wish I had $1 million (cash) right now.', back_fa: 'ای کاش همین الان یک میلیون دلار پول نقد داشتم.', text_to_speak: 'I wish I had one million dollars cash right now.', example: 'If I had to buy a new house right now, I would wish I had $1 million cash.', example_to_speak: 'If I had to buy a new house right now, I would wish I had one million dollars cash.' },
+                { front: 'I wish I had a gun.', back_fa: 'ای کاش یک تفنگ داشتم.', text_to_speak: 'I wish I had a gun.', example: 'He wishes he had a gun to protect himself.', example_to_speak: 'He wishes he had a gun to protect himself.' },
+                { front: 'I wish I had a company.', back_fa: 'ای کاش یک شرکت داشتم.', text_to_speak: 'I wish I had a company.', example: 'She wishes she had a company so she could be her own boss.', example_to_speak: 'She wishes she had a company so she could be her own boss.' },
+                { front: 'I wish I had a real friend.', back_fa: 'ای کاش یک دوست واقعی داشتم.', text_to_speak: 'I wish I had a real friend.', example: 'He feels lonely and wishes he had a real friend to talk to.', example_to_speak: 'He feels lonely and wishes he had a real friend to talk to.' },
+                { front: 'I wish I had my own business.', back_fa: 'ای کاش کسب و کار خودم را داشتم.', text_to_speak: 'I wish I had my own business.', example: 'I wish I had my own business, then I wouldn\'t have to work for others.', example_to_speak: 'I wish I had my own business, then I wouldn\'t have to work for others.' },
+                { front: 'I wish I had a pet.', back_fa: 'ای کاش یک حیوان خانگی داشتم.', text_to_speak: 'I wish I had a pet.', example: 'My apartment is too small, but I wish I had a pet.', example_to_speak: 'My apartment is too small, but I wish I had a pet.' },
+                { front: 'I wish I had a cottage (in the jungle).', back_fa: 'ای کاش یک کلبه (در جنگل) داشتم.', text_to_speak: 'I wish I had a cottage in the jungle.', example: 'Sometimes I wish I had a cottage in the jungle, far away from all the city noise.', example_to_speak: 'Sometimes I wish I had a cottage in the jungle, far away from all the city noise.' },
+                { front: 'I wish I had more free time.', back_fa: 'ای کاش وقت آزاد بیشتری داشتم.', text_to_speak: 'I wish I had more free time.', example: 'I work so much, I wish I had more free time to travel.', example_to_speak: 'I work so much, I wish I had more free time to travel.' },
+                { front: 'I wish I had a boat.', back_fa: 'ای کاش یک قایق داشتم.', text_to_speak: 'I wish I had a boat.', example: 'He wishes he had a boat to go fishing every weekend.', example_to_speak: 'He wishes he had a boat to go fishing every weekend.' },
+                { front: 'I wish I lived in the north.', back_fa: 'ای کاش در شمال زندگی می‌کردم.', text_to_speak: 'I wish I lived in the north.', example: 'The south is so hot, I wish I lived in the north.', example_to_speak: 'The south is so hot, I wish I lived in the north.' },
+                { front: 'I wish you loved me.', back_fa: 'ای کاش تو مرا دوست داشتی.', text_to_speak: 'I wish you loved me.', example: 'She looked at him and said, "I wish you loved me."', example_to_speak: 'She looked at him and said, "I wish you loved me."' },
+                { front: 'I wish you knew English well.', back_fa: 'ای کاش انگلیسی را خوب بلد بودی.', text_to_speak: 'I wish you knew English well.', example: 'I wish you knew English well, then we could talk to my foreign friends.', example_to_speak: 'I wish you knew English well, then we could talk to my foreign friends.' },
+                { front: 'I wish you had a cell phone.', back_fa: 'ای کاش یک موبایل داشتی.', text_to_speak: 'I wish you had a cell phone.', example: 'It\'s hard to contact you; I wish you had a cell phone.', example_to_speak: 'It is hard to contact you; I wish you had a cell phone.' },
+                { front: 'I wish you had more money.', back_fa: 'ای کاش پول بیشتری داشتی.', text_to_speak: 'I wish you had more money.', example: 'I wish you had more money so we could travel the world.', example_to_speak: 'I wish you had more money so we could travel the world.' },
+                { front: 'I wish Mary had a suitor.', back_fa: 'ای کاش مریم یک خواستگار داشت.', text_to_speak: 'I wish Mary had a suitor.', example: 'Her mother wished Mary had a suitor.', example_to_speak: 'Her mother wished Mary had a suitor.' },
+                { front: 'I wish I didn\'t have any children.', back_fa: 'ای کاش هیچ فرزندی نداشتم.', text_to_speak: 'I wish I didn\'t have any children.', example: 'After a long, exhausting day with his kids, he said, "I wish I didn\'t have any children."', example_to_speak: 'After a long, exhausting day with his kids, he said, "I wish I didn\'t have any children."' },
+                { front: 'I wish I didn\'t work here.', back_fa: 'ای کاش اینجا کار نمی‌کردم.', text_to_speak: 'I wish I didn\'t work here.', example: 'My job is so stressful; I wish I didn\'t work here.', example_to_speak: 'My job is so stressful; I wish I didn\'t work here.' },
+                { front: 'I wish I didn\'t have to go.', back_fa: 'ای کاش مجبور نبودم بروم.', text_to_speak: 'I wish I didn\'t have to go.', example: 'I have to leave early, but I wish I didn\'t have to go.', example_to_speak: 'I have to leave early, but I wish I didn\'t have to go.' },
+                
+                // Wish with 'were'
+                { front: 'I wish I were younger.', back_fa: 'ای کاش جوان‌تر بودم.', text_to_speak: 'I wish I were younger.', example: 'The old man looked in the mirror and wished he were younger.', example_to_speak: 'The old man looked in the mirror and wished he were younger.' },
+                { front: 'I wish I were rich.', back_fa: 'ای کاش پولدار بودم.', text_to_speak: 'I wish I were rich.', example: 'Everyone wishes they were rich to live a life of luxury.', example_to_speak: 'Everyone wishes they were rich to live a life of luxury.' },
+                { front: 'I wish I were older.', back_fa: 'ای کاش بزرگتر بودم.', text_to_speak: 'I wish I were older.', example: 'As a teenager, I wished I were older so I could drive a car.', example_to_speak: 'As a teenager, I wished I were older so I could drive a car.' },
+                { front: 'I wish I were home right now.', back_fa: 'ای کاش همین الان خانه بودم.', text_to_speak: 'I wish I were home right now.', example: 'I am stuck in a traffic jam and I wish I were home right now.', example_to_speak: 'I am stuck in a traffic jam and I wish I were home right now.' },
+                { front: 'I wish I were in shape.', back_fa: 'ای کاش اندامم مناسب بود.', text_to_speak: 'I wish I were in shape.', example: 'After eating too much junk food, I wished I were in shape.', example_to_speak: 'After eating too much junk food, I wished I were in shape.' },
+                { front: 'I wish I were in your shoes.', back_fa: 'ای کاش جای تو بودم.', text_to_speak: 'I wish I were in your shoes.', example: 'He won the lottery, I wish I were in his shoes!', example_to_speak: 'He won the lottery, I wish I were in his shoes!' },
+                { front: 'I wish you were here right now.', back_fa: 'ای کاش همین الان اینجا بودی.', text_to_speak: 'I wish you were here right now.', example: 'The party is so boring. I wish you were here right now.', example_to_speak: 'The party is so boring. I wish you were here right now.' },
+                { front: 'I wish my grandfather were alive.', back_fa: 'ای کاش پدربزرگم زنده بود.', text_to_speak: 'I wish my grandfather were alive.', example: 'I have so many questions for him; I wish my grandfather were alive.', example_to_speak: 'I have so many questions for him; I wish my grandfather were alive.' },
+                { front: 'I wish my sister weren\'t sick.', back_fa: 'ای کاش خواهرم مریض نبود.', text_to_speak: 'I wish my sister weren\'t sick.', example: 'She had to cancel our plans. I wish my sister weren\'t sick.', example_to_speak: 'She had to cancel our plans. I wish my sister weren\'t sick.' },
+                { front: 'I wish the weather weren\'t so cold.', back_fa: 'ای کاش هوا اینقدر سرد نبود.', text_to_speak: 'I wish the weather weren\'t so cold.', example: 'We can\'t go outside. I wish the weather weren\'t so cold.', example_to_speak: 'We can\'t go outside. I wish the weather weren\'t so cold.' },
+                { front: 'I wish my brother were here.', back_fa: 'ای کاش برادرم اینجا بود.', text_to_speak: 'I wish my brother were here.', example: 'I miss him so much. I wish my brother were here.', example_to_speak: 'I miss him so much. I wish my brother were here.' },
+                { front: 'I wish I weren\'t a football player at all.', back_fa: 'ای کاش اصلا فوتبالیست نبودم.', text_to_speak: 'I wish I weren\'t a football player at all.', example: 'He is tired of the pressure and media attention. He wishes he weren\'t a football player at all.', example_to_speak: 'He is tired of the pressure and media attention. He wishes he weren\'t a football player at all.' },
+                { front: 'I wish I didn\'t have split ends.', back_fa: 'ای کاش موخوره نداشتم.', text_to_speak: 'I wish I didn\'t have split ends.', example: 'My hair is so damaged, I wish I didn\'t have split ends.', example_to_speak: 'My hair is so damaged, I wish I didn\'t have split ends.' },
+                { front: 'I wish there was a great American pizza on our tables right now.', back_fa: 'ای کاش همین الان یک پیتزای آمریکایی حسابی روی میزهای ما بود.', text_to_speak: 'I wish there was a great American pizza on our tables right now.', example: 'After a long day, I wished there was a great American pizza on our tables right now.', example_to_speak: 'After a long day, I wished there was a great American pizza on our tables right now.' },
+                { front: 'I wish I weighed 50 kg.', back_fa: 'ای کاش ۵۰ کیلو بودم.', text_to_speak: 'I wish I weighed fifty kilograms.', example: 'I wish I weighed 50 kg. I would feel much healthier.', example_to_speak: 'I wish I weighed fifty kilograms. I would feel much healthier.' },
+                { front: 'I wish there were no wars anywhere.', back_fa: 'ای کاش هیچ جای دنیا جنگی نبود.', text_to_speak: 'I wish there were no wars anywhere.', example: 'Looking at the news, I wish there were no wars anywhere.', example_to_speak: 'Looking at the news, I wish there were no wars anywhere.' },
+                
+                // Wish with 'would/wouldn't' (future/other's actions)
+                { front: 'I wish they would stop worrying about me.', back_fa: 'ای کاش آن‌ها دست از نگران بودن برای من برمی‌داشتند.', text_to_speak: 'I wish they would stop worrying about me.', example: 'My parents call me every hour. I wish they would stop worrying about me.', example_to_speak: 'My parents call me every hour. I wish they would stop worrying about me.' },
+                { front: 'I wish they would stop.', back_fa: 'ای کاش بس می‌کردند.', text_to_speak: 'I wish they would stop.', example: 'The kids are making so much noise. I wish they would stop.', example_to_speak: 'The kids are making so much noise. I wish they would stop.' },
+                { front: 'I wish they would hire me.', back_fa: 'ای کاش آن‌ها مرا استخدام می‌کردند.', text_to_speak: 'I wish they would hire me.', example: 'I had a great interview, and I wish they would hire me.', example_to_speak: 'I had a great interview, and I wish they would hire me.' },
+                { front: 'I wish it would stop raining.', back_fa: 'ای کاش باران بند می‌آمد.', text_to_speak: 'I wish it would stop raining.', example: 'I can\'t go for a walk. I wish it would stop raining.', example_to_speak: 'I can\'t go for a walk. I wish it would stop raining.' },
+                { front: 'I wish he would stop talking.', back_fa: 'ای کاش او دست از حرف زدن برمی‌داشت.', text_to_speak: 'I wish he would stop talking.', example: 'He has been talking for an hour. I wish he would stop talking.', example_to_speak: 'He has been talking for an hour. I wish he would stop talking.' },
+                { front: 'I wish you would quit smoking.', back_fa: 'ای کاش سیگار را ترک می‌کردی.', text_to_speak: 'I wish you would quit smoking.', example: 'It\'s bad for your health. I wish you would quit smoking.', example_to_speak: 'It is bad for your health. I wish you would quit smoking.' },
+                { front: 'I wish you wouldn\'t socialize with your neighbors.', back_fa: 'ای کاش با همسایه‌هایت معاشرت نمی‌کردی.', text_to_speak: 'I wish you wouldn\'t socialize with your neighbors.', example: 'I heard some bad things about them, so I wish you wouldn\'t socialize with your neighbors.', example_to_speak: 'I heard some bad things about them, so I wish you wouldn\'t socialize with your neighbors.' },
+                { front: 'I wish he would come and visit us tonight.', back_fa: 'ای کاش او امشب می‌آمد و ما را ملاقات می‌کرد.', text_to_speak: 'I wish he would come and visit us tonight.', example: 'We haven\'t seen him in ages. I wish he would come and visit us tonight.', example_to_speak: 'We haven\'t seen him in ages. I wish he would come and visit us tonight.' },
+                { front: 'I wish he wouldn\'t go.', back_fa: 'ای کاش او نمی‌رفت.', text_to_speak: 'I wish he wouldn\'t go.', example: 'The party will be boring without him. I wish he wouldn\'t go.', example_to_speak: 'The party will be boring without him. I wish he wouldn\'t go.' },
+                { front: 'I wish someone would come and marry my sister.', back_fa: 'ای کاش یک نفر می‌آمد و خواهرم را می‌گرفت.', text_to_speak: 'I wish someone would come and marry my sister.', example: 'She is getting older and all alone, I wish someone would come and marry my sister.', example_to_speak: 'She is getting older and all alone, I wish someone would come and marry my sister.' },
+                { front: 'I wish it would rain in this heat and polluted air.', back_fa: 'ای کاش در این گرما و هوای کثیف باران می‌بارید.', text_to_speak: 'I wish it would rain in this heat and polluted air.', example: 'The city needs a shower. I wish it would rain in this heat and polluted air.', example_to_speak: 'The city needs a shower. I wish it would rain in this heat and polluted air.' },
+                { front: 'I wish the dollar would become 100 Tomans.', back_fa: 'ای کاش دلار ۱۰۰ تومان می‌شد.', text_to_speak: 'I wish the dollar would become 100 Tomans.', example: 'With the current economic situation, I wish the dollar would become 100 Tomans.', example_to_speak: 'With the current economic situation, I wish the dollar would become 100 Tomans.' },
+                { front: 'I wish they would leave Iran alone.', back_fa: 'ای کاش دست از سر ایران برمی‌داشتند.', text_to_speak: 'I wish they would leave Iran alone.', example: 'The country is in turmoil. I wish they would leave Iran alone.', example_to_speak: 'The country is in turmoil. I wish they would leave Iran alone.' },
+                { front: 'I wish the electricity and water problems would be solved.', back_fa: 'ای کاش مشکلات برق و آب حل می‌شد.', text_to_speak: 'I wish the electricity and water problems would be solved.', example: 'The power goes out daily. I wish the electricity and water problems would be solved.', example_to_speak: 'The power goes out daily. I wish the electricity and water problems would be solved.' },
+                { front: 'I wish someone would find a suitable shampoo so they wouldn\'t discuss split ends in class.', back_fa: 'ای کاش یکی یک شامپوی مناسب پیدا می‌کرد تا در کلاس موخوره را بررسی نمی‌کردند.', text_to_speak: 'I wish someone would find a suitable shampoo so they wouldn\'t discuss split ends in class.', example: 'The lecture was so long and tedious. I wished someone would find a suitable shampoo so they wouldn\'t discuss split ends in class.', example_to_speak: 'The lecture was so long and tedious. I wished someone would find a suitable shampoo so they wouldn\'t discuss split ends in class.' },
+                { front: 'I wish you would learn English someday.', back_fa: 'ای کاش یک روزی انگلیسی یاد می‌گرفتی.', text_to_speak: 'I wish you would learn English someday.', example: 'It would be so useful. I wish you would learn English someday.', example_to_speak: 'It would be so useful. I wish you would learn English someday.' },
+                { front: 'I wish you wouldn\'t drive fast.', back_fa: 'ای کاش تند رانندگی نمی‌کردی.', text_to_speak: 'I wish you wouldn\'t drive fast.', example: 'Please be careful. I wish you wouldn\'t drive fast.', example_to_speak: 'Please be careful. I wish you wouldn\'t drive fast.' },
+                
+                // Wish with 'could'
+                { front: 'I wish I could (move out).', back_fa: 'ای کاش می‌توانستم (از خانه نقل مکان کنم).', text_to_speak: 'I wish I could move out.', example: 'Living with my parents is difficult, I wish I could move out.', example_to_speak: 'Living with my parents is difficult, I wish I could move out.' },
+                { front: 'I wish I could help you.', back_fa: 'ای کاش می‌توانستم کمکت کنم.', text_to_speak: 'I wish I could help you.', example: 'I see you\'re struggling with your homework, I wish I could help you.', example_to_speak: 'I see you are struggling with your homework, I wish I could help you.' },
+                { front: 'I wish I could read your mind.', back_fa: 'ای کاش می‌توانستم ذهن تو را بخوانم.', text_to_speak: 'I wish I could read your mind.', example: 'You never tell me what\'s wrong. I wish I could read your mind.', example_to_speak: 'You never tell me what is wrong. I wish I could read your mind.' },
+                { front: 'I wish you could drive.', back_fa: 'ای کاش می‌توانیستی رانندگی کنی.', text_to_speak: 'I wish you could drive.', example: 'I\'m so tired of driving everywhere, I wish you could drive.', example_to_speak: 'I am so tired of driving everywhere, I wish you could drive.' },
+                { front: 'I wish I could play the piano.', back_fa: 'ای کاش می‌توانستم پیانو بزنم.', text_to_speak: 'I wish I could play the piano.', example: 'The music is so beautiful, I wish I could play the piano.', example_to_speak: 'The music is so beautiful, I wish I could play the piano.' },
+                { front: 'I wish I could quit smoking.', back_fa: 'ای کاش می‌توانستم سیگار را ترک کنم.', text_to_speak: 'I wish I could quit smoking.', example: 'I have tried many times to quit smoking, but I wish I could do it once and for all.', example_to_speak: 'I have tried many times to quit smoking, but I wish I could do it once and for all.' },
+                { front: 'I wish I could have a big house.', back_fa: 'ای کاش می‌توانستم یک خانه بزرگ داشته باشم.', text_to_speak: 'I wish I could have a big house.', example: 'This apartment is too small. I wish I could have a big house for my family.', example_to_speak: 'This apartment is too small. I wish I could have a big house for my family.' },
+                { front: 'I wish I could cook.', back_fa: 'ای کاش می‌توانستم آشپزی کنم.', text_to_speak: 'I wish I could cook.', example: 'My friends are coming over for dinner. I wish I could cook.', example_to_speak: 'My friends are coming over for dinner. I wish I could cook.' },
+                { front: 'I wish I could sleep late.', back_fa: 'ای کاش می‌توانستم دیر بخوابم.', text_to_speak: 'I wish I could sleep late.', example: 'My boss expects me to be at work at 7 a.m. I wish I could sleep late.', example_to_speak: 'My boss expects me to be at work at 7 a.m. I wish I could sleep late.' },
+                { front: 'I wish I could get free room and board.', back_fa: 'ای کاش می‌توانستم جا و غذای مجانی پیدا کنم.', text_to_speak: 'I wish I could get free room and board.', example: 'Paying rent is so expensive. I wish I could get free room and board.', example_to_speak: 'Paying rent is so expensive. I wish I could get free room and board.' },
+                { front: 'I wish I could speak French.', back_fa: 'ای کاش می‌توانستم فرانسوی صحبت کنم.', text_to_speak: 'I wish I could speak French.', example: 'I\'m visiting Paris next month. I wish I could speak French.', example_to_speak: 'I am visiting Paris next month. I wish I could speak French.' },
+                { front: 'I wish you could stay here.', back_fa: 'ای کاش می‌توانستی اینجا بمانی.', text_to_speak: 'I wish you could stay here.', example: 'Don\'t leave yet. I wish you could stay here longer.', example_to_speak: 'Do not leave yet. I wish you could stay here longer.' },
+                { front: 'I wish I could go abroad.', back_fa: 'ای کاش می‌توانستم به خارج بروم.', text_to_speak: 'I wish I could go abroad.', example: 'I\'ve always wanted to see the world. I wish I could go abroad.', example_to_speak: 'I have always wanted to see the world. I wish I could go abroad.' },
+                { front: 'I wish I could afford a new car.', back_fa: 'ای کاش می‌توانستم از پس خرید یک ماشین جدید بربیایم.', text_to_speak: 'I wish I could afford a new car.', example: 'My old car is falling apart. I wish I could afford a new car.', example_to_speak: 'My old car is falling apart. I wish I could afford a new car.' },
+                { front: 'I wish I could change my appearance.', back_fa: 'ای کاش می‌توانستم قیافه‌ام را عوض کنم.', text_to_speak: 'I wish I could change my appearance.', example: 'Sometimes I\'m not happy with how I look. I wish I could change my appearance.', example_to_speak: 'Sometimes I am not happy with how I look. I wish I could change my appearance.' },
+                { front: 'I wish I could move to a new house.', back_fa: 'ای کاش می‌توانستم به یک خانه جدید نقل مکان کنم.', text_to_speak: 'I wish I could move to a new house.', example: 'This neighborhood is not safe, and I wish I could move to a new house.', example_to_speak: 'This neighborhood is not safe, and I wish I could move to a new house.' },
+                { front: 'I wish I could find a better job.', back_fa: 'ای کاش می‌توانستم شغل بهتری پیدا کنم.', text_to_speak: 'I wish I could find a better job.', example: 'My current job is underpaid. I wish I could find a better job.', example_to_speak: 'My current job is underpaid. I wish I could find a better job.' },
+                { front: 'I wish we could go back to school days.', back_fa: 'ای کاش می‌توانستیم به دوران مدرسه برگردیم.', text_to_speak: 'I wish we could go back to school days.', example: 'Life was so simple back then. I wish we could go back to school days.', example_to_speak: 'Life was so simple back then. I wish we could go back to school days.' },
+                { front: 'I wish we could fly.', back_fa: 'ای کاش می‌توانستیم پرواز کنیم.', text_to_speak: 'I wish we could fly.', example: 'Traffic is so bad; I wish we could fly over it.', example_to_speak: 'Traffic is so bad; I wish we could fly over it.' },
+                { front: 'I wish you could understand me.', back_fa: 'ای کاش می‌توانستی مرا درک کنی.', text_to_speak: 'I wish you could understand me.', example: 'It feels like we are speaking different languages. I wish you could understand me.', example_to_speak: 'It feels like we are speaking different languages. I wish you could understand me.' },
+                { front: 'I wish I could speak English well right now.', back_fa: 'ای کاش همین الان می‌توانستم خوب انگلیسی صحبت کنم.', text_to_speak: 'I wish I could speak English well right now.', example: 'I have to give a presentation to international clients, and I wish I could speak English well right now.', example_to_speak: 'I have to give a presentation to international clients, and I wish I could speak English well right now.' },
+                { front: 'I wish I could do a comeback, I wish there was no Konkur.', back_fa: 'ای کاش می‌توانستم کامبک بزنم، ای کاش کنکور نبود.', text_to_speak: 'I wish I could do a comeback, I wish there was no Konkur.', example: 'This exam is so difficult. I wish there was no Konkur!', example_to_speak: 'This exam is so difficult. I wish there was no Konkur!' },
+                
+                // Hope (present/future real)
+                { front: 'I hope you pass your exams.', back_fa: 'امیدوارم امتحاناتت را پاس کنی.', text_to_speak: 'I hope you pass your exams.', example: 'You studied hard, I hope you pass your exams.', example_to_speak: 'You studied hard, I hope you pass your exams.' },
+                { front: 'I hope you get better soon.', back_fa: 'امیدوارم زودتر بهتر شوی.', text_to_speak: 'I hope you get better soon.', example: 'I heard you\'re sick, I hope you get better soon.', example_to_speak: 'I heard you are sick, I hope you get better soon.' },
+                { front: 'I hope you like it.', back_fa: 'امیدوارم خوشت بیاید.', text_to_speak: 'I hope you like it.', example: 'Here\'s your birthday present, I hope you like it.', example_to_speak: 'Here is your birthday present, I hope you like it.' },
+                { front: 'I hope you enjoy the party.', back_fa: 'امیدوارم از مهمانی لذت ببرید.', text_to_speak: 'I hope you enjoy the party.', example: 'Have a great time tonight, I hope you enjoy the party.', example_to_speak: 'Have a great time tonight, I hope you enjoy the party.' },
+                { front: 'I hope you can come (to the party).', back_fa: 'امیدوارم بتوانی (به مهمانی) بیایی.', text_to_speak: 'I hope you can come.', example: 'We\'d love to have you there, I hope you can come.', example_to_speak: 'We would love to have you there, I hope you can come.' },
+                { front: 'I hope it doesn\'t rain tomorrow.', back_fa: 'امیدوارم فردا باران نبارد.', text_to_speak: 'I hope it doesn\'t rain tomorrow.', example: 'We have a picnic planned, so I hope it doesn\'t rain tomorrow.', example_to_speak: 'We have a picnic planned, so I hope it doesn\'t rain tomorrow.' },
+                { front: 'I hope he calls tonight.', back_fa: 'امیدوارم او امشب زنگ بزند.', text_to_speak: 'I hope he calls tonight.', example: 'I have some important news for him, so I hope he calls tonight.', example_to_speak: 'I have some important news for him, so I hope he calls tonight.' },
+                { front: 'I hope he likes the flowers.', back_fa: 'امیدوارم او از گل‌ها خوشش بیاید.', text_to_speak: 'I hope he likes the flowers.', example: 'I bought him a bouquet, I hope he likes the flowers.', example_to_speak: 'I bought him a bouquet, I hope he likes the flowers.' },
+                { front: 'I hope the bus comes soon.', back_fa: 'امیدوارم اتوبوس زود بیاید.', text_to_speak: 'I hope the bus comes soon.', example: 'It\'s getting cold, I hope the bus comes soon.', example_to_speak: 'It is getting cold, I hope the bus comes soon.' },
+                { front: 'I hope the baby doesn\'t wake up.', back_fa: 'امیدوارم بچه بیدار نشود.', text_to_speak: 'I hope the baby doesn\'t wake up.', example: 'She is finally sleeping, I hope the baby doesn\'t wake up.', example_to_speak: 'She is finally sleeping, I hope the baby doesn\'t wake up.' },
+                { front: 'I hope they accept my invitation.', back_fa: 'امیدوارم آن‌ها دعوت من را بپذیرند.', text_to_speak: 'I hope they accept my invitation.', example: 'I sent the invitations out last week, I hope they accept my invitation.', example_to_speak: 'I sent the invitations out last week, I hope they accept my invitation.' },
+                
+                // Present Continuous with Always (complaint)
+                { front: 'My parents are always asking me to be home before midnight.', back_fa: 'والدینم همیشه از من می‌خواهند که قبل از نیمه‌شب خانه باشم.', text_to_speak: 'My parents are always asking me to be home before midnight.', example: 'I hate having a curfew; my parents are always asking me to be home before midnight.', example_to_speak: 'I hate having a curfew; my parents are always asking me to be home before midnight.' },
+                { front: 'She is always laughing.', back_fa: 'او همیشه می‌خندد.', text_to_speak: 'She is always laughing.', example: 'I don\'t know what she finds so funny; she is always laughing.', example_to_speak: 'I don\'t know what she finds so funny; she is always laughing.' },
+                { front: 'You are always shouting at me.', back_fa: 'تو همیشه سر من داد می‌زنی.', text_to_speak: 'You are always shouting at me.', example: 'I can\'t stand it anymore. You are always shouting at me.', example_to_speak: 'I can not stand it anymore. You are always shouting at me.' },
+                { front: 'You are always picking on me.', back_fa: 'تو همیشه با من سر به سر می‌گذاری / مرا اذیت می‌کنی.', text_to_speak: 'You are always picking on me.', example: 'I feel like you don\'t like me. You are always picking on me.', example_to_speak: 'I feel like you don not like me. You are always picking on me.' },
+                { front: 'You are always coming late.', back_fa: 'تو همیشه دیر می‌آیی.', text_to_speak: 'You are always coming late.', example: 'The meeting started 30 minutes ago, you are always coming late!', example_to_speak: 'The meeting started thirty minutes ago, you are always coming late!' },
+                { front: 'They are always fooling around.', back_fa: 'آن‌ها همیشه مشغول لودگی هستند / وقت تلف می‌کنند.', text_to_speak: 'They are always fooling around.', example: 'They never get their work done because they are always fooling around.', example_to_speak: 'They never get their work done because they are always fooling around.' },
+                { front: 'My secretary is always talking on the phone.', back_fa: 'منشی من همیشه در حال صحبت با تلفن است.', text_to_speak: 'My secretary is always talking on the phone.', example: 'I can never get through to her because my secretary is always talking on the phone.', example_to_speak: 'I can never get through to her because my secretary is always talking on the phone.' },
+                { front: 'My boss is always bragging.', back_fa: 'رئیس من همیشه در حال پز دادن است.', text_to_speak: 'My boss is always bragging.', example: 'He never talks about our team\'s success, only his own. My boss is always bragging.', example_to_speak: 'He never talks about our team is success, only his own. My boss is always bragging.' },
+                { front: 'He is always talking about his accomplishments.', back_fa: 'او همیشه در مورد دستاوردهایش حرف می‌زند.', text_to_speak: 'He is always talking about his accomplishments.', example: 'I wish he would talk about something else, he is always talking about his accomplishments.', example_to_speak: 'I wish he would talk about something else, he is always talking about his accomplishments.' },
+                { front: 'You are always nagging.', back_fa: 'تو همیشه در حال غر زدن هستی.', text_to_speak: 'You are always nagging.', example: 'I can\'t do anything right. You are always nagging.', example_to_speak: 'I can not do anything right. You are always nagging.' },
+                { front: 'You are always complaining.', back_fa: 'تو همیشه در حال شکایت کردن هستی.', text_to_speak: 'You are always complaining.', example: 'Nothing is ever good enough for you; you are always complaining.', example_to_speak: 'Nothing is ever good enough for you; you are always complaining.' },
+                { front: 'It is always raining.', back_fa: 'همیشه باران می‌بارد.', text_to_speak: 'It is always raining.', example: 'It\'s been two weeks straight. It is always raining.', example_to_speak: 'It has been two weeks straight. It is always raining.' },
+                
+                // X are like that
+                { front: 'Parents are like that.', back_fa: 'والدین همین‌طورند.', text_to_speak: 'Parents are like that.', example: 'Don\'t worry about what they said, parents are like that.', example_to_speak: 'Do not worry about what they said, parents are like that.' },
+                { front: 'Boys are like that.', back_fa: 'پسرها همین‌طورند.', text_to_speak: 'Boys are like that.', example: 'They are always loud and competitive; boys are like that.', example_to_speak: 'They are always loud and competitive; boys are like that.' },
+                { front: 'Teachers are like that.', back_fa: 'معلم‌ها همین‌طورند.', text_to_speak: 'Teachers are like that.', example: 'My teachers are always giving us more homework; teachers are like that.', example_to_speak: 'My teachers are always giving us more homework; teachers are like that.' },
+                { front: 'Students are like that.', back_fa: 'دانش‌آموزان همین‌طورند.', text_to_speak: 'Students are like that.', example: 'The students are always asking for extensions; students are like that.', example_to_speak: 'The students are always asking for extensions; students are like that.' },
+                { front: 'Girls are like that.', back_fa: 'دخترها همین‌طورند.', text_to_speak: 'Girls are like that.', example: 'They take a long time to get ready, girls are like that.', example_to_speak: 'They take a long time to get ready, girls are like that.' }
+            ];
+            
+            // --- App State & Functions ---
+            let currentSession = { cards: [], currentIndex: 0, type: '', knownCount: 0, unknownCount: 0 };
+            let preferredVoice = null;
+            let voices = [];
+
+            function loadAndSetVoice() {
+                voices = window.speechSynthesis.getVoices();
+                preferredVoice = voices.find(v => v.name.includes('Google') && v.lang.startsWith('en')) || voices.find(v => v.lang.startsWith('en') && !v.localService) || voices.find(v => v.lang.startsWith('en')) || voices[0];
+            }
+            if (speechSynthesis.onvoiceschanged !== undefined) {
+                speechSynthesis.onvoiceschanged = loadAndSetVoice;
+            }
+            loadAndSetVoice();
+
+            function speakText(text) {
+                if (voices.length === 0) loadAndSetVoice();
+                const utter = new SpeechSynthesisUtterance(text);
+                utter.voice = preferredVoice;
+                utter.lang = preferredVoice?.lang || 'en-US';
+                utter.rate = 0.9;
+                utter.pitch = 1;
+                window.speechSynthesis.speak(utter);
+            }
+
+            function showCard(index) {
+                if (index >= currentSession.cards.length) {
+                    showResults();
+                    return;
+                }
+                const cardData = currentSession.cards[index];
+                const cardFront = document.getElementById('card-front');
+                const cardBack = document.getElementById('card-back');
+                const flashcard = document.querySelector('#practice-view .flashcard');
+                flashcard.classList.remove('is-flipped');
+                interactiveButtons.classList.remove('hidden');
+                prevCardBtn.style.visibility = (index > 0) ? 'visible' : 'hidden';
+                nextCardBtn.style.visibility = 'hidden';
+                setTimeout(() => {
+                    if (currentSession.type === 'vocab') {
+                        cardFront.innerHTML = `<h3 class="text-xl font-bold p-4">${cardData.back_fa}</h3>`;
+                        cardBack.innerHTML = `
+                            <div class="p-4 flex-grow flex flex-col justify-center items-center text-center">
+                                <p class="text-2xl font-bold" dir="ltr">${cardData.front}</p>
+                                ${cardData.back_en ? `<p class="text-base italic mt-2 text-slate-600" dir="ltr">"${cardData.back_en}"</p>` : ''}
+                                <div class="flex flex-col sm:flex-row justify-center items-center gap-4 mt-4">
+                                    <button class="pronunciation-button" data-text="${cardData.front}">
+                                        <i class="fa-solid fa-volume-high"></i>
+                                        <span>تلفظ کلمه</span>
+                                    </button>
+                                    ${cardData.back_en ? `
+                                        <button class="pronunciation-button" data-text="${cardData.back_en}">
+                                            <i class="fa-solid fa-volume-high"></i>
+                                            <span>تلفظ مثال</span>
+                                        </button>` : ''}
+                                </div>
+                            </div>
+                        `;
+                    } else if (currentSession.type === 'grammar') {
+                        cardFront.innerHTML = `<h3 class="text-xl font-bold p-4">${cardData.back_fa}</h3>`;
+                        cardBack.innerHTML = `
+                            <div class="p-4 flex-grow flex flex-col justify-center items-center text-center">
+                                <p class="text-2xl font-bold" dir="ltr">${cardData.front}</p>
+                                ${cardData.example ? `<p class="text-base italic mt-2 text-slate-600" dir="ltr">"${cardData.example}"</p>` : ''}
+                                <div class="flex flex-col sm:flex-row justify-center items-center gap-4 mt-4">
+                                    <button class="pronunciation-button" data-text="${cardData.text_to_speak}">
+                                        <i class="fa-solid fa-volume-high"></i>
+                                        <span>تلفظ جمله اصلی</span>
+                                    </button>
+                                    ${cardData.example ? `
+                                        <button class="pronunciation-button" data-text="${cardData.example_to_speak}">
+                                            <i class="fa-solid fa-volume-high"></i>
+                                            <span>تلفظ مثال</span>
+                                        </button>` : ''}
+                                </div>
+                            </div>
+                        `;
+                    }
+                }, 150);
+                cardCounter.textContent = `${index + 1} / ${currentSession.cards.length}`;
+            }
+
+            function renderLesson() {
+                const backButton = lessonContentContainer.querySelector('.back-to-menu-btn').parentElement;
+                lessonContentContainer.innerHTML = '';
+                if (lesson34Content.length > 0 && lesson34Content[0].type === 'raw_html') {
+                    const item = lesson34Content[0];
+                    lessonContentContainer.innerHTML = item.html;
+                    lessonContentContainer.appendChild(backButton);
+                    const oldScript = document.getElementById('lesson-script');
+                    if (oldScript) oldScript.remove();
+                    if (item.script) {
+                        const newScript = document.createElement('script');
+                        newScript.id = 'lesson-script';
+                        newScript.innerHTML = item.script;
+                        document.body.appendChild(newScript);
+                    }
+                } else {
+                    lessonContentContainer.innerHTML = '<p class="text-center text-slate-500">محتوای درس هنوز اضافه نشده است.</p>';
+                    lessonContentContainer.appendChild(backButton);
+                }
+            }
+
+            function renderStory() {
+                const backButton = storyContentContainer.querySelector('.back-to-menu-btn').parentElement;
+                storyContentContainer.innerHTML = '';
+                if (storyContent.length === 0) {
+                    storyContentContainer.innerHTML = '<p class="text-center text-slate-500">محتوای داستان هنوز اضافه نشده است.</p>';
+                    storyContentContainer.appendChild(backButton);
+                    return;
+                }
+                storyContent.forEach(item => {
+                    let el;
+                    switch (item.type) {
+                        case 'h2':
+                            el = document.createElement('h2');
+                            el.className = 'text-3xl font-bold text-center mb-10';
+                            el.textContent = item.text;
+                            break;
+                        case 'p':
+                            el = document.createElement('p');
+                            el.className = 'text-lg text-slate-700 mb-6 leading-relaxed';
+                            el.innerHTML = item.text;
+                            break;
+                    }
+                    if (el) storyContentContainer.appendChild(el);
+                });
+                storyContentContainer.appendChild(backButton);
+                storyContentContainer.querySelectorAll('.highlight').forEach(highlightEl => {
+                    const translation = highlightEl.dataset.faTranslation;
+                    if (translation) {
+                        const tooltip = document.createElement('span');
+                        tooltip.className = 'tooltip-text';
+                        tooltip.textContent = translation;
+                        highlightEl.appendChild(tooltip);
+                    }
+                });
+            }
+
+            function startPractice(type) {
+                mainMenuView.classList.add('hidden');
+                resultsView.classList.add('hidden');
+                storyView.classList.add('hidden');
+                lessonView.classList.add('hidden');
+                practiceView.classList.remove('hidden');
+                practiceView.classList.add('fade-in');
+                let cardsToPractice = [];
+                if (type === 'vocab') {
+                    cardsToPractice = vocabCards;
+                    headerSubtitle.textContent = 'تمرین کلمات و اصطلاحات';
+                } else if (type === 'grammar') {
+                    cardsToPractice = grammarCards;
+                    headerSubtitle.textContent = 'تمرین گرامر';
+                }
+                if (cardsToPractice.length === 0) {
+                    document.getElementById('review-area').innerHTML = '<p class="text-center text-slate-500 py-10">هیچ کارتی برای تمرین در این بخش وجود ندارد.</p>';
+                    return;
+                }
+                currentSession.cards = shuffleArray([...cardsToPractice]);
+                currentSession.type = type;
+                currentSession.currentIndex = 0;
+                currentSession.knownCount = 0;
+                currentSession.unknownCount = 0;
+                showCard(0);
+            }
+
+            function showLesson() {
+                mainMenuView.classList.add('hidden');
+                practiceView.classList.add('hidden');
+                resultsView.classList.add('hidden');
+                storyView.classList.add('hidden');
+                lessonView.classList.remove('hidden');
+                lessonView.classList.add('fade-in');
+                headerSubtitle.textContent = 'درس جلسه ۳۴';
+                renderLesson();
+            }
+
+            function showStory() {
+                mainMenuView.classList.add('hidden');
+                practiceView.classList.add('hidden');
+                resultsView.classList.add('hidden');
+                lessonView.classList.add('hidden');
+                storyView.classList.remove('hidden');
+                storyView.classList.add('fade-in');
+                headerSubtitle.textContent = 'داستان جلسه ۳۴';
+                renderStory();
+            }
+
+            function goBackToMenu() {
+                practiceView.classList.add('hidden');
+                lessonView.classList.add('hidden');
+                storyView.classList.add('hidden');
+                resultsView.classList.add('hidden');
+                mainMenuView.classList.remove('hidden');
+                mainMenuView.classList.add('fade-in');
+                headerSubtitle.textContent = 'یک بخش را برای شروع تمرین انتخاب کنید.';
+            }
+
+            function showResults() {
+                practiceView.classList.add('hidden');
+                resultsView.classList.remove('hidden');
+                resultsView.classList.add('fade-in');
+                headerSubtitle.textContent = 'نتایج تمرین شما';
+                const totalCards = currentSession.cards.length;
+                const knownPercentage = totalCards > 0 ? ((currentSession.knownCount / totalCards) * 100).toFixed(0) : 0;
+                const unknownPercentage = totalCards > 0 ? ((currentSession.unknownCount / totalCards) * 100).toFixed(0) : 0;
+                resultsStats.innerHTML = `<p class="mb-2">تعداد کل کارت‌ها: ${totalCards}</p><p class="text-green-600 font-bold mb-1">کارت‌های بلد بودم: ${currentSession.knownCount} (${knownPercentage}%)</p><p class="text-red-600 font-bold">کارت‌های بلد نبودم: ${currentSession.unknownCount} (${unknownPercentage}%)</p>`;
+            }
+
+            async function saveStats() {
+                if (!firebaseInitialized || !userId) {
+                    saveMessage.textContent = 'خطا: امکان ذخیره نتایج وجود ندارد. لطفاً دوباره تلاش کنید.';
+                    return;
+                }
+                try {
+                    const statsCollection = collection(db, `artifacts/${appId}/users/${userId}/flashcard_stats`);
+                    await addDoc(statsCollection, {
+                        known: currentSession.knownCount,
+                        unknown: currentSession.unknownCount,
+                        total: currentSession.cards.length,
+                        type: currentSession.type,
+                        timestamp: new Date()
+                    });
+                    saveMessage.textContent = 'نتایج با موفقیت ذخیره شد! 🎉';
+                    saveResultsBtn.disabled = true;
+                    saveResultsBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                } catch (e) {
+                    console.error("Error adding document: ", e);
+                    saveMessage.textContent = 'خطا در ذخیره نتایج.';
+                }
+            }
+
+            function navigateCards(direction) {
+                const newIndex = currentSession.currentIndex + direction;
+                if (newIndex >= 0 && newIndex < currentSession.cards.length) {
+                    currentSession.currentIndex = newIndex;
+                    showCard(newIndex);
+                } else if (newIndex >= currentSession.cards.length) {
+                    showResults();
+                }
+            }
+
+            function handleFeedback(isKnewIt) {
+                document.querySelector('#practice-view .flashcard').classList.add('is-flipped');
+                interactiveButtons.classList.add('hidden');
+                nextCardBtn.style.visibility = 'visible';
+                if (isKnewIt) {
+                    currentSession.knownCount++;
+                } else {
+                    currentSession.unknownCount++;
+                }
+            }
+            
+            function shuffleArray(array) {
+                for (let i = array.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [array[i], array[j]] = [array[j], array[i]];
+                }
+                return array;
+            }
+
+            // --- EVENT LISTENERS ---
+            startLesson34Btn.addEventListener('click', showLesson);
+            startStoryBtn.addEventListener('click', showStory);
+            startVocabBtn.addEventListener('click', () => startPractice('vocab'));
+            startGrammarBtn.addEventListener('click', () => startPractice('grammar'));
+            backToMenuBtns.forEach(btn => btn.addEventListener('click', goBackToMenu));
+            knewItBtn.addEventListener('click', () => handleFeedback(true));
+            didNotKnowBtn.addEventListener('click', () => handleFeedback(false));
+            nextCardBtn.addEventListener('click', () => navigateCards(1));
+            prevCardBtn.addEventListener('click', () => navigateCards(-1));
+            flashcardDisplay.addEventListener('click', function(event) {
+                const flashcard = this.querySelector('.flashcard');
+                if (!event.target.closest('.pronunciation-button') && !flashcard.classList.contains('is-flipped')) {
+                    flashcard.classList.add('is-flipped');
+                }
+            });
+            document.body.addEventListener('click', function(event) {
+                const pronunciationButton = event.target.closest('.pronunciation-button, .play-translation');
+                if (pronunciationButton) {
+                    event.stopPropagation();
+                    const textToSpeak = pronunciationButton.dataset.text;
+                    if (textToSpeak) {
+                        speakText(textToSpeak);
+                    }
+                }
+            });
+            saveResultsBtn.addEventListener('click', saveStats);
+        });
+    </script>
+</body>
+</html>
